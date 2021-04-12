@@ -6,42 +6,44 @@ dynamicExpression: DYNAMIC_START expression RCURL;
 deferredExpression: DEFERRED_START expression RCURL;
 literalExpression: literal;
 
-literal: BOOL_LITERAL | FLOATING_POINT_LITERAL | INTEGER_LITERAL | StringLiteral | NULL;
+
+literal: booleanLiteralExpression | floatingPointLiteralExpression | integerLiteralExpression | stringLiteralExpression | nullLiteralExpression;
+booleanLiteralExpression: BOOL_LITERAL;
+floatingPointLiteralExpression: FLOATING_POINT_LITERAL;
+integerLiteralExpression: INTEGER_LITERAL;
+stringLiteralExpression: StringLiteral;
+nullLiteralExpression: NULL;
+
 methodArguments: LPAREN expressionList? RPAREN;
 expressionList: (expression ((COMMA expression)*));
 
-lambdaExpressionOrCall: LPAREN lambdaExpression RPAREN methodArguments*;
-lambdaExpression: lambdaParameters ARROW expression;
 lambdaParameters: IDENTIFIER | (LPAREN (IDENTIFIER ((COMMA IDENTIFIER)*))? RPAREN);
 
 mapEntry: expression COLON expression;
 mapEntries: mapEntry (COMMA mapEntry)*;
 
 expression
-    : primary
-    | LBRACK expressionList? RBRACK
-    | LCURL expressionList? RCURL
-    | LCURL mapEntries? RCURL
-    | expression bop=DOT (IDENTIFIER | IDENTIFIER LPAREN expressionList? RPAREN)
-    | expression (LBRACK expression RBRACK)+
-    | prefix=(MINUS | NOT | EMPTY) expression
-    | expression bop=(MULT | DIV | MOD ) expression
-    | expression bop=(PLUS | MINUS) expression
-    | expression bop=(LE | GE | LT | GT) expression
-    | expression bop=INSTANCEOF IDENTIFIER
-    | expression bop=(EQ | NE) expression
-    | expression AND expression
-    | expression OR expression
-    | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression
-    | <assoc=right> expression bop=(ASSIGN | CONCAT) expression
-    | lambdaExpression
-    | lambdaExpressionOrCall
-    ;
-
-primary
-    : '(' expression ')'
-    | literal
-    | IDENTIFIER
+    : LPAREN expression RPAREN #parenExpression
+    | literal #literalExpr
+    | IDENTIFIER #identifierExpression
+    | LBRACK expressionList? RBRACK  #listExpression
+    | LCURL expressionList? RCURL #setExpression
+    | LCURL mapEntries? RCURL #mapExpression
+    | expression bop=DOT (IDENTIFIER methodArguments) #callExpression
+    | expression (LBRACK expression RBRACK) #memberIndexExpression
+    | expression bop=DOT (IDENTIFIER) #memberDotExpression
+    | prefix=(MINUS | NOT | EMPTY) expression #unaryExpression
+    | expression bop=(MULT | DIV | MOD ) expression #infixExpression
+    | expression bop=(PLUS | MINUS) expression #infixExpression
+    | expression bop=(LE | GE | LT | GT) expression #relationalExpression
+    | expression bop=INSTANCEOF IDENTIFIER #infixExpression
+    | expression bop=(EQ | NE) expression #relationalExpression
+    | expression bop=AND expression #logicalExpression
+    | expression bop=OR expression #logicalExpression
+    | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression #ternaryExpression
+    | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
+    | LPAREN (expression) RPAREN methodArguments* #lambdaCallExpression
+    | lambdaParameters ARROW expression #lambdaExpression
     ;
 
 // LEXER
