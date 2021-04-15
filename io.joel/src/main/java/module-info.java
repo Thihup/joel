@@ -1,5 +1,8 @@
 module io.joel {
+    exports io.joel.impl.spi;
     requires transitive jakarta.el;
 
-    requires transitive org.antlr.antlr4.runtime;
+    requires org.antlr.antlr4.runtime;
+    requires java.desktop;
+    provides jakarta.el.ExpressionFactory with io.joel.impl.spi.JoelExpressionFactory;
 }
