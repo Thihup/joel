@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.joel</groupId>
+    <artifactId>tck</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target>
+                                <!-- download, unzip and rename TCK -->
+                                <get src="https://download.eclipse.org/jakartaee/expression-language/4.0/jakarta-expression-language-tck-4.0.0.zip"
+                                     dest="${project.build.directory}/tck.zip" skipexisting="true"/>
+                                <unzip src="${project.build.directory}/tck.zip"
+                                       dest="${project.build.directory}"/>
+                                <move file="${project.build.directory}/expression-language-tck"
+                                      tofile="${project.build.directory}/tck"/>
+
+                                <!-- download, unzip, rename and chmod Ant 1.10.9 -->
+                                <get src="https://archive.apache.org/dist/ant/binaries/apache-ant-1.10.9-bin.zip"
+                                     dest="${project.build.directory}/ant.zip" skipexisting="true"/>
+                                <unzip src="${project.build.directory}/ant.zip"
+                                       dest="${project.build.directory}"/>
+                                <move file="${project.build.directory}/apache-ant-1.10.9"
+                                      tofile="${project.build.directory}/ant"/>
+                                <chmod dir="${ant.home}/bin"
+                                       perm="ugo+rx"
+                                       includes="*"/>
+
+                                <!-- keep copy of original ts.jte -->
+                                <copy file="${tck.home}/bin/ts.jte"
+                                      tofile="${tck.home}/bin/ts.jte.orig"/>
+
+                                <!-- setup ts.jte for signature tests -->
+                                <replaceregexp file="${tck.home}/bin/ts.jte"
+                                               match="el\.classes=(.*)"
+                                               replace="el.classes=${work.home}/jars/*"
+                                               byline="true"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- run all the tests -->
+                                <exec executable="${ant.home}/bin/ant"
+                                      dir="${test.home}">
+                                    <arg value="-Dwork.dir=${work.home}/work"/>
+                                    <arg value="-Dreport.dir=${work.home}/report"/>
+                                    <arg value="runclient"/>
+                                    <env key="JAVA_HOME" value="${ant.java.home}"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>io.joel</groupId>
+                                    <artifactId>io.joel</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <outputDirectory>${work.home}/jars</outputDirectory>
+                                    <destFileName>jakarta.el.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.joel</groupId>
+                                    <artifactId>jakarta.el</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <outputDirectory>${work.home}/jars</outputDirectory>
+                                    <destFileName>jakarta.el-api.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.antlr</groupId>
+                                    <artifactId>antlr4-runtime</artifactId>
+                                    <version>4.9.2</version>
+                                    <outputDirectory>${work.home}/jars</outputDirectory>
+                                    <destFileName>antlr.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <ant.home>${project.build.directory}/ant</ant.home>
+        <ant.java.home>${java.home}</ant.java.home>
+        <work.home>${project.build.directory}/work</work.home>
+        <tck.home>${project.build.directory}/tck</tck.home>
+        <test.home>${tck.home}/src/com/sun/ts/tests</test.home>
+    </properties>
+
+</project>
