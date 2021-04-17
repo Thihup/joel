@@ -41,7 +41,7 @@ public class ResourceBundleELResolver extends ELResolver {
      */
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return null;
+        return String.class;
     }
 
     /**
@@ -157,5 +157,7 @@ public class ResourceBundleELResolver extends ELResolver {
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
+        if (base instanceof ResourceBundle)
+            throw new PropertyNotWritableException();
     }
 }
