@@ -93,6 +93,7 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
         return switch (ctx.prefix.getText()) {
             case "-" -> new ExpressionNode.UnaryMinusNode(node);
             case "!", "not" -> new ExpressionNode.UnaryNotNode(node);
+            case "empty" -> new ExpressionNode.UnaryEmptyNode(node);
             default -> throw new IllegalStateException("%s %s".formatted(ctx.prefix.getText(), node));
         };
     }

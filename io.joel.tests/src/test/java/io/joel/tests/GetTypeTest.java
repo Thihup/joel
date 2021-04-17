@@ -126,4 +126,12 @@ class GetTypeTest {
         assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
     }
 
+    @Test
+    void getValueUnaryEmpty() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${empty ''}", Boolean.class);
+        assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
+    }
+
 }

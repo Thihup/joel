@@ -192,4 +192,20 @@ class GetValueTest {
         assertEquals(false, valueExpression.getValue(context));
     }
 
+    @Test
+    void getValueUnaryEmpty() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${empty ''}", boolean.class);
+        assertEquals(true, valueExpression.getValue(context));
+    }
+
+    @Test
+    void getValueUnaryEmpty2() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${empty 'a'}", boolean.class);
+        assertEquals(false, valueExpression.getValue(context));
+    }
+
 }

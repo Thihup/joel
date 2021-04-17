@@ -4,9 +4,12 @@ import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface ExpressionNode {
 
@@ -217,6 +220,27 @@ public interface ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
             return !context.convertToType(node.getValue(context), boolean.class);
+        }
+    }
+
+    record UnaryEmptyNode(ExpressionNode node) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            return Boolean.class;
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            Object value = node.getValue(context);
+            if (value == null)
+                return true;
+            if (value instanceof String newValue && newValue.isEmpty())
+                return true;
+            if (value.getClass().isArray() && Array.getLength(value) == 0)
+                return true;
+            if (value instanceof Map<?, ?> newValue && newValue.isEmpty())
+                return true;
+            return value instanceof Collection<?> newValue && newValue.isEmpty();
         }
     }
 
