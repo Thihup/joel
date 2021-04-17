@@ -98,7 +98,7 @@ class GetTypeTest {
     void getTypeTernaryExpression() {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
-        var valueExpression = factory.createValueExpression(context, "${true ? true : false}", boolean.class);
+        var valueExpression = factory.createValueExpression(context, "${true ? true : false}", Boolean.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
     }
 
@@ -106,7 +106,7 @@ class GetTypeTest {
     void getTypeTernaryExpression2() {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
-        var valueExpression = factory.createValueExpression(context, "${true ? 2 : 3.0}", Integer.class);
+        var valueExpression = factory.createValueExpression(context, "${true ? 2 : 3.0}", Long.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
     }
 
@@ -122,7 +122,7 @@ class GetTypeTest {
     void getTypeTernaryExpression4() {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
-        var valueExpression = factory.createValueExpression(context, "${true ? Integer.MAX_VALUE : 3.0}", Integer.class);
+        var valueExpression = factory.createValueExpression(context, "${true ? Integer.MAX_VALUE : 3.0}", int.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
     }
 
