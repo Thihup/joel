@@ -16,6 +16,7 @@
     <modules>
         <module>jakarta.el</module>
         <module>io.joel</module>
+        <module>io.joel.tests</module>
     </modules>
 
     <dependencies>
