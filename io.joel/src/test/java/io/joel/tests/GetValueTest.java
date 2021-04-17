@@ -69,7 +69,7 @@ class GetValueTest {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${false || false}", Boolean.class);
-        assertEquals(Boolean.TRUE, valueExpression.getValue(context));
+        assertEquals(Boolean.FALSE, valueExpression.getValue(context));
     }
 
     @Test
@@ -157,7 +157,7 @@ class GetValueTest {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1 + 2}", double.class);
-        assertEquals(3, valueExpression.getValue(context));
+        assertEquals(3.0, valueExpression.getValue(context));
     }
 
 }

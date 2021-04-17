@@ -1,6 +1,7 @@
 package io.joel.impl.antlr;
 
 import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.ExpressionNode.BooleanNode;
 import io.joel.impl.node.ExpressionNode.IdentifierNode;
 import io.joel.impl.node.ExpressionNode.MemberNode;
 import io.joel.impl.node.InfixExpressionNode.AssignNode;
@@ -99,6 +100,11 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
             case "<=", "le" -> new LessEqualNode(left, right);
             default -> throw new IllegalStateException("%s %s %s".formatted(left, ctx.bop.getText(), right));
         };
+    }
+
+    @Override
+    public ExpressionNode visitBooleanLiteralExpression(ExpressionLanguageGrammarParser.BooleanLiteralExpressionContext ctx) {
+        return ctx.getText().equals("true") ? BooleanNode.TRUE : BooleanNode.FALSE;
     }
 
     @Override
