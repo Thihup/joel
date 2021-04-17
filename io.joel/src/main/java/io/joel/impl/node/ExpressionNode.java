@@ -180,6 +180,24 @@ public interface ExpressionNode {
         }
     }
 
+    record TernaryNode(ExpressionNode condition, ExpressionNode trueExpression, ExpressionNode falseExpression) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            if (context.convertToType(condition.getValue(context), boolean.class)) {
+                return trueExpression.getType(context);
+            }
+            return falseExpression.getType(context);
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            if (context.convertToType(condition.getValue(context), boolean.class)) {
+                return trueExpression.getType(context);
+            }
+            return falseExpression.getType(context);
+        }
+    }
+
     record CallExpressionNode(ExpressionNode callee, List<IdentifierNode> arguments) implements ExpressionNode {
     }
 

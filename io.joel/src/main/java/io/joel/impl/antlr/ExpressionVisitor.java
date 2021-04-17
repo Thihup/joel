@@ -171,4 +171,8 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
         return null;
     }
 
+    @Override
+    public ExpressionNode visitTernaryExpression(ExpressionLanguageGrammarParser.TernaryExpressionContext ctx) {
+        return new ExpressionNode.TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
+    }
 }

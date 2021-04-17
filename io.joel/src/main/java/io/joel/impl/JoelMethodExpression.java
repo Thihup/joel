@@ -4,9 +4,6 @@ import jakarta.el.ELContext;
 import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-
 public class JoelMethodExpression extends MethodExpression {
 
 
