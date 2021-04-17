@@ -141,6 +141,7 @@ public abstract class ELContext {
      * @throws NullPointerException if key is null.
      */
     public Object getContext(Class<?> key) {
+        Objects.requireNonNull(key);
         return contexts.get(key);
     }
 
@@ -289,6 +290,8 @@ public abstract class ELContext {
      * @throws NullPointerException if key is null or contextObject is null.
      */
     public void putContext(Class<?> key, Object contextObject) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(contextObject);
         contexts.put(key, contextObject);
     }
 

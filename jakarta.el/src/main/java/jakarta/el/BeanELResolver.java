@@ -2,6 +2,7 @@ package jakarta.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component architecture.
@@ -141,6 +142,7 @@ public class BeanELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -173,6 +175,7 @@ public class BeanELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -209,6 +212,7 @@ public class BeanELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return readyOnly;
     }
 
@@ -247,6 +251,6 @@ public class BeanELResolver extends ELResolver {
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-
+        Objects.requireNonNull(context);
     }
 }

@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * Provides an API for using Jakarta Expression Language in a stand-alone environment.
@@ -78,6 +79,9 @@ public class ELProcessor {
      * @throws NoSuchMethodException if the method is not a static method
      */
     public void defineFunction(String prefix, String function, Method method) throws NoSuchMethodException {
+        Objects.requireNonNull(prefix);
+        Objects.requireNonNull(function);
+        Objects.requireNonNull(method);
         manager.mapFunction(prefix, function, method);
     }
 
@@ -97,6 +101,10 @@ public class ELProcessor {
      *                                if the method signature is not valid, or if the method is not a static method.
      */
     public void defineFunction(String prefix, String function, String className, String method) throws ClassNotFoundException, NoSuchMethodException {
+        Objects.requireNonNull(prefix);
+        Objects.requireNonNull(function);
+        Objects.requireNonNull(className);
+        Objects.requireNonNull(method);
         Class<?> aClass = manager.getELContext().getImportHandler().resolveClass(className);
         try {
             manager.mapFunction(prefix, function, aClass.getMethod(method));
@@ -105,6 +113,12 @@ public class ELProcessor {
         }
     }
 
+    /**
+     * Evaluates an Jakarta Expression Language expression.
+     *
+     * @param expression The Jakarta Expression Language expression to be evaluated.
+     * @return The result of the expression evaluation.
+     */
     public Object eval(String expression) {
         return getValue(String.format("${%s}", expression), Object.class);
     }

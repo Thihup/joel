@@ -2,6 +2,7 @@ package jakarta.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Defines property resolution behavior on arrays.
@@ -94,6 +95,7 @@ public class ArrayELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -120,6 +122,7 @@ public class ArrayELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -151,6 +154,7 @@ public class ArrayELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return readyOnly;
     }
 
@@ -186,6 +190,6 @@ public class ArrayELResolver extends ELResolver {
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-
+        Objects.requireNonNull(context);
     }
 }

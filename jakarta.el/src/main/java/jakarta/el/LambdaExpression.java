@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Encapsulates a parameterized {@link ValueExpression}.
@@ -59,6 +60,7 @@ public class LambdaExpression {
      * @throws NullPointerException is elContext is null
      */
     public Object invoke(ELContext elContext, Object... arguments) {
+        Objects.requireNonNull(elContext);
         return null;
     }
 

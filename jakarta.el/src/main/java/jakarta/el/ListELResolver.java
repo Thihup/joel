@@ -2,6 +2,7 @@ package jakarta.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Defines property resolution behavior on instances of {@link java.util.List}.
@@ -106,6 +107,7 @@ public class ListELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -132,6 +134,7 @@ public class ListELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -169,6 +172,7 @@ public class ListELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return readyOnly;
     }
 
@@ -213,6 +217,6 @@ public class ListELResolver extends ELResolver {
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-
+        Objects.requireNonNull(context);
     }
 }

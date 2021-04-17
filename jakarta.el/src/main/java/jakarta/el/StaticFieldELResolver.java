@@ -3,6 +3,7 @@ package jakarta.el;
 import java.beans.FeatureDescriptor;
 import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * An {@link ELResolver} for resolving static fields, enum constants and static methods. Also handles constructor calls
@@ -101,6 +102,7 @@ public class StaticFieldELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         if (!(base instanceof ELClass) || !(property instanceof String))
             return null;
         try {
@@ -135,6 +137,7 @@ public class StaticFieldELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return false;
     }
 
@@ -157,6 +160,6 @@ public class StaticFieldELResolver extends ELResolver {
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-
+        Objects.requireNonNull(context);
     }
 }

@@ -2,6 +2,7 @@ package jakarta.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -95,6 +96,7 @@ public class ResourceBundleELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -121,6 +123,7 @@ public class ResourceBundleELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return null;
     }
 
@@ -136,6 +139,7 @@ public class ResourceBundleELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         return false;
     }
 
@@ -148,10 +152,10 @@ public class ResourceBundleELResolver extends ELResolver {
      * @param property The String property to use.
      * @param value    The value to be set.
      * @throws NullPointerException         if context is <code>null</code>.
-     * @throws PropertyNotWritableException Always thrown if base is an instance of ReasourceBundle.
+     * @throws PropertyNotWritableException Always thrown if base is an instance of ResourceBundle.
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-
+        Objects.requireNonNull(context);
     }
 }

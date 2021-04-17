@@ -167,6 +167,7 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         return resolvers.stream()
                 .map(x -> x.getType(context, base, property))
@@ -219,6 +220,7 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         return resolvers.stream()
                 .map(x -> x.getValue(context, base, property))
@@ -276,6 +278,7 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         return resolvers.stream()
                 .map(x -> x.isReadOnly(context, base, property))
@@ -327,6 +330,7 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
+        Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         for (ELResolver resolver : resolvers) {
             resolver.setValue(context, base, property, value);
