@@ -3,6 +3,7 @@ package io.joel.impl.spi;
 import io.joel.impl.JoelValueExpression;
 import io.joel.impl.antlr.JoelExpressionParser;
 import jakarta.el.ELContext;
+import jakarta.el.ELException;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.MethodExpression;
 import jakarta.el.ValueExpression;
@@ -17,7 +18,11 @@ public class JoelExpressionFactory extends ExpressionFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T coerceToType(Object object, Class<T> targetType) {
-        return (T) io.joel.impl.TypeConverter.coerce(object, targetType);
+        try {
+            return (T) io.joel.impl.TypeConverter.coerce(object, targetType);
+        } catch (Exception rootCause) {
+            throw new ELException(rootCause);
+        }
     }
 
     @Override
