@@ -181,11 +181,12 @@ public interface ExpressionNode {
             }
             context.setPropertyResolved(false);
             Class<?> type = context.getELResolver().getType(context, null, value);
-            if (!context.isPropertyResolved()) {
-                Class<?> aClass = context.getImportHandler().resolveClass(value);
-                if (aClass != null)
-                    return aClass;
+            if (context.isPropertyResolved()) {
+                return type;
             }
+            Class<?> aClass = context.getImportHandler().resolveClass(value);
+            if (aClass != null)
+                return aClass;
             throw new ELException("Property %s not found".formatted(value));
         }
 
@@ -200,10 +201,22 @@ public interface ExpressionNode {
             }
             context.setPropertyResolved(false);
             Object result = context.getELResolver().getValue(context, null, value);
-            if (context.isPropertyResolved()){
+            if (context.isPropertyResolved()) {
                 return result;
             }
             throw new ELException("Property %s not found".formatted(value));
+        }
+    }
+
+    record UnaryNotNode(ExpressionNode node) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            return Boolean.class;
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            return !context.convertToType(node.getValue(context), boolean.class);
         }
     }
 
@@ -215,6 +228,7 @@ public interface ExpressionNode {
 
             return context.getELResolver().getType(context, new ELClass(object.getType(context)), property.getValue(context));
         }
+
         @Override
         public Object getValue(ELContext context) {
             if (property instanceof IdentifierNode node)
@@ -224,7 +238,8 @@ public interface ExpressionNode {
         }
     }
 
-    record TernaryNode(ExpressionNode condition, ExpressionNode trueExpression, ExpressionNode falseExpression) implements ExpressionNode {
+    record TernaryNode(ExpressionNode condition, ExpressionNode trueExpression,
+                       ExpressionNode falseExpression) implements ExpressionNode {
         @Override
         public Class<?> getType(ELContext context) {
             if (context.convertToType(condition.getValue(context), boolean.class)) {

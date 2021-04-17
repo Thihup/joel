@@ -176,4 +176,20 @@ class GetValueTest {
         assertEquals(-Double.MAX_VALUE, valueExpression.getValue(context));
     }
 
+    @Test
+    void getValueUnaryNot() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${! true}", boolean.class);
+        assertEquals(false, valueExpression.getValue(context));
+    }
+
+    @Test
+    void getValueUnaryNot2() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${not true}", boolean.class);
+        assertEquals(false, valueExpression.getValue(context));
+    }
+
 }
