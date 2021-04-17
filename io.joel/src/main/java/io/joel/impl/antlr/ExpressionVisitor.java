@@ -21,11 +21,17 @@ import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.LiteralExprCont
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.NullLiteralExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.RelationalExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.StringLiteralExpressionContext;
+import static io.joel.impl.node.ExpressionNode.CallExpressionNode;
 import static io.joel.impl.node.ExpressionNode.DeferredExpressionNode;
 import static io.joel.impl.node.ExpressionNode.DynamicExpressionNode;
 import static io.joel.impl.node.ExpressionNode.NullNode;
 import static io.joel.impl.node.ExpressionNode.NumberNode;
+import static io.joel.impl.node.ExpressionNode.SemicolonNode;
 import static io.joel.impl.node.ExpressionNode.StringNode;
+import static io.joel.impl.node.ExpressionNode.TernaryNode;
+import static io.joel.impl.node.ExpressionNode.UnaryEmptyNode;
+import static io.joel.impl.node.ExpressionNode.UnaryMinusNode;
+import static io.joel.impl.node.ExpressionNode.UnaryNotNode;
 import static io.joel.impl.node.InfixExpressionNode.AddExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.DivExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.ModExpressionNode;
@@ -91,9 +97,9 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
     public ExpressionNode visitUnaryExpression(ExpressionLanguageGrammarParser.UnaryExpressionContext ctx) {
         ExpressionNode node = visit(ctx.getChild(1));
         return switch (ctx.prefix.getText()) {
-            case "-" -> new ExpressionNode.UnaryMinusNode(node);
-            case "!", "not" -> new ExpressionNode.UnaryNotNode(node);
-            case "empty" -> new ExpressionNode.UnaryEmptyNode(node);
+            case "-" -> new UnaryMinusNode(node);
+            case "!", "not" -> new UnaryNotNode(node);
+            case "empty" -> new UnaryEmptyNode(node);
             default -> throw new IllegalStateException("%s %s".formatted(ctx.prefix.getText(), node));
         };
     }
@@ -111,6 +117,11 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
             case "<=", "le" -> new LessEqualNode(left, right);
             default -> throw new IllegalStateException("%s %s %s".formatted(left, ctx.bop.getText(), right));
         };
+    }
+
+    @Override
+    public ExpressionNode visitSemicolonExpression(ExpressionLanguageGrammarParser.SemicolonExpressionContext ctx) {
+        return new SemicolonNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
     }
 
     @Override
@@ -177,13 +188,13 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
     public ExpressionNode visitCallExpression(ExpressionLanguageGrammarParser.CallExpressionContext ctx) {
         var firstChild = ctx.getChild(0).getText();
         if (":".equals(ctx.getChild(1).getText())) {
-            return new ExpressionNode.CallExpressionNode(new IdentifierNode(firstChild + ":" + ctx.getChild(2).getText()), List.of());
+            return new CallExpressionNode(new IdentifierNode(firstChild + ":" + ctx.getChild(2).getText()), List.of());
         }
         return null;
     }
 
     @Override
     public ExpressionNode visitTernaryExpression(ExpressionLanguageGrammarParser.TernaryExpressionContext ctx) {
-        return new ExpressionNode.TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
+        return new TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
     }
 }

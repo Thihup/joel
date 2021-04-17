@@ -44,6 +44,7 @@ expression
     | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
     | LPAREN (expression) RPAREN methodArguments* #lambdaCallExpression
     | lambdaParameters ARROW expression #lambdaExpression
+    | expression SEMICOLON expression #semicolonExpression
     ;
 
 // LEXER

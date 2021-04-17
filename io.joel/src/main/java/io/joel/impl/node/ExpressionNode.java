@@ -262,6 +262,19 @@ public interface ExpressionNode {
         }
     }
 
+    record SemicolonNode(ExpressionNode left, ExpressionNode right) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            return right.getType(context);
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            left.getValue(context);
+            return right.getValue(context);
+        }
+    }
+
     record TernaryNode(ExpressionNode condition, ExpressionNode trueExpression,
                        ExpressionNode falseExpression) implements ExpressionNode {
         @Override
