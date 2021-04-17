@@ -120,6 +120,11 @@ public class StandardELContext extends ELContext {
         private final Map<String, Object> localBeans = new HashMap<>();
 
         @Override
+        public boolean isReadOnly(String beanName) {
+            return false;
+        }
+
+        @Override
         public boolean canCreateBean(String beanName) {
             return true;
         }

@@ -90,6 +90,15 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public <T> T convertToType(Object object, Class<T> targetType) {
+        boolean isCurrentResolved = isPropertyResolved();
+        setPropertyResolved(false);
+        try {
+            T t = getELResolver().convertToType(this, object, targetType);
+            if (isPropertyResolved())
+                return t;
+        } finally {
+            setPropertyResolved(isCurrentResolved);
+        }
         ExpressionFactory factory = ((ExpressionFactory)
                 contexts.computeIfAbsent(ExpressionFactory.class, key -> ExpressionFactory.newInstance()));
         return factory.coerceToType(object, targetType);

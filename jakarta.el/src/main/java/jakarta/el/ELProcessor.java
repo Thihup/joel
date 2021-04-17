@@ -126,7 +126,12 @@ public class ELProcessor {
      * @return The result of the expression evaluation.
      */
     public Object getValue(String expression, Class<?> expectedType) {
-        return null;
+        ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
+        if (factory == null) {
+            factory = ExpressionFactory.newInstance();
+            manager.getELContext().putContext(ExpressionFactory.class, factory);
+        }
+        return factory.createValueExpression(manager.getELContext(), expression, expectedType).getValue(manager.getELContext());
     }
 
     /**
