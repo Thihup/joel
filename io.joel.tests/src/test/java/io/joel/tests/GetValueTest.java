@@ -160,4 +160,20 @@ class GetValueTest {
         assertEquals(3.0, valueExpression.getValue(context));
     }
 
+    @Test
+    void getValueUnaryMinus() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${-1}", int.class);
+        assertEquals(-1, valueExpression.getValue(context));
+    }
+
+    @Test
+    void getValueUnaryMinus2() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${-Double.MAX_VALUE}", double.class);
+        assertEquals(-Double.MAX_VALUE, valueExpression.getValue(context));
+    }
+
 }

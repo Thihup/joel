@@ -88,6 +88,15 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
     }
 
     @Override
+    public ExpressionNode visitUnaryExpression(ExpressionLanguageGrammarParser.UnaryExpressionContext ctx) {
+        ExpressionNode node = visit(ctx.getChild(1));
+        return switch (ctx.prefix.getText()) {
+            case "-" -> new ExpressionNode.UnaryMinusNode(node);
+            default -> throw new IllegalStateException("%s %s".formatted(ctx.prefix.getText(), node));
+        };
+    }
+
+    @Override
     public ExpressionNode visitRelationalExpression(RelationalExpressionContext ctx) {
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
@@ -133,7 +142,7 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
             case "*" -> new MulExpressionNode(left, right);
             case "/", "div" -> new DivExpressionNode(left, right);
             case "%", "mod" -> new ModExpressionNode(left, right);
-            default -> throw new IllegalStateException();
+            default -> throw new IllegalStateException("%s %s %s".formatted(left, ctx.bop.getText(), right));
         };
     }
 
