@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Maintains an ordered composite list of child <code>ELResolver</code>s.
@@ -78,9 +80,10 @@ public class CompositeELResolver extends ELResolver {
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> x.getCommonPropertyType(context, base))
+                .map(x -> Optional.ofNullable(x.getCommonPropertyType(context, base)))
                 .filter(x -> context.isPropertyResolved())
                 .findFirst()
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -111,9 +114,10 @@ public class CompositeELResolver extends ELResolver {
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> x.getFeatureDescriptors(context, base))
+                .map(x -> Optional.ofNullable(x.getFeatureDescriptors(context, base)))
                 .filter(x -> context.isPropertyResolved())
                 .findFirst()
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -170,9 +174,10 @@ public class CompositeELResolver extends ELResolver {
         Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> x.getType(context, base, property))
+                .map(x -> Optional.ofNullable(x.getType(context, base, property)))
                 .filter(x -> context.isPropertyResolved())
                 .findFirst()
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -223,9 +228,10 @@ public class CompositeELResolver extends ELResolver {
         Objects.requireNonNull(context);
         context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> x.getValue(context, base, property))
+                .map(x -> Optional.ofNullable(x.getValue(context, base, property)))
                 .filter(x -> context.isPropertyResolved())
                 .findFirst()
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -358,9 +364,10 @@ public class CompositeELResolver extends ELResolver {
     public <T> T convertToType(ELContext context, Object object, Class<T> targetType) {
         context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> x.convertToType(context, object, targetType))
+                .map(x -> Optional.ofNullable(x.convertToType(context, object, targetType)))
                 .filter(x -> context.isPropertyResolved())
                 .findFirst()
+                .flatMap(Function.identity())
                 .orElse(null);
     }
 }
