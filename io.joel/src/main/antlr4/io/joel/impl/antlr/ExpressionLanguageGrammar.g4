@@ -49,6 +49,7 @@ expression
 // LEXER
 LCURL: '{';
 RCURL: '}';
+BOOL_LITERAL: TRUE | FALSE;
 TRUE: 'true';
 FALSE: 'false';
 NULL: 'null';
@@ -84,7 +85,6 @@ DYNAMIC_START: DOLLAR LCURL;
 DEFERRED_START: HASH LCURL;
 DOLLAR: '$';
 HASH: '#';
-BOOL_LITERAL: TRUE | FALSE;
 INTEGER_LITERAL: [0-9]+;
 FLOATING_POINT_LITERAL: [0-9]+ '.' [0-9]* EXPONENT? | '.' [0-9]+ EXPONENT? | [0-9]+ EXPONENT?;
 fragment EXPONENT: ('e'|'E') ('+'|'-')? [0-9]+;
