@@ -275,9 +275,9 @@ public interface ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
             if (context.convertToType(condition.getValue(context), boolean.class)) {
-                return trueExpression.getType(context);
+                return trueExpression.getValue(context);
             }
-            return falseExpression.getType(context);
+            return falseExpression.getValue(context);
         }
     }
 
