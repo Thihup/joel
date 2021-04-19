@@ -57,8 +57,11 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (leftValue instanceof Boolean || rightValue instanceof Boolean) {
                 return equalsFunction.test(context.convertToType(leftValue, Boolean.class), context.convertToType(rightValue, Boolean.class));
             }
-            if (leftValue instanceof Enum<?> || rightValue instanceof Enum<?>) {
-                return equalsFunction.test(context.convertToType(leftValue, Enum.class), context.convertToType(rightValue, Enum.class));
+            if (leftValue instanceof Enum<?>) {
+                return equalsFunction.test(context.convertToType(leftValue, leftValue.getClass()), context.convertToType(rightValue, leftValue.getClass()));
+            }
+            if (rightValue instanceof Enum<?>) {
+                return equalsFunction.test(context.convertToType(leftValue, rightValue.getClass()), context.convertToType(rightValue, rightValue.getClass()));
             }
             return leftValue.equals(rightValue);
         }
