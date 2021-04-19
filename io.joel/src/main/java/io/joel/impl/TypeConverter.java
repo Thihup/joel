@@ -121,7 +121,7 @@ public class TypeConverter {
             throw new ELException("Cannot convert value %s from Boolean to Character".formatted(value));
         }
         if (value instanceof Number newValue)
-            return newValue.shortValue();
+            return (char) newValue.shortValue();
         throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Character"));
     }
 
