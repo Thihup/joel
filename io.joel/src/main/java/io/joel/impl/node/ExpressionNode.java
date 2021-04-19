@@ -133,10 +133,10 @@ public interface ExpressionNode {
                 return -asFloat;
             }
             if (value instanceof Short asShort) {
-                return -asShort;
+                return (short) -asShort;
             }
             if (value instanceof Byte asByte) {
-                return -asByte;
+                return (byte) -asByte;
             }
             throw new ELException("Cannot apply the '-' operator to %s".formatted(value));
         }
