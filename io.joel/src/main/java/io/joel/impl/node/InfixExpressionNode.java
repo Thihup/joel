@@ -160,23 +160,18 @@ public interface InfixExpressionNode extends ExpressionNode {
             var rightValue = right.getValue(context);
             if (leftValue == null && rightValue == null)
                 return 0L;
-
-            if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).add(context.convertToType(rightValue, BigInteger.class));
+            if (leftValue instanceof Float || leftValue instanceof Double || leftValue instanceof BigDecimal ||
+                    rightValue instanceof Float || rightValue instanceof Double || rightValue instanceof BigDecimal) {
+                return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
             }
-            if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).remainder(context.convertToType(rightValue, BigDecimal.class));
-            }
-
             if (leftValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
                 return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
             }
             if (rightValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
                 return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
             }
-
-            if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double){
-                return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
+            if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
+                return context.convertToType(leftValue, BigInteger.class).remainder(context.convertToType(rightValue, BigInteger.class));
             }
 
             return context.convertToType(leftValue, Long.class) % context.convertToType(rightValue, Long.class);
