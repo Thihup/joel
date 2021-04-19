@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.beans.FeatureDescriptor;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -24,7 +25,6 @@ import java.util.Objects;
  *
  * @see CompositeELResolver
  * @see ELResolver
- *
  * @since Jakarta Server Pages 2.1
  */
 public class ArrayELResolver extends ELResolver {
@@ -47,6 +47,28 @@ public class ArrayELResolver extends ELResolver {
     }
 
     /**
+     * If the base object is a Java language array, returns the most general type that this resolver accepts for the
+     * <code>property</code> argument. Otherwise, returns <code>null</code>.
+     *
+     * <p>
+     * Assuming the base is an array, this method will always return <code>Integer.class</code>. This is because arrays
+     * accept integers for their index.
+     * </p>
+     *
+     * @param context The context of this evaluation.
+     * @param base    The array to analyze. Only bases that are a Java language array are handled by this resolver.
+     * @return <code>null</code> if base is not a Java language array; otherwise <code>Integer.class</code>.
+     */
+    @Override
+    public Class<?> getCommonPropertyType(ELContext context, Object base) {
+        if (base == null)
+            return null;
+        if (!base.getClass().isArray())
+            return null;
+        return Integer.class;
+    }
+
+    /**
      * Always returns <code>null</code>, since there is no reason to iterate through set set of all integers.
      *
      * <p>
@@ -54,14 +76,9 @@ public class ArrayELResolver extends ELResolver {
      * </p>
      *
      * @param context The context of this evaluation.
-     * @param base The array to analyze. Only bases that are a Java language array are handled by this resolver.
+     * @param base    The array to analyze. Only bases that are a Java language array are handled by this resolver.
      * @return <code>null</code>.
      */
-    @Override
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return null;
-    }
-
     @Override
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
@@ -82,21 +99,27 @@ public class ArrayELResolver extends ELResolver {
      * any given index in the array.
      * </p>
      *
-     * @param context The context of this evaluation.
-     * @param base The array to analyze. Only bases that are Java language arrays are handled by this resolver.
+     * @param context  The context of this evaluation.
+     * @param base     The array to analyze. Only bases that are Java language arrays are handled by this resolver.
      * @param property The index of the element in the array to return the acceptable type for. Will be coerced into an
-     * integer, but otherwise ignored by this resolver.
+     *                 integer, but otherwise ignored by this resolver.
      * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
      * the most general acceptable type; otherwise undefined.
      * @throws PropertyNotFoundException if the given index is out of bounds for this array.
-     * @throws NullPointerException if context is <code>null</code>
-     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
-     * exception must be included as the cause property of this exception, if available.
+     * @throws NullPointerException      if context is <code>null</code>
+     * @throws ELException               if an exception was thrown while performing the property or variable resolution. The thrown
+     *                                   exception must be included as the cause property of this exception, if available.
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return null;
+        if (base == null)
+            return null;
+        if (!base.getClass().isArray())
+            return null;
+        context.setPropertyResolved(base, property);
+        checkBounds(Array.getLength(base), toInt(property));
+        return base.getClass().getComponentType();
     }
 
     /**
@@ -110,20 +133,28 @@ public class ArrayELResolver extends ELResolver {
      * this method is called, the caller should ignore the return value.
      * </p>
      *
-     * @param context The context of this evaluation.
-     * @param base The array to analyze. Only bases that are Java language arrays are handled by this resolver.
+     * @param context  The context of this evaluation.
+     * @param base     The array to analyze. Only bases that are Java language arrays are handled by this resolver.
      * @param property The index of the value to be returned. Will be coerced into an integer.
      * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
      * the value at the given index or <code>null</code> if the index was out of bounds. Otherwise, undefined.
      * @throws IllegalArgumentException if the property could not be coerced into an integer.
-     * @throws NullPointerException if context is <code>null</code>.
-     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
-     * exception must be included as the cause property of this exception, if available.
+     * @throws NullPointerException     if context is <code>null</code>.
+     * @throws ELException              if an exception was thrown while performing the property or variable resolution. The thrown
+     *                                  exception must be included as the cause property of this exception, if available.
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return null;
+        if (base == null)
+            return null;
+        if (!base.getClass().isArray())
+            return null;
+        int index = toInt(property);
+        context.setPropertyResolved(base, property);
+        if (index < 0 || index >= Array.getLength(base))
+            return null;
+        return Array.get(base, index);
     }
 
     /**
@@ -140,21 +171,27 @@ public class ArrayELResolver extends ELResolver {
      * returns <code>false</code>.
      * </p>
      *
-     * @param context The context of this evaluation.
-     * @param base The array to analyze. Only bases that are a Java language array are handled by this resolver.
+     * @param context  The context of this evaluation.
+     * @param base     The array to analyze. Only bases that are a Java language array are handled by this resolver.
      * @param property The index of the element in the array to return the acceptable type for. Will be coerced into an
-     * integer, but otherwise ignored by this resolver.
+     *                 integer, but otherwise ignored by this resolver.
      * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
      * <code>true</code> if calling the <code>setValue</code> method will always fail or <code>false</code> if it is
      * possible that such a call may succeed; otherwise undefined.
      * @throws PropertyNotFoundException if the given index is out of bounds for this array.
-     * @throws NullPointerException if context is <code>null</code>
-     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
-     * exception must be included as the cause property of this exception, if available.
+     * @throws NullPointerException      if context is <code>null</code>
+     * @throws ELException               if an exception was thrown while performing the property or variable resolution. The thrown
+     *                                   exception must be included as the cause property of this exception, if available.
      */
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
+        if (base == null)
+            return false;
+        if (!base.getClass().isArray())
+            return false;
+        context.setPropertyResolved(base, property);
+        checkBounds(Array.getLength(base), toInt(property));
         return readyOnly;
     }
 
@@ -175,21 +212,47 @@ public class ArrayELResolver extends ELResolver {
      * <code>PropertyNotWritableException</code>.
      * </p>
      *
-     * @param context The context of this evaluation.
-     * @param base The array to be modified. Only bases that are Java language arrays are handled by this resolver.
+     * @param context  The context of this evaluation.
+     * @param base     The array to be modified. Only bases that are Java language arrays are handled by this resolver.
      * @param property The index of the value to be set. Will be coerced into an integer.
-     * @param value The value to be set at the given index.
-     * @throws ClassCastException if the class of the specified element prevents it from being added to this array.
-     * @throws NullPointerException if context is <code>null</code>.
-     * @throws IllegalArgumentException if the property could not be coerced into an integer, or if some aspect of the
-     * specified element prevents it from being added to this array.
+     * @param value    The value to be set at the given index.
+     * @throws ClassCastException           if the class of the specified element prevents it from being added to this array.
+     * @throws NullPointerException         if context is <code>null</code>.
+     * @throws IllegalArgumentException     if the property could not be coerced into an integer, or if some aspect of the
+     *                                      specified element prevents it from being added to this array.
      * @throws PropertyNotWritableException if this resolver was constructed in read-only mode.
-     * @throws PropertyNotFoundException if the given index is out of bounds for this array.
-     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
-     * exception must be included as the cause property of this exception, if available.
+     * @throws PropertyNotFoundException    if the given index is out of bounds for this array.
+     * @throws ELException                  if an exception was thrown while performing the property or variable resolution. The thrown
+     *                                      exception must be included as the cause property of this exception, if available.
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
+        if (base == null)
+            return;
+        if (!base.getClass().isArray())
+            return;
+        context.setPropertyResolved(base, property);
+        if (readyOnly) {
+            throw new PropertyNotWritableException();
+        }
+        checkBounds(Array.getLength(base), toInt(property));
+        if (!base.getClass().getComponentType().isAssignableFrom(value.getClass()))
+            throw new ClassCastException(String.format("Cannot cast %s to %s", value.getClass(), base.getClass().getComponentType()));
+        Array.set(base, toInt(property), value);
     }
+
+    private void checkBounds(int length, int index) {
+        if (index < 0 || index >= length)
+            throw new PropertyNotFoundException(String.format("Index %d is out of bounds; array length: %d", index, length));
+    }
+
+    private int toInt(Object property) {
+        try {
+            return Integer.parseInt(property.toString());
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(exception);
+        }
+    }
+
 }
