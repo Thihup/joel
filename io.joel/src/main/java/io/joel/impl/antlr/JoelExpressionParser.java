@@ -2,7 +2,6 @@ package io.joel.impl.antlr;
 
 import io.joel.impl.node.ExpressionNode;
 import jakarta.el.ELException;
-import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -10,6 +9,8 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 public class JoelExpressionParser {
+    private JoelExpressionParser() {
+    }
 
     public static ExpressionNode parse(String expression) {
         var lexer = new ExpressionLanguageGrammarLexer(CharStreams.fromString(expression));
