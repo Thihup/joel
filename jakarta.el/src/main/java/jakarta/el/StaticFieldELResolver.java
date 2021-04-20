@@ -1,6 +1,9 @@
 package jakarta.el;
 
 import java.beans.FeatureDescriptor;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Objects;
@@ -17,7 +20,7 @@ import java.util.Objects;
  * @since Jakarta Expression Language 3.0
  */
 public class StaticFieldELResolver extends ELResolver {
-    
+
     /**
      * Returns the type of the property. Always returns <code>String.class</code>, since a field name is a String.
      *
@@ -66,6 +69,7 @@ public class StaticFieldELResolver extends ELResolver {
      */
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
+        Objects.requireNonNull(context);
         if (!(base instanceof ELClass) || !(property instanceof String))
             return null;
         try {
@@ -74,6 +78,73 @@ public class StaticFieldELResolver extends ELResolver {
             return declaredField.getType();
         } catch (NoSuchFieldException e) {
             return null;
+        }
+    }
+
+    /**
+     * Invokes a public static method or the constructor for a class.
+     *
+     * <p>
+     * If the base object is an instance of <code>ELClass</code> and the method is a String, the
+     * <code>propertyResolved</code> property of the <code>ELContext</code> object must be set to <code>true</code> by the
+     * resolver, before returning. If this property is not <code>true</code> after this method is called, the caller should
+     * ignore the return value.
+     *
+     * <p>
+     * Invoke the public static method specified by <code>method</code>.
+     *
+     * <p>
+     * The process involved in the method selection is the same as that used in {@link BeanELResolver}.
+     *
+     * <p>
+     * As a special case, if the name of the method is "&lt;init&gt;", the constructor for the class will be invoked.
+     *
+     * @param base           An <code>ELClass</code>
+     * @param method         When coerced to a <code>String</code>, the simple name of the method.
+     * @param parameterTypes An array of Class objects identifying the method's formal parameter types, in declared order. Use
+     *                       an empty array if the method has no parameters. Can be <code>null</code>, in which case the method's formal parameter
+     *                       types are assumed to be unknown.
+     * @param params         The parameters to pass to the method, or <code>null</code> if no parameters.
+     * @return The result of the method invocation (<code>null</code> if the method has a <code>void</code> return type).
+     * @throws MethodNotFoundException if no suitable method can be found.
+     * @throws ELException             if an exception was thrown while performing (base, method) resolution. The thrown exception must
+     *                                 be included as the cause property of this exception, if available. If the exception thrown is an
+     *                                 <code>InvocationTargetException</code>, extract its <code>cause</code> and pass it to the <code>ELException</code>
+     *                                 constructor.
+     */
+    @Override
+    public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
+        Objects.requireNonNull(context);
+        if (!(base instanceof ELClass))
+            return null;
+        if (!(method instanceof String))
+            return null;
+        Class<?> klass = ((ELClass) base).getKlass();
+        String methodName = (String) method;
+        if (methodName.equals("<init>")) {
+            try {
+                if (parameterTypes == null || parameterTypes.length == 0) {
+                    MethodHandle constructor = MethodHandles.lookup().findConstructor(klass, MethodType.methodType(void.class));
+                    context.setPropertyResolved(base, method);
+                    return constructor.invoke();
+                }
+                MethodHandle constructor = MethodHandles.lookup().findConstructor(klass, MethodType.methodType(void.class, parameterTypes));
+                context.setPropertyResolved(base, method);
+                return constructor.invoke(params);
+            } catch (NoSuchMethodException e) {
+                throw new MethodNotFoundException(e);
+            } catch (Throwable exception) {
+                throw new ELException(exception);
+            }
+        }
+        try {
+            Object returnValue = MethodHandles.lookup().unreflect(klass.getMethod(methodName, parameterTypes)).invokeWithArguments(params);
+            context.setPropertyResolved(base, method);
+            return returnValue;
+        } catch (NoSuchMethodException e) {
+            throw new MethodNotFoundException(e);
+        } catch (Throwable throwable) {
+            throw new ELException(throwable);
         }
     }
 
@@ -138,7 +209,12 @@ public class StaticFieldELResolver extends ELResolver {
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return false;
+        if (!(base instanceof ELClass))
+            return false;
+        if (!(property instanceof String))
+            return false;
+        context.setPropertyResolved(base, property);
+        return true;
     }
 
 
@@ -161,5 +237,10 @@ public class StaticFieldELResolver extends ELResolver {
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
+        if (!(base instanceof ELClass))
+            return;
+        if (!(property instanceof String))
+            return;
+        throw new PropertyNotWritableException();
     }
 }
