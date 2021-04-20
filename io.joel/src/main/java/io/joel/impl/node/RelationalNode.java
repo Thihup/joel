@@ -63,6 +63,9 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (rightValue instanceof Enum<?>) {
                 return equalsFunction.test(context.convertToType(leftValue, rightValue.getClass()), context.convertToType(rightValue, rightValue.getClass()));
             }
+            if (leftValue instanceof String || rightValue instanceof String) {
+                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) == 0;
+            }
             return leftValue.equals(rightValue);
         }
     }
@@ -93,6 +96,9 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
                 return context.convertToType(leftValue, Long.class) > context.convertToType(rightValue, Long.class);
+            }
+            if (leftValue instanceof String || rightValue instanceof String) {
+                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) > 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) > 0;
@@ -128,6 +134,9 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (leftValue instanceof Number || rightValue instanceof Number) {
                 return context.convertToType(leftValue, Long.class) >= context.convertToType(rightValue, Long.class);
             }
+            if (leftValue instanceof String || rightValue instanceof String) {
+                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) >= 0;
+            }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) >= 0;
             }
@@ -157,6 +166,9 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
                 return context.convertToType(leftValue, Long.class) < context.convertToType(rightValue, Long.class);
+            }
+            if (leftValue instanceof String || rightValue instanceof String) {
+                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) < 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) < 0;
@@ -191,6 +203,9 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
                 return context.convertToType(leftValue, Long.class) <= context.convertToType(rightValue, Long.class);
+            }
+            if (leftValue instanceof String || rightValue instanceof String) {
+                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) <= 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) <= 0;
