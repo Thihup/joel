@@ -32,6 +32,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                     if (rightValue instanceof BigInteger asBigInteger) {
                         return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(asBigInteger, BigDecimal.class));
                     }
+                    return context.convertToType(leftValue, Double.class) + (context.convertToType(rightValue, Double.class));
                 }
             }
             if (rightValue instanceof String asString) {
@@ -73,6 +74,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                     if (rightValue instanceof BigInteger asBigInteger) {
                         return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(asBigInteger, BigDecimal.class));
                     }
+                    return context.convertToType(leftValue, Double.class) - (context.convertToType(rightValue, Double.class));
                 }
             }
             if (rightValue instanceof String asString) {
@@ -115,6 +117,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                         return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(asBigInteger, BigDecimal.class));
                     }
                 }
+                return context.convertToType(leftValue, Double.class) * (context.convertToType(rightValue, Double.class));
             }
             if (rightValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
