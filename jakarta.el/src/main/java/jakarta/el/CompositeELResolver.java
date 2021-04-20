@@ -346,6 +346,62 @@ public class CompositeELResolver extends ELResolver {
     }
 
     /**
+     * Attempts to resolve and invoke the given <code>method</code> on the given <code>base</code> object by querying all
+     * component resolvers.
+     *
+     * <p>
+     * If this resolver handles the given (base, method) pair, the <code>propertyResolved</code> property of the
+     * <code>ELContext</code> object must be set to <code>true</code> by the resolver, before returning. If this property is
+     * not <code>true</code> after this method is called, the caller should ignore the return value.
+     * </p>
+     *
+     * <p>
+     * First, <code>propertyResolved</code> is set to <code>false</code> on the provided <code>ELContext</code>.
+     * </p>
+     *
+     * <p>
+     * Next, for each component resolver in this composite:
+     * <ol>
+     * <li>The <code>invoke()</code> method is called, passing in the provided <code>context</code>, <code>base</code>,
+     * <code>method</code>, <code>paramTypes</code>, and <code>params</code>.</li>
+     * <li>If the <code>ELContext</code>'s <code>propertyResolved</code> flag is <code>false</code> then iteration
+     * continues.</li>
+     * <li>Otherwise, iteration stops and no more component resolvers are considered. The value returned by
+     * <code>invoke()</code> is returned by this method.</li>
+     * </ol>
+     *
+     * <p>
+     * If none of the component resolvers were able to perform this operation, the value <code>null</code> is returned and
+     * the <code>propertyResolved</code> flag remains set to <code>false</code>
+     * </p>
+     * .
+     *
+     * <p>
+     * Any exception thrown by component resolvers during the iteration is propagated to the caller of this method.
+     * </p>
+     *
+     * @param context        The context of this evaluation.
+     * @param base           The bean on which to invoke the method
+     * @param method         The simple name of the method to invoke. Will be coerced to a <code>String</code>.
+     * @param parameterTypes An array of Class objects identifying the method's formal parameter types, in declared order. Use
+     *                       an empty array if the method has no parameters. Can be <code>null</code>, in which case the method's formal parameter
+     *                       types are assumed to be unknown.
+     * @param params         The parameters to pass to the method, or <code>null</code> if no parameters.
+     * @return The result of the method invocation (<code>null</code> if the method has a <code>void</code> return type).
+     * @since Jakarta Expression Language 2.2
+     */
+    @Override
+    public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
+        context.setPropertyResolved(false);
+        return resolvers.stream()
+                .map(x -> Optional.ofNullable(x.invoke(context, base, method, parameterTypes, params)))
+                .filter(x -> context.isPropertyResolved())
+                .findFirst()
+                .flatMap(Function.identity())
+                .orElse(null);
+    }
+
+    /**
      * Converts an object to a specific type.
      *
      * <p>
