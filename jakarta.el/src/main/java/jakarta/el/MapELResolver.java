@@ -1,7 +1,9 @@
 package jakarta.el;
 
 import java.beans.FeatureDescriptor;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -61,6 +63,8 @@ public class MapELResolver extends ELResolver {
      */
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
+        if (base instanceof Map<?, ?>)
+            return Object.class;
         return null;
     }
 
@@ -96,7 +100,9 @@ public class MapELResolver extends ELResolver {
      */
     @Override
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
+        if (!(base instanceof Map<?, ?>))
+            return null;
+        return Collections.emptyIterator();
     }
 
     /**
@@ -125,7 +131,10 @@ public class MapELResolver extends ELResolver {
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return null;
+        if (!(base instanceof Map<?, ?>))
+            return null;
+        context.setPropertyResolved(base, property);
+        return Object.class;
     }
 
     /**
@@ -158,7 +167,10 @@ public class MapELResolver extends ELResolver {
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return null;
+        if (!(base instanceof Map<?, ?>))
+            return null;
+        context.setPropertyResolved(base, property);
+        return ((Map<?, ?>) base).get(property);
     }
 
     /**
@@ -194,7 +206,17 @@ public class MapELResolver extends ELResolver {
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return readyOnly;
+        if (readyOnly)
+            return true;
+        if (!(base instanceof Map<?, ?>))
+            return false;
+        context.setPropertyResolved(base, property);
+        try {
+            ((Map<?, ?>) base).putAll(Collections.emptyMap());
+            return false;
+        } catch (Exception ignored) {
+            return true;
+        }
     }
 
     /**
@@ -232,8 +254,19 @@ public class MapELResolver extends ELResolver {
      * @throws PropertyNotWritableException if this resolver was constructed in read-only mode, or if the put operation is
      *                                      not supported by the underlying map.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
+        if (readyOnly)
+            throw new PropertyNotWritableException();
+        if (!(base instanceof Map<?, ?>))
+            return;
+        context.setPropertyResolved(base, property);
+        try {
+            ((Map<Object, Object>) base).put(property, value);
+        } catch (Exception rootCause) {
+            throw new PropertyNotWritableException(rootCause);
+        }
     }
 }
