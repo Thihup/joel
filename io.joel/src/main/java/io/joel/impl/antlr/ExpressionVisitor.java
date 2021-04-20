@@ -10,6 +10,7 @@ import io.joel.impl.node.RelationalNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -196,7 +197,10 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
 
     @Override
     public ExpressionNode visitListExpression(ExpressionLanguageGrammarParser.ListExpressionContext ctx) {
-        return new ExpressionNode.ListNode(ctx.expressionList()
+        var expressionListContext = ctx.expressionList();
+        if (expressionListContext == null)
+            return new ExpressionNode.ListNode(Collections.emptyList());
+        return new ExpressionNode.ListNode(expressionListContext
                 .expression()
                 .stream()
                 .map(this::visit)
@@ -205,11 +209,14 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
 
     @Override
     public ExpressionNode visitSetExpression(ExpressionLanguageGrammarParser.SetExpressionContext ctx) {
+        var expressionListContext = ctx.expressionList();
+        if (expressionListContext == null)
+            return new ExpressionNode.SetNode(Collections.emptyList());
         return new ExpressionNode.SetNode(ctx.expressionList()
-            .expression()
-            .stream()
-            .map(this::visit)
-            .collect(Collectors.toList()));
+                .expression()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList()));
     }
 
     @Override

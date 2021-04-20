@@ -325,6 +325,7 @@ public interface ExpressionNode {
     }
 
     record CallExpressionNode(ExpressionNode callee, List<IdentifierNode> arguments) implements ExpressionNode {
+
     }
 
 }
