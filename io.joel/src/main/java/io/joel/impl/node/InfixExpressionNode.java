@@ -44,7 +44,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                if (leftValue instanceof BigInteger asBigInteger) {
+                if (rightValue instanceof BigInteger asBigInteger) {
                     return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(asBigInteger, BigDecimal.class));
                 }
                 return context.convertToType(leftValue, Double.class) + (context.convertToType(rightValue, Double.class));
@@ -86,7 +86,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                if (leftValue instanceof BigInteger asBigInteger) {
+                if (rightValue instanceof BigInteger asBigInteger) {
                     return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(asBigInteger, BigDecimal.class));
                 }
                 return context.convertToType(leftValue, Double.class) - (context.convertToType(rightValue, Double.class));
@@ -128,7 +128,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                if (leftValue instanceof BigInteger asBigInteger) {
+                if (rightValue instanceof BigInteger asBigInteger) {
                     return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(asBigInteger, BigDecimal.class));
                 }
                 return context.convertToType(leftValue, Double.class) * (context.convertToType(rightValue, Double.class));
