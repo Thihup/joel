@@ -106,6 +106,8 @@ public class ELProcessor {
         Objects.requireNonNull(className);
         Objects.requireNonNull(method);
         Class<?> aClass = manager.getELContext().getImportHandler().resolveClass(className);
+        if (aClass == null)
+            throw new ClassNotFoundException(String.format("Class %s not found", className));
         try {
             manager.mapFunction(prefix, function, aClass.getMethod(method));
         } catch (NoSuchMethodException e) {
