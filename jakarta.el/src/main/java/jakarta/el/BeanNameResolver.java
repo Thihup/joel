@@ -52,5 +52,6 @@ public abstract class BeanNameResolver {
      * @throws PropertyNotWritableException if the bean cannot be modified or created.
      */
     public void setBeanValue(String beanName, Object value) {
+        throw new PropertyNotWritableException();
     }
 }

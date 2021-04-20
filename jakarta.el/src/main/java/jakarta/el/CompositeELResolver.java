@@ -6,7 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Spliterators;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Maintains an ordered composite list of child <code>ELResolver</code>s.
@@ -78,12 +81,11 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        context.setPropertyResolved(false);
         return resolvers.stream()
                 .map(x -> Optional.ofNullable(x.getCommonPropertyType(context, base)))
-                .filter(x -> context.isPropertyResolved())
+                .flatMap(x -> x.isPresent() ? Stream.of(x.get()) : Stream.empty())
+                .sorted((x, y) -> x == y ? 0 : x.isAssignableFrom(y) ? -1 : 1)
                 .findFirst()
-                .flatMap(Function.identity())
                 .orElse(null);
     }
 
@@ -112,13 +114,11 @@ public class CompositeELResolver extends ELResolver {
      */
     @Override
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        context.setPropertyResolved(false);
         return resolvers.stream()
-                .map(x -> Optional.ofNullable(x.getFeatureDescriptors(context, base)))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .flatMap(Function.identity())
-                .orElse(null);
+                .map(x -> x.getFeatureDescriptors(context, base))
+                .filter(Objects::nonNull)
+                .flatMap(x -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(x, 0), false))
+                .iterator();
     }
 
     /**
@@ -352,12 +352,10 @@ public class CompositeELResolver extends ELResolver {
      * An <code>ELException</code> is thrown if an error occurs during the conversion.
      * </p>
      *
-     * @param context The context of this evaluation.
-     * @param object The object to convert.
+     * @param context    The context of this evaluation.
+     * @param object     The object to convert.
      * @param targetType The target type for the convertion.
-     *
      * @throws ELException thrown if errors occur.
-     *
      * @since Jakarta Expression Language 3.0
      */
     @Override

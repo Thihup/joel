@@ -143,6 +143,8 @@ public class BeanELResolver extends ELResolver {
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
+        if (base == null)
+            return null;
         return null;
     }
 
