@@ -11,6 +11,7 @@ import io.joel.impl.node.RelationalNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.DeferredExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.DynamicExpressionContext;
@@ -191,6 +192,15 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
             return new CallExpressionNode(new IdentifierNode(firstChild + ":" + ctx.getChild(2).getText()), List.of());
         }
         return null;
+    }
+
+    @Override
+    public ExpressionNode visitListExpression(ExpressionLanguageGrammarParser.ListExpressionContext ctx) {
+        return new ExpressionNode.ListNode(ctx.expressionList()
+                .expression()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList()));
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface ExpressionNode {
 
@@ -291,6 +292,20 @@ public interface ExpressionNode {
                 return trueExpression.getValue(context);
             }
             return falseExpression.getValue(context);
+        }
+    }
+
+    record ListNode(List<ExpressionNode> values) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            return List.class;
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            return values.stream()
+                .map(x -> x.getValue(context))
+                .collect(Collectors.toList());
         }
     }
 
