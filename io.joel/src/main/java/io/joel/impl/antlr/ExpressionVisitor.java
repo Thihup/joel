@@ -204,6 +204,15 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
     }
 
     @Override
+    public ExpressionNode visitSetExpression(ExpressionLanguageGrammarParser.SetExpressionContext ctx) {
+        return new ExpressionNode.SetNode(ctx.expressionList()
+            .expression()
+            .stream()
+            .map(this::visit)
+            .collect(Collectors.toList()));
+    }
+
+    @Override
     public ExpressionNode visitTernaryExpression(ExpressionLanguageGrammarParser.TernaryExpressionContext ctx) {
         return new TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
     }
