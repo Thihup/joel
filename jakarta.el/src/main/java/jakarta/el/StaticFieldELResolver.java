@@ -27,7 +27,7 @@ public class StaticFieldELResolver extends ELResolver {
      */
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return null;
+        return String.class;
     }
 
     /**
@@ -155,7 +155,7 @@ public class StaticFieldELResolver extends ELResolver {
      * @param property The name of the field
      * @param value    The value to set the field of the class to.
      * @throws NullPointerException         if context is <code>null</code>
-     * @throws PropertyNotWritableException if base object instance of <code>ELClass</code>and <code>property</code>
+     * @throws PropertyNotWritableException if base object instance of <code>ELClass</code> and <code>property</code>
      *                                      instance of String
      */
     @Override
