@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class JoelValueExpression extends ValueExpression {
     private final String expression;
-    private final transient ExpressionNode expressionNode;
+    private final ExpressionNode expressionNode;
     private final Class<?> expectedType;
 
     public JoelValueExpression(String expression, ExpressionNode expressionNode, Class<?> expectedType) {
@@ -65,5 +65,10 @@ public class JoelValueExpression extends ValueExpression {
     @Override
     public ValueReference getValueReference(ELContext context) {
         return super.getValueReference(context);
+    }
+
+    @Override
+    public String toString() {
+        return expression;
     }
 }

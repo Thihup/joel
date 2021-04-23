@@ -1,9 +1,15 @@
 package io.joel.impl.node;
 
+import io.joel.impl.JoelValueExpression;
 import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
+import jakarta.el.ImportHandler;
+import jakarta.el.LambdaExpression;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.el.ValueReference;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -13,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface ExpressionNode {
+public interface ExpressionNode extends Serializable {
 
     default Object getValue(ELContext context) {
         throw new UnsupportedOperationException(this.toString());
@@ -197,6 +203,8 @@ public interface ExpressionNode {
 
         @Override
         public Object getValue(ELContext context) {
+            if (context.isLambdaArgument(value))
+                return context.getLambdaArgument(value);
             var variableMapper = context.getVariableMapper();
             if (variableMapper != null) {
                 var valueExpression = variableMapper.resolveVariable(value);
@@ -209,6 +217,11 @@ public interface ExpressionNode {
             if (context.isPropertyResolved()) {
                 return result;
             }
+            Class<?> aClass = context.getImportHandler().resolveStatic(value);
+            if (aClass != null) {
+                context.getELResolver().getValue(context, new ELClass(aClass), value);
+            }
+
             throw new ELException("Property %s not found".formatted(value));
         }
     }
@@ -257,10 +270,19 @@ public interface ExpressionNode {
 
         @Override
         public Object getValue(ELContext context) {
-            if (property instanceof IdentifierNode node)
-                return context.getELResolver().getValue(context, new ELClass(object.getType(context)), node.value);
-
-            return context.getELResolver().getValue(context, new ELClass(object.getType(context)), property.getValue(context));
+            try {
+                return new ValueReference(object.getValue(context), property instanceof IdentifierNode node ? node.value : property.getValue(context));
+            } catch (ELException rootCause) {
+                if (object instanceof IdentifierNode node) {
+                    ImportHandler importHandler = context.getImportHandler();
+                    if (importHandler != null) {
+                        Class<?> aClass = importHandler.resolveClass(node.value);
+                        if (aClass != null)
+                            return context.getELResolver().getValue(context, new ELClass(aClass), property instanceof IdentifierNode identifier ? identifier.value : property.getValue(context));
+                    }
+                }
+                throw new PropertyNotFoundException(object + "." + property, rootCause);
+            }
         }
     }
 
@@ -324,8 +346,26 @@ public interface ExpressionNode {
         }
     }
 
-    record CallExpressionNode(ExpressionNode callee, List<IdentifierNode> arguments) implements ExpressionNode {
+    record CallExpressionNode(ExpressionNode callee, List<ExpressionNode> arguments) implements ExpressionNode {
+        @Override
+        public Object getValue(ELContext context) {
+            var value = callee.getValue(context);
+            if (value == null)
+                throw new PropertyNotFoundException();
+            if (value instanceof ValueReference valueReference) {
+                var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
+                return context.getELResolver()
+                        .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
+            }
+            return null;
+        }
+    }
 
+    record LambdaNode(List<String> parameters, ExpressionNode expression) implements ExpressionNode {
+        @Override
+        public Object getValue(ELContext context) {
+            return new LambdaExpression(parameters, new JoelValueExpression(expression.toString(), expression, Object.class));
+        }
     }
 
 }

@@ -10,8 +10,7 @@ import java.util.Map;
 
 public class TypeConverter {
     private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
-    private static final Map<Class<?>, Class<?>> primitiveToWrapper = Map.of(
-            void.class, Void.class,
+    public static final Map<Class<?>, Class<?>> primitiveToWrapper = Map.of(
             boolean.class, Boolean.class,
             byte.class, Byte.class,
             char.class, Character.class,
@@ -21,7 +20,6 @@ public class TypeConverter {
             float.class, Float.class,
             double.class, Double.class);
     private static final Map<Class<?>, Class<?>> wrapperToPrimitive = Map.of(
-            Void.class, void.class,
             Boolean.class, boolean.class,
             Byte.class, byte.class,
             Character.class, char.class,
@@ -78,6 +76,9 @@ public class TypeConverter {
             return coerceToDouble(object);
         if (targetType == Float.class)
             return coerceToFloat(object);
+
+        if (targetType == void.class || targetType == Void.class)
+            return null;
 
         return coerceToObject(object, targetType);
     }

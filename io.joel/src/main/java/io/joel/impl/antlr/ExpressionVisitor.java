@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.joel.impl.antlr.ExpressionLanguageGrammarParser.DeferredExpressionContext;
@@ -84,6 +85,11 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
     @Override
     public ExpressionNode visitNullLiteralExpression(NullLiteralExpressionContext ctx) {
         return NullNode.INSTANCE;
+    }
+
+    @Override
+    public ExpressionNode visitLambdaExpression(ExpressionLanguageGrammarParser.LambdaExpressionContext ctx) {
+        return new ExpressionNode.LambdaNode(ctx.lambdaParameters().IDENTIFIER().stream().map(Objects::toString).toList(), visit(ctx.expression()));
     }
 
     @Override
@@ -188,11 +194,18 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
 
     @Override
     public ExpressionNode visitCallExpression(ExpressionLanguageGrammarParser.CallExpressionContext ctx) {
-        var firstChild = ctx.getChild(0).getText();
         if (":".equals(ctx.getChild(1).getText())) {
+            var firstChild = ctx.getChild(0);
             return new CallExpressionNode(new IdentifierNode(firstChild + ":" + ctx.getChild(2).getText()), List.of());
         }
-        return null;
+        var expressionList = ctx.arguments().expressionList();
+        if (expressionList == null)
+            return new CallExpressionNode(visit(ctx.getChild(0)), List.of());
+        return new CallExpressionNode(visit(ctx.getChild(0)), expressionList
+                .expression()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList()));
     }
 
     @Override

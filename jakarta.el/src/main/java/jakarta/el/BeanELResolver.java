@@ -4,8 +4,10 @@ import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -197,12 +199,16 @@ public class BeanELResolver extends ELResolver {
         Method method;
         String methodName = property.toString();
         try {
-            method = aClass.getMethod("get" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-        } catch (NoSuchMethodException e) {
+            method = aClass.getMethod(methodName);
+        } catch (NoSuchMethodException ignored) {
             try {
-                method = aClass.getMethod("is" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-            } catch (NoSuchMethodException root) {
-                throw new PropertyNotFoundException(String.format("Property %s not found", property));
+                method = aClass.getMethod("get" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
+            } catch (NoSuchMethodException e) {
+                try {
+                    method = aClass.getMethod("is" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
+                } catch (NoSuchMethodException root) {
+                    throw new PropertyNotFoundException(String.format("Property %s not found", property));
+                }
             }
         }
         try {
@@ -302,7 +308,7 @@ public class BeanELResolver extends ELResolver {
      *
      * @param context        The context of this evaluation.
      * @param base           The bean on which to invoke the method
-     * @param method         The simple name of the method to invoke. Will be coerced to a <code>String</code>. If method is
+     * @param methodName         The simple name of the method to invoke. Will be coerced to a <code>String</code>. If method is
      *                       "&lt;init&gt;"or "&lt;clinit&gt;" a MethodNotFoundException is thrown.
      * @param parameterTypes An array of Class objects identifying the method's formal parameter types, in declared order. Use
      *                       an empty array if the method has no parameters. Can be <code>null</code>, in which case the method's formal parameter
@@ -317,13 +323,17 @@ public class BeanELResolver extends ELResolver {
      * @since Jakarta Expression Language 2.2
      */
     @Override
-    public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
+    public Object invoke(ELContext context, Object base, Object methodName, Class<?>[] parameterTypes, Object[] params) {
         Objects.requireNonNull(context);
-        if (base == null || method == null)
+        if (base == null || methodName == null)
             return null;
         Class<?> aClass = base.getClass();
         try {
-            MethodHandle unreflect = MethodHandles.lookup().unreflect(aClass.getMethod(method.toString(), parameterTypes));
+            Method method = Arrays.stream(aClass.getMethods())
+                .filter(x -> x.getName().equals(methodName.toString()) && (parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes())))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+            MethodHandle unreflect = MethodHandles.lookup().unreflect(method);
             context.setPropertyResolved(base, method);
             return unreflect.bindTo(base).invokeWithArguments(params);
         } catch (NoSuchMethodException e) {

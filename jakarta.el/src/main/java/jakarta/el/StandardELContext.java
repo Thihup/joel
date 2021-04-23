@@ -42,7 +42,7 @@ public class StandardELContext extends ELContext {
     public StandardELContext(ExpressionFactory expressionFactory) {
         functionMapper = new DefaultFunctionMapper(expressionFactory.getInitFunctionMap());
         variableMapper = new DefaultVariableMapper();
-        rootResolver = computeResolver();
+        rootResolver = computeResolver(expressionFactory.getStreamELResolver());
         putContext(ExpressionFactory.class, expressionFactory);
     }
 
@@ -82,10 +82,12 @@ public class StandardELContext extends ELContext {
         return rootResolver;
     }
 
-    private CompositeELResolver computeResolver() {
+    private CompositeELResolver computeResolver(ELResolver streamELResolver) {
         CompositeELResolver resolver = new CompositeELResolver();
         resolver.add(new BeanNameELResolver(localBeanRepository));
         resolver.add(customResolvers);
+        if (streamELResolver != null)
+            resolver.add(streamELResolver);
         // "Collection operations"
         resolver.add(new StaticFieldELResolver());
         resolver.add(new MapELResolver());

@@ -14,7 +14,7 @@ integerLiteralExpression: INTEGER_LITERAL;
 stringLiteralExpression: StringLiteral;
 nullLiteralExpression: NULL;
 
-methodArguments: LPAREN expressionList? RPAREN;
+arguments: LPAREN expressionList? RPAREN;
 expressionList: (expression ((COMMA expression)*));
 
 lambdaParameters: IDENTIFIER | (LPAREN (IDENTIFIER ((COMMA IDENTIFIER)*))? RPAREN);
@@ -23,15 +23,9 @@ mapEntry: expression COLON expression;
 mapEntries: mapEntry (COMMA mapEntry)*;
 
 expression
-    : LPAREN expression RPAREN #parenExpression
-    | literal #literalExpr
-    | IDENTIFIER #identifierExpression
-    | LBRACK expressionList? RBRACK  #listExpression
-    | LCURL expressionList? RCURL #setExpression
-    | LCURL mapEntries? RCURL #mapExpression
-    | expression bop=DOT (IDENTIFIER methodArguments) #callExpression
-    | expression (LBRACK expression RBRACK) #memberIndexExpression
+    : expression (LBRACK expression RBRACK) #memberIndexExpression
     | expression bop=DOT (IDENTIFIER) #memberDotExpression
+    | expression arguments #callExpression
     | prefix=(MINUS | NOT | EMPTY) expression #unaryExpression
     | expression bop=(MULT | DIV | MOD ) expression #infixExpression
     | expression bop=(PLUS | MINUS) expression #infixExpression
@@ -42,9 +36,15 @@ expression
     | expression bop=OR expression #logicalExpression
     | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression #ternaryExpression
     | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
-    | LPAREN (expression) RPAREN methodArguments* #lambdaCallExpression
+    | LPAREN (expression) RPAREN arguments* #lambdaCallExpression
     | lambdaParameters ARROW expression #lambdaExpression
     | expression SEMICOLON expression #semicolonExpression
+    | IDENTIFIER #identifierExpression
+    | literal #literalExpr
+    | LBRACK expressionList? RBRACK  #listExpression
+    | LCURL expressionList? RCURL #setExpression
+    | LCURL mapEntries? RCURL #mapExpression
+    | LPAREN expression RPAREN #parenExpression
     ;
 
 // LEXER

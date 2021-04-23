@@ -1,7 +1,9 @@
 package jakarta.el;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +63,7 @@ public abstract class ELContext {
 
     private final List<EvaluationListener> listeners = new ArrayList<>();
     private final Map<Class<?>, Object> contexts = new HashMap<>();
+    private final Deque<Map<String, Object>> lambdaArguments = new ArrayDeque<>();
     private final ImportHandler importHandler = new ImportHandler();
     private Locale locale = Locale.getDefault();
     private boolean propertyResolved;
@@ -112,6 +115,7 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public void enterLambdaScope(Map<String, Object> arguments) {
+        lambdaArguments.addLast(arguments);
     }
 
     /**
@@ -120,6 +124,7 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public void exitLambdaScope() {
+        lambdaArguments.removeLast();
     }
 
     /**
@@ -140,9 +145,9 @@ public abstract class ELContext {
      * @return The context object associated with the given key, or null if no such context was found.
      * @throws NullPointerException if key is null.
      */
-    public Object getContext(Class<?> key) {
+    public <T> T getContext(Class<T> key) {
         Objects.requireNonNull(key);
-        return contexts.get(key);
+        return (T) contexts.get(key);
     }
 
     /**
@@ -175,7 +180,7 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public Object getLambdaArgument(String argument) {
-        return null;
+        return lambdaArguments.stream().map(x -> x.get(argument)).findFirst().orElse(null);
     }
 
     /**
@@ -210,7 +215,7 @@ public abstract class ELContext {
      * @return true if arg is a LambdaArgument, false otherwise.
      */
     public boolean isLambdaArgument(String argument) {
-        return false;
+        return lambdaArguments.stream().anyMatch(x -> x.containsKey(argument));
     }
 
     /**

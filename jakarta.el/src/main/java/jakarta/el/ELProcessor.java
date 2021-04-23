@@ -131,7 +131,7 @@ public class ELProcessor {
      * @return The ELManager used for Jakarta Expression Language processing.
      */
     public ELManager getELManager() {
-        return null;
+        return manager;
     }
 
     /**
@@ -142,7 +142,7 @@ public class ELProcessor {
      * @return The result of the expression evaluation.
      */
     public Object getValue(String expression, Class<?> expectedType) {
-        ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
+        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
         if (factory == null) {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);

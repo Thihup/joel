@@ -1,7 +1,12 @@
 package jakarta.el;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Encapsulates a parameterized {@link ValueExpression}.
@@ -29,6 +34,10 @@ import java.util.Objects;
  */
 public class LambdaExpression {
 
+    private final List<String> formalParameters;
+    private final ValueExpression expression;
+    private ELContext context;
+
     /**
      * Creates a new LambdaExpression.
      *
@@ -36,6 +45,8 @@ public class LambdaExpression {
      * @param expression       The <code>ValueExpression</code> representing the body.
      */
     public LambdaExpression(List<String> formalParameters, ValueExpression expression) {
+        this.formalParameters = formalParameters;
+        this.expression = expression;
     }
 
     /**
@@ -61,7 +72,20 @@ public class LambdaExpression {
      */
     public Object invoke(ELContext elContext, Object... arguments) {
         Objects.requireNonNull(elContext);
-        return null;
+
+        if (arguments.length < formalParameters.size())
+            throw new ELException("Not enough arguments provided");
+
+        Map<String, Object> collect = IntStream.range(0, formalParameters.size())
+                .boxed()
+                .collect(Collectors.toMap(formalParameters::get, x -> arguments[x]));
+
+        try {
+            elContext.enterLambdaScope(collect);
+            return expression.getValue(elContext);
+        } finally {
+            elContext.exitLambdaScope();
+        }
     }
 
     /**
@@ -85,7 +109,7 @@ public class LambdaExpression {
      * @throws ELException if not enough arguments are provided
      */
     public Object invoke(Object... arguments) {
-        return null;
+        return invoke(context, arguments);
     }
 
     /**
@@ -95,6 +119,11 @@ public class LambdaExpression {
      * @param context The ELContext to use in evaluating the LambdaExpression.
      */
     public void setELContext(ELContext context) {
+        this.context = context;
     }
 
+    @Override
+    public String toString() {
+        return "LambdaExpression{" + formalParameters + " -> " + expression.toString() + "}";
+    }
 }
