@@ -334,7 +334,7 @@ public class BeanELResolver extends ELResolver {
                 .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
                 .filter(x -> params == null || params.length == x.getParameterCount())
                 .findFirst()
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(NoSuchMethodException::new);
             MethodHandle unreflect = MethodHandles.lookup().unreflect(method);
             context.setPropertyResolved(base, method);
             return unreflect.bindTo(base).invokeWithArguments(params);
