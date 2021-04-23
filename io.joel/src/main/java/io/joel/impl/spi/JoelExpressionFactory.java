@@ -114,7 +114,13 @@ public class JoelExpressionFactory extends ExpressionFactory {
                     return null;
                 try {
                     String methodName = (String) method;
-                    var method1 = Arrays.stream(Stream.class.getMethods()).filter(x -> x.getName().equals(methodName) && (parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))).findFirst().orElseThrow();
+                    var method1 = Arrays.stream(Stream.class.getMethods())
+                            .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                            .filter(x -> x.getName().equals(methodName))
+                            .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
+                            .filter(x -> params == null || params.length == x.getParameterCount())
+                            .findFirst()
+                            .orElseThrow();
                     if (method1.getParameterCount() == 0) {
                         context.setPropertyResolved(base, method);
                         return method1.invoke(stream);
@@ -129,8 +135,13 @@ public class JoelExpressionFactory extends ExpressionFactory {
                     if (aClass.isPrimitive())
                         throw new ELException("Handle primitive arguments");
 
-                    Method method2 = Arrays.stream(aClass.getMethods()).filter(x -> !x.isDefault() && !Modifier.isStatic(x.getModifiers())).findFirst().orElseThrow();
+                    Method method2 = Arrays.stream(aClass.getMethods())
+                        .filter(x -> !x.isDefault())
+                        .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                        .findFirst()
+                        .orElseThrow();
                     Class<?> returnType = method2.getReturnType();
+
                     LambdaExpression param = (LambdaExpression) params[0];
 
                     MethodHandle methodHandle1 = MethodHandles.filterArguments(MethodHandles.insertArguments(CONVERT_TO_TYPE.bindTo(context), 1, returnType), 0,

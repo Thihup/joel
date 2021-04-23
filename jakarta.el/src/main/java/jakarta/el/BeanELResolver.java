@@ -330,7 +330,9 @@ public class BeanELResolver extends ELResolver {
         Class<?> aClass = base.getClass();
         try {
             Method method = Arrays.stream(aClass.getMethods())
-                .filter(x -> x.getName().equals(methodName.toString()) && (parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes())))
+                .filter(x -> x.getName().equals(methodName.toString()))
+                .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
+                .filter(x -> params == null || params.length == x.getParameterCount())
                 .findFirst()
                 .orElseThrow(NoSuchElementException::new);
             MethodHandle unreflect = MethodHandles.lookup().unreflect(method);
