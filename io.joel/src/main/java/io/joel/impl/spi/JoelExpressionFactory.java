@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static java.lang.System.Logger.Level.INFO;
@@ -110,11 +111,25 @@ public class JoelExpressionFactory extends ExpressionFactory {
             @Override
             public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
                 Objects.requireNonNull(context);
-                if (!(base instanceof Stream<?> stream))
+                if (!(base instanceof Stream<?>))
                     return null;
                 try {
                     String methodName = (String) method;
-                    var method1 = Arrays.stream(Stream.class.getMethods())
+
+                    if ("substream".equals(methodName)) {
+                        base = ((Stream<?>) base).skip(((long) params[0]));
+                        if (params.length == 2) {
+                            base = ((Stream<?>) base).limit((long) params[1]);
+                        }
+                    }
+
+                    Class<?> streamClass = Stream.class;
+                    if ("average".equals(methodName) || "sum".equals(methodName)) {
+                        base = ((Stream<?>) base).mapToLong(x -> context.convertToType(x, Long.class));
+                        streamClass = LongStream.class;
+                    }
+
+                    var method1 = Arrays.stream(streamClass.getMethods())
                             .filter(x -> !Modifier.isStatic(x.getModifiers()))
                             .filter(x -> x.getName().equals(methodName))
                             .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
@@ -123,7 +138,7 @@ public class JoelExpressionFactory extends ExpressionFactory {
                             .orElseThrow();
                     if (method1.getParameterCount() == 0) {
                         context.setPropertyResolved(base, method);
-                        return method1.invoke(stream);
+                        return method1.invoke(base);
                     }
                     // parameters of stream method
                     Class<?>[] parameterTypes1 = method1.getParameterTypes();
@@ -136,10 +151,10 @@ public class JoelExpressionFactory extends ExpressionFactory {
                         throw new ELException("Handle primitive arguments");
 
                     Method method2 = Arrays.stream(aClass.getMethods())
-                        .filter(x -> !x.isDefault())
-                        .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                        .findFirst()
-                        .orElseThrow();
+                            .filter(x -> !x.isDefault())
+                            .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                            .findFirst()
+                            .orElseThrow();
                     Class<?> returnType = method2.getReturnType();
 
                     LambdaExpression param = (LambdaExpression) params[0];
@@ -152,7 +167,7 @@ public class JoelExpressionFactory extends ExpressionFactory {
 
                     Object proxy = MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
                     context.setPropertyResolved(base, method);
-                    return method1.invoke(stream, proxy);
+                    return method1.invoke(base, proxy);
                 } catch (Throwable foo) {
                     throw new ELException(foo);
                 }
