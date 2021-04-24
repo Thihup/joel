@@ -7,23 +7,10 @@ import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
-import jakarta.el.LambdaExpression;
 import jakarta.el.MethodExpression;
-import jakarta.el.MethodNotFoundException;
 import jakarta.el.ValueExpression;
 
-import java.beans.FeatureDescriptor;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandleProxies;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import static java.lang.System.Logger.Level.INFO;
 
