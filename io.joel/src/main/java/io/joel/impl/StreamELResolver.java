@@ -18,12 +18,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.LongStream;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class StreamELResolver extends ELResolver {
     private static final MethodHandle CONVERT_TO_TYPE;
     private static final MethodHandle LAMBDA_INVOKE;
+    private static final List<String> IGNORED_METHODS = List.of("equals", "hashCode", "toString");
 
     static {
         try {
@@ -66,18 +67,24 @@ public class StreamELResolver extends ELResolver {
     @Override
     public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
         Objects.requireNonNull(context);
-        if (!(base instanceof Stream<?>))
+        if (!(base instanceof Stream<?> stream))
             return null;
         try {
             String methodName = (String) method;
 
             if ("substream".equals(methodName)) {
-                base = ((Stream<?>) base).skip(((long) params[0]));
-                if (params.length == 2) {
-                    base = ((Stream<?>) base).limit((long) params[1] - (long) params[0]);
-                }
                 context.setPropertyResolved(base, method);
-                return base;
+                return executeSubstream(stream, params);
+            }
+
+            if ("average".equals(methodName)) {
+                context.setPropertyResolved(base, method);
+                return executeAverage(context, stream);
+            }
+
+            if ("sum".equals(methodName)) {
+                context.setPropertyResolved(base, method);
+                return executeSum(context, stream);
             }
 
             if ("sorted".equals(methodName) || "min".equals(methodName) || "max".equals(methodName)) {
@@ -86,13 +93,8 @@ public class StreamELResolver extends ELResolver {
                 }
             }
 
-            Class<?> streamClass = Stream.class;
-            if ("average".equals(methodName) || "sum".equals(methodName)) {
-                base = ((Stream<?>) base).mapToLong(x -> context.convertToType(x, Long.class));
-                streamClass = LongStream.class;
-            }
             Object[] currentParams = params;
-            var method1 = Arrays.stream(streamClass.getMethods())
+            var method1 = Arrays.stream(Stream.class.getMethods())
                     .filter(x -> !Modifier.isStatic(x.getModifiers()))
                     .filter(x -> x.getName().equals(methodName))
                     .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
@@ -107,51 +109,20 @@ public class StreamELResolver extends ELResolver {
             }
 
             // sorted() / min() / max()
-            if (params != null && params.length != 0 && !(params[0] instanceof LambdaExpression)) {
+            if (params != null && params.length != 0 && Arrays.stream(params).noneMatch(LambdaExpression.class::isInstance)) {
                 context.setPropertyResolved(base, method);
                 return method1.invoke(base, params);
             }
 
-            LambdaExpression lambdaParam = (LambdaExpression) params[0];
-
             // parameters of stream method
             Class<?>[] parameterTypes1 = method1.getParameterTypes();
+
             if (parameterTypes1.length > 1)
                 throw new ELException("Handle multiple stream arguments");
-
             Class<?> aClass = parameterTypes1[0];
             if (aClass.isPrimitive())
                 throw new ELException("Handle primitive arguments");
-
-            List<String> equals = List.of("equals", "hashCode", "toString");
-
-            Method method2 = Arrays.stream(aClass.getMethods())
-                    .filter(x -> !x.isDefault())
-                    .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                    .filter(x -> equals.stream().noneMatch(x.getName()::equals))
-                    .findFirst()
-                    .orElseThrow(NoSuchMethodException::new);
-            Class<?> returnType = method2.getReturnType();
-
-
-            // lambdaParam.invoke(context, ?)
-            MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context);
-
-            // context.convertToType(?, ?)
-            MethodHandle methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
-
-            // context.convertToType(?, returnType)
-            MethodHandle methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
-
-            // context.convertToType(lambdaParam.invoke(context, ?), returnType)
-            MethodHandle methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
-
-            MethodHandle methodHandle1 = methodHandle4
-                    // context.convertToType(lambdaParam.invoke(context, Object...?), returnType)
-                    .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
-                    .asType(MethodType.methodType(returnType, method2.getParameterTypes()));
-
-            Object proxy = MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
+            Object proxy = createLambdaFromLambdaExpression(context, params[0], aClass);
             context.setPropertyResolved(base, method);
             return method1.invoke(base, proxy);
         } catch (NoSuchMethodException noSuchMethodException) {
@@ -159,5 +130,67 @@ public class StreamELResolver extends ELResolver {
         } catch (Throwable throwable) {
             throw new ELException(throwable);
         }
+    }
+
+    private Object createLambdaFromLambdaExpression(ELContext context, Object param, Class<?> aClass) throws NoSuchMethodException {
+        LambdaExpression lambdaParam = (LambdaExpression) param;
+        Method method2 = Arrays.stream(aClass.getMethods())
+                .filter(x -> !x.isDefault())
+                .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                .filter(x -> IGNORED_METHODS.stream().noneMatch(x.getName()::equals))
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
+        Class<?> returnType = method2.getReturnType();
+
+
+        // lambdaParam.invoke(context, ?)
+        MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context);
+
+        // context.convertToType(?, ?)
+        MethodHandle methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
+
+        // context.convertToType(?, returnType)
+        MethodHandle methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
+
+        // context.convertToType(lambdaParam.invoke(context, ?), returnType)
+        MethodHandle methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
+
+        MethodHandle methodHandle1 = methodHandle4
+                // context.convertToType(lambdaParam.invoke(context, Object...?), returnType)
+                .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
+                .asType(MethodType.methodType(returnType, method2.getParameterTypes()));
+
+        return MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
+    }
+
+    private Object executeSum(ELContext context, Stream<?> base) {
+        return base.mapToLong(x -> context.convertToType(x, Long.class)).sum();
+    }
+
+    private Object executeAverage(ELContext context, Stream<?> base) {
+        // We need to return Optional instead of OptionalDouble because
+        // the spec requires the method "get", but the OptionalDouble has
+        // "getAsDouble"
+        long[] avg = base.mapToLong(x -> context.convertToType(x, Long.class))
+                .collect(() -> new long[2],
+                        (ll, i) -> {
+                            ll[0]++;
+                            ll[1] += i;
+                        },
+                        (ll, rr) -> {
+                            ll[0] += rr[0];
+                            ll[1] += rr[1];
+                        });
+        return avg[0] > 0
+                ? Optional.of((double) avg[1] / avg[0])
+                : Optional.empty();
+    }
+
+    private Object executeSubstream(Stream<?> base, Object[] params) {
+        Stream<?> skippedStream = base.skip(((long) params[0]));
+        if (params.length == 2) {
+            return skippedStream.limit((long) params[1] - (long) params[0]);
+        }
+        return skippedStream;
     }
 }
