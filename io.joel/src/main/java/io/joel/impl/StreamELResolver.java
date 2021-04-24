@@ -72,8 +72,10 @@ public class StreamELResolver extends ELResolver {
             if ("substream".equals(methodName)) {
                 base = ((Stream<?>) base).skip(((long) params[0]));
                 if (params.length == 2) {
-                    base = ((Stream<?>) base).limit((long) params[1]);
+                    base = ((Stream<?>) base).limit((long) params[1] - (long) params[0]);
                 }
+                context.setPropertyResolved(base, method);
+                return base;
             }
 
             Class<?> streamClass = Stream.class;
