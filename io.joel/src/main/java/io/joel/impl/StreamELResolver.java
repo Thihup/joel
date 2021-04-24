@@ -16,6 +16,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -122,19 +123,33 @@ public class StreamELResolver extends ELResolver {
             if (aClass.isPrimitive())
                 throw new ELException("Handle primitive arguments");
 
+            List<String> equals = List.of("equals", "hashCode", "toString");
+
             Method method2 = Arrays.stream(aClass.getMethods())
                     .filter(x -> !x.isDefault())
                     .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                    .filter(x -> equals.stream().noneMatch(x.getName()::equals))
                     .findFirst()
                     .orElseThrow(NoSuchMethodException::new);
             Class<?> returnType = method2.getReturnType();
 
 
-            MethodHandle methodHandle1 = MethodHandles.filterArguments(MethodHandles.insertArguments(CONVERT_TO_TYPE.bindTo(context), 1, returnType), 0,
-                    MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context))
-                    .asType(MethodType.methodType(returnType, Object[].class))
-                    .withVarargs(true)
-                    .asType(MethodType.methodType(returnType, Object.class));
+            // lambdaParam.invoke(context, ?)
+            MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context);
+
+            // context.convertToType(?, ?)
+            MethodHandle methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
+
+            // context.convertToType(?, returnType)
+            MethodHandle methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
+
+            // context.convertToType(lambdaParam.invoke(context, ?), returnType)
+            MethodHandle methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
+
+            MethodHandle methodHandle1 = methodHandle4
+                    // context.convertToType(lambdaParam.invoke(context, Object...?), returnType)
+                    .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
+                    .asType(MethodType.methodType(returnType, method2.getParameterTypes()));
 
             Object proxy = MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
             context.setPropertyResolved(base, method);

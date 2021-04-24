@@ -109,5 +109,15 @@ class LambdaTest {
         assertEquals(4L, eval.get(3));
     }
 
+    @Test
+    void testSimpleLambda13() {
+        var elProcessor = new ELProcessor();
+        var eval = (List<?>) elProcessor.eval("[1,3,2,4].stream().sorted((p, q) -> p > q ? p : p == q ? 0 : -1).toList()");
+        assertEquals(4, eval.size());
+        assertEquals(1L, eval.get(0));
+        assertEquals(2L, eval.get(1));
+        assertEquals(3L, eval.get(2));
+        assertEquals(4L, eval.get(3));
+    }
 
 }
