@@ -19,6 +19,11 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return false;
             return context.convertToType(right.getValue(context), boolean.class);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s && %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record OrNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
@@ -27,6 +32,11 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (context.convertToType(left.getValue(context), boolean.class))
                 return true;
             return context.convertToType(right.getValue(context), boolean.class);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s || %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -68,12 +78,22 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             return leftValue.equals(rightValue);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s == %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record NotEqualNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
         @Override
         public Object getValue(ELContext context) {
             return !(Boolean) new EqualNode(left, right).getValue(context);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s != %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -107,6 +127,10 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return comparable.compareTo(leftValue) < 0;
             }
             throw new ELException("Cannot compare values: %s > %s".formatted(leftValue, rightValue));
+        }
+        @Override
+        public String prettyPrint() {
+            return "%s > %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -145,6 +169,10 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             throw new ELException("Cannot compare values: %s >= %s".formatted(leftValue, rightValue));
         }
+        @Override
+        public String prettyPrint() {
+            return "%s >= %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record LessThanNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
@@ -177,6 +205,10 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return comparable.compareTo(leftValue) > 0;
             }
             throw new ELException("Cannot compare values: %s < %s".formatted(leftValue, rightValue));
+        }
+        @Override
+        public String prettyPrint() {
+            return "%s < %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -214,6 +246,10 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return comparable.compareTo(leftValue) >= 0;
             }
             throw new ELException("Cannot compare values: %s <= %s".formatted(leftValue, rightValue));
+        }
+        @Override
+        public String prettyPrint() {
+            return "%s <= %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 }

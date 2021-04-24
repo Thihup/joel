@@ -176,5 +176,7 @@ public class ELProcessor {
      * @param expression The Jakarta Expression Language expression to be assigned to the variable.
      */
     public void setVariable(String variable, String expression) {
+        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
+        manager.setVariable(variable, factory.createValueExpression(manager.getELContext(), expression, Object.class));
     }
 }

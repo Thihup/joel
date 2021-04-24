@@ -57,6 +57,11 @@ public interface InfixExpressionNode extends ExpressionNode {
 
             return context.convertToType(leftValue, Long.class) + context.convertToType(rightValue, Long.class);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s + %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record SubExpressionNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
@@ -98,6 +103,11 @@ public interface InfixExpressionNode extends ExpressionNode {
             }
 
             return context.convertToType(leftValue, Long.class) - context.convertToType(rightValue, Long.class);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s - %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -141,6 +151,11 @@ public interface InfixExpressionNode extends ExpressionNode {
 
             return context.convertToType(leftValue, Long.class) * context.convertToType(rightValue, Long.class);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s * %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record DivExpressionNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
@@ -154,6 +169,11 @@ public interface InfixExpressionNode extends ExpressionNode {
                 return context.convertToType(leftValue, BigDecimal.class).divide(context.convertToType(rightValue, BigDecimal.class), RoundingMode.HALF_UP);
             }
             return context.convertToType(leftValue, Double.class) / context.convertToType(rightValue, Double.class);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s / %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -180,6 +200,11 @@ public interface InfixExpressionNode extends ExpressionNode {
 
             return context.convertToType(leftValue, Long.class) % context.convertToType(rightValue, Long.class);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s %% %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record AssignNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
@@ -205,6 +230,11 @@ public interface InfixExpressionNode extends ExpressionNode {
             }
             return null;
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s = %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
     }
 
     record ConcatNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
@@ -216,6 +246,11 @@ public interface InfixExpressionNode extends ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
             return context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s += %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 }

@@ -29,6 +29,10 @@ public interface ExpressionNode extends Serializable {
         throw new UnsupportedOperationException(this.toString());
     }
 
+    default String prettyPrint() {
+        throw new UnsupportedOperationException();
+    }
+
     enum NullNode implements ExpressionNode {
         INSTANCE;
 
@@ -43,10 +47,14 @@ public interface ExpressionNode extends Serializable {
         }
 
         @Override
+        public String prettyPrint() {
+            return "null";
+        }
+
+        @Override
         public String toString() {
             return "NullNode[" + super.toString() + "]";
         }
-
     }
 
     enum BooleanNode implements BooleanExpression {
@@ -72,6 +80,11 @@ public interface ExpressionNode extends Serializable {
         public Class<?> getType(ELContext context) {
             return Boolean.class;
         }
+
+        @Override
+        public String prettyPrint() {
+            return super.toString();
+        }
     }
 
     interface BooleanExpression extends ExpressionNode {
@@ -91,6 +104,11 @@ public interface ExpressionNode extends Serializable {
         public Object getValue(ELContext context) {
             return node.getValue(context);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "${%s}".formatted(node.prettyPrint());
+        }
     }
 
     record DeferredExpressionNode(ExpressionNode node) implements ExpressionNode {
@@ -102,6 +120,10 @@ public interface ExpressionNode extends Serializable {
         @Override
         public Object getValue(ELContext context) {
             return node.getValue(context);
+        }
+        @Override
+        public String prettyPrint() {
+            return "#{%s}".formatted(node.prettyPrint());
         }
     }
 
@@ -148,6 +170,11 @@ public interface ExpressionNode extends Serializable {
             }
             throw new ELException("Cannot apply the '-' operator to %s".formatted(value));
         }
+
+        @Override
+        public String prettyPrint() {
+            return "-%s".formatted(node.prettyPrint());
+        }
     }
 
 
@@ -161,6 +188,11 @@ public interface ExpressionNode extends Serializable {
         public Object getValue(ELContext context) {
             return value;
         }
+
+        @Override
+        public String prettyPrint() {
+            return value.toString();
+        }
     }
 
     record StringNode(String value) implements ExpressionNode {
@@ -172,6 +204,11 @@ public interface ExpressionNode extends Serializable {
         @Override
         public Object getValue(ELContext context) {
             return value;
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "'%s'".formatted(value);
         }
     }
 
@@ -224,6 +261,11 @@ public interface ExpressionNode extends Serializable {
 
             throw new ELException("Property %s not found".formatted(value));
         }
+
+        @Override
+        public String prettyPrint() {
+            return value;
+        }
     }
 
     record UnaryNotNode(ExpressionNode node) implements ExpressionNode {
@@ -235,6 +277,11 @@ public interface ExpressionNode extends Serializable {
         @Override
         public Object getValue(ELContext context) {
             return !context.convertToType(node.getValue(context), boolean.class);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "! %s".formatted(node.prettyPrint());
         }
     }
 
@@ -256,6 +303,11 @@ public interface ExpressionNode extends Serializable {
             if (value instanceof Map<?, ?> newValue && newValue.isEmpty())
                 return true;
             return value instanceof Collection<?> newValue && newValue.isEmpty();
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "empty %s".formatted(node.prettyPrint());
         }
     }
 
@@ -281,8 +333,13 @@ public interface ExpressionNode extends Serializable {
                             return context.getELResolver().getValue(context, new ELClass(aClass), property instanceof IdentifierNode identifier ? identifier.value : property.getValue(context));
                     }
                 }
-                throw new PropertyNotFoundException(object + "." + property, rootCause);
+                throw new PropertyNotFoundException(prettyPrint(), rootCause);
             }
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s.%s".formatted(object.prettyPrint(), property.prettyPrint());
         }
     }
 
@@ -296,6 +353,11 @@ public interface ExpressionNode extends Serializable {
         public Object getValue(ELContext context) {
             left.getValue(context);
             return right.getValue(context);
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "%s; %s".formatted(left.prettyPrint(), right.prettyPrint());
         }
     }
 
@@ -316,6 +378,11 @@ public interface ExpressionNode extends Serializable {
             }
             return falseExpression.getValue(context);
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s ? %s : %s".formatted(condition.prettyPrint(), trueExpression.prettyPrint(), falseExpression.prettyPrint());
+        }
     }
 
     record SetNode(List<ExpressionNode> values) implements ExpressionNode {
@@ -330,6 +397,11 @@ public interface ExpressionNode extends Serializable {
                     .map(x -> x.getValue(context))
                     .collect(Collectors.toSet());
         }
+
+        @Override
+        public String prettyPrint() {
+            return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "{", "}"));
+        }
     }
 
     record ListNode(List<ExpressionNode> values) implements ExpressionNode {
@@ -343,6 +415,10 @@ public interface ExpressionNode extends Serializable {
             return values.stream()
                     .map(x -> x.getValue(context))
                     .collect(Collectors.toList());
+        }
+        @Override
+        public String prettyPrint() {
+            return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "[", "]"));
         }
     }
 
@@ -359,12 +435,22 @@ public interface ExpressionNode extends Serializable {
             }
             return null;
         }
+
+        @Override
+        public String prettyPrint() {
+            return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",")));
+        }
     }
 
     record LambdaNode(List<String> parameters, ExpressionNode expression) implements ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
-            return new LambdaExpression(parameters, new JoelValueExpression(expression.toString(), expression, Object.class));
+            return new LambdaExpression(parameters, new JoelValueExpression(expression.prettyPrint(), expression, Object.class));
+        }
+
+        @Override
+        public String prettyPrint() {
+            return "(%s) -> %s".formatted(String.join(",", parameters), expression.prettyPrint());
         }
     }
 
