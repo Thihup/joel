@@ -14,6 +14,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.LongStream;
@@ -78,26 +79,42 @@ public class StreamELResolver extends ELResolver {
                 return base;
             }
 
+            if ("sorted".equals(methodName) || "min".equals(methodName) || "max".equals(methodName)) {
+                if (params == null || params.length == 0) {
+                    params = new Object[]{Comparator.naturalOrder()};
+                }
+            }
+
             Class<?> streamClass = Stream.class;
             if ("average".equals(methodName) || "sum".equals(methodName)) {
                 base = ((Stream<?>) base).mapToLong(x -> context.convertToType(x, Long.class));
                 streamClass = LongStream.class;
             }
-
+            Object[] currentParams = params;
             var method1 = Arrays.stream(streamClass.getMethods())
                     .filter(x -> !Modifier.isStatic(x.getModifiers()))
                     .filter(x -> x.getName().equals(methodName))
                     .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
-                    .filter(x -> params == null || params.length == x.getParameterCount())
+                    .filter(x -> currentParams == null || currentParams.length == x.getParameterCount())
                     .findFirst()
                     .orElseThrow(NoSuchMethodException::new);
+
+            // toList() / toArray()
             if (method1.getParameterCount() == 0) {
                 context.setPropertyResolved(base, method);
                 return method1.invoke(base);
             }
+
+            // sorted() / min() / max()
+            if (params != null && params.length != 0 && !(params[0] instanceof LambdaExpression)) {
+                context.setPropertyResolved(base, method);
+                return method1.invoke(base, params);
+            }
+
+            LambdaExpression lambdaParam = (LambdaExpression) params[0];
+
             // parameters of stream method
             Class<?>[] parameterTypes1 = method1.getParameterTypes();
-
             if (parameterTypes1.length > 1)
                 throw new ELException("Handle multiple stream arguments");
 
@@ -112,10 +129,9 @@ public class StreamELResolver extends ELResolver {
                     .orElseThrow(NoSuchMethodException::new);
             Class<?> returnType = method2.getReturnType();
 
-            LambdaExpression param = (LambdaExpression) params[0];
 
             MethodHandle methodHandle1 = MethodHandles.filterArguments(MethodHandles.insertArguments(CONVERT_TO_TYPE.bindTo(context), 1, returnType), 0,
-                    MethodHandles.insertArguments(LAMBDA_INVOKE, 0, param, context))
+                    MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context))
                     .asType(MethodType.methodType(returnType, Object[].class))
                     .withVarargs(true)
                     .asType(MethodType.methodType(returnType, Object.class));
