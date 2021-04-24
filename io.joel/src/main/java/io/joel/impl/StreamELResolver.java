@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class StreamELResolver extends ELResolver {
@@ -117,14 +118,18 @@ public class StreamELResolver extends ELResolver {
             // parameters of stream method
             Class<?>[] parameterTypes1 = method1.getParameterTypes();
 
-            if (parameterTypes1.length > 1)
-                throw new ELException("Handle multiple stream arguments");
-            Class<?> aClass = parameterTypes1[0];
-            if (aClass.isPrimitive())
-                throw new ELException("Handle primitive arguments");
-            Object proxy = createLambdaFromLambdaExpression(context, params[0], aClass);
+            Object[] objects = IntStream.range(0, parameterTypes1.length)
+                    .boxed()
+                    .map(x -> {
+                        try {
+                            return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x]) : currentParams[x];
+                        } catch (NoSuchMethodException noSuchMethodException) {
+                            throw new ELException(noSuchMethodException);
+                        }
+                    })
+                    .toArray();
             context.setPropertyResolved(base, method);
-            return method1.invoke(base, proxy);
+            return method1.invoke(base, objects);
         } catch (NoSuchMethodException noSuchMethodException) {
             throw new MethodNotFoundException(noSuchMethodException);
         } catch (Throwable throwable) {
@@ -132,8 +137,7 @@ public class StreamELResolver extends ELResolver {
         }
     }
 
-    private Object createLambdaFromLambdaExpression(ELContext context, Object param, Class<?> aClass) throws NoSuchMethodException {
-        LambdaExpression lambdaParam = (LambdaExpression) param;
+    private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass) throws NoSuchMethodException {
         Method method2 = Arrays.stream(aClass.getMethods())
                 .filter(x -> !x.isDefault())
                 .filter(x -> !Modifier.isStatic(x.getModifiers()))
@@ -143,8 +147,8 @@ public class StreamELResolver extends ELResolver {
         Class<?> returnType = method2.getReturnType();
 
 
-        // lambdaParam.invoke(context, ?)
-        MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaParam, context);
+        // lambdaExpression.invoke(context, ?)
+        MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context);
 
         // context.convertToType(?, ?)
         MethodHandle methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
@@ -152,11 +156,11 @@ public class StreamELResolver extends ELResolver {
         // context.convertToType(?, returnType)
         MethodHandle methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
 
-        // context.convertToType(lambdaParam.invoke(context, ?), returnType)
+        // context.convertToType(lambdaExpression.invoke(context, ?), returnType)
         MethodHandle methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
 
         MethodHandle methodHandle1 = methodHandle4
-                // context.convertToType(lambdaParam.invoke(context, Object...?), returnType)
+                // context.convertToType(lambdaExpression.invoke(context, Object...?), returnType)
                 .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
                 .asType(MethodType.methodType(returnType, method2.getParameterTypes()));
 

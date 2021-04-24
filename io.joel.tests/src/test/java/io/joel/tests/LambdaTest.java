@@ -4,6 +4,7 @@ import jakarta.el.ELProcessor;
 import jakarta.el.LambdaExpression;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -118,6 +119,20 @@ class LambdaTest {
         assertEquals(2L, eval.get(1));
         assertEquals(3L, eval.get(2));
         assertEquals(4L, eval.get(3));
+    }
+
+    @Test
+    void testSimpleLambda14() {
+        var elProcessor = new ELProcessor();
+        var eval = (Long) elProcessor.eval("[1,2,3,4,5].stream().reduce(0, (l,r)->l+r)");
+        assertEquals(15L, eval);
+    }
+
+    @Test
+    void testSimpleLambda15() {
+        var elProcessor = new ELProcessor();
+        var eval = (Optional<Long>) elProcessor.eval("[1,2,3,4,5].stream().reduce((l,r)->l+r)");
+        assertEquals(15L, eval.get());
     }
 
 }
