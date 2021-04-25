@@ -1,6 +1,7 @@
 package io.joel.impl;
 
 import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.InfixExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
@@ -20,7 +21,7 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public int hashCode() {
-        return Objects.hash(expression, expectedType);
+        return Objects.hash(expression, expressionNode, expectedType);
     }
 
     @Override
@@ -60,6 +61,7 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public void setValue(ELContext context, Object value) {
+        new InfixExpressionNode.AssignNode(expressionNode, new InfixExpressionNode.ObjectNode(value)).getValue(context);
     }
 
     @Override

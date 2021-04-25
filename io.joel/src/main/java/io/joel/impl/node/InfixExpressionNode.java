@@ -216,18 +216,26 @@ public interface InfixExpressionNode extends ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
             if (left instanceof IdentifierNode identifierNode) {
-                Object value = right.getValue(context);
-                context.getELResolver().setValue(context, null, identifierNode.value(), value instanceof ValueReference reference? context.getELResolver().getValue(context, reference.getBase(), reference.getProperty()) : value);
+                Object value = getValue(context, right);
+                context.getELResolver().setValue(context, null, identifierNode.value(), value);
                 return value;
             }
             if (left instanceof MemberNode memberNode) {
-                Object leftValue = memberNode.getValue(context);
-                if (leftValue instanceof ValueReference valueReference) {
-                    Object value = right.getValue(context);
-                    context.getELResolver().setValue(context, valueReference.getBase(), valueReference.getProperty(), value instanceof ValueReference reference? context.getELResolver().getValue(context, reference.getBase(), reference.getProperty()) : value);
-                    return value;
-                }
+                ValueReference valueReference = memberNode.valueReference(context);
+                Object value = getValue(context, right);
+                context.getELResolver().setValue(context, valueReference.getBase(), valueReference.getProperty(), value);
+                return value;
             }
+            return null;
+        }
+
+        private Object getValue(ELContext context, Object node) {
+            if (node instanceof MemberNode memberNode)
+                return getValue(context, memberNode.valueReference(context));
+            if (node instanceof ValueReference reference)
+                return context.getELResolver().getValue(context, reference.getBase(), reference.getProperty());
+            if (node instanceof ExpressionNode expressionNode)
+                return expressionNode.getValue(context);
             return null;
         }
 
@@ -251,6 +259,18 @@ public interface InfixExpressionNode extends ExpressionNode {
         @Override
         public String prettyPrint() {
             return "%s += %s".formatted(left.prettyPrint(), right.prettyPrint());
+        }
+    }
+
+    record ObjectNode(Object value) implements ExpressionNode {
+        @Override
+        public Class<?> getType(ELContext context) {
+            return value.getClass();
+        }
+
+        @Override
+        public Object getValue(ELContext context) {
+            return value;
         }
     }
 }

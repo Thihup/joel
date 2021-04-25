@@ -421,19 +421,20 @@ public class BeanELResolver extends ELResolver {
         Class<?> aClass = base.getClass();
         addReads(aClass);
         String propertyName = property.toString();
+        Method getterMethod;
         try {
-            aClass.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
+            getterMethod = aClass.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
         } catch (NoSuchMethodException e) {
             try {
-                aClass.getMethod("is" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
+                getterMethod = aClass.getMethod("is" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
             } catch (NoSuchMethodException root) {
                 throw new PropertyNotFoundException(String.format("Property %s not found", property));
             }
         }
         try {
-            MethodHandle unreflect = MethodHandles.lookup().unreflect(aClass.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1), value.getClass()));
+            MethodHandle unreflect = MethodHandles.lookup().unreflect(aClass.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1), getterMethod.getReturnType()));
             context.setPropertyResolved(base, property);
-            unreflect.bindTo(base).invoke(value);
+            unreflect.bindTo(base).invokeWithArguments(value);
         } catch (Throwable e) {
             throw new ELException(e);
         }

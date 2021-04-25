@@ -122,7 +122,7 @@ public class ELProcessor {
      * @return The result of the expression evaluation.
      */
     public <T> T eval(String expression) {
-        return (T) getValue(String.format("${%s}", expression), Object.class);
+        return (T) getValue(expression, Object.class);
     }
 
     /**
@@ -147,7 +147,7 @@ public class ELProcessor {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
         }
-        return factory.createValueExpression(manager.getELContext(), expression, expectedType).getValue(manager.getELContext());
+        return factory.createValueExpression(manager.getELContext(), String.format("${%s}", expression), expectedType).getValue(manager.getELContext());
     }
 
     /**
@@ -164,6 +164,12 @@ public class ELProcessor {
      *                                      must be included as the cause property of this exception, if available.
      */
     public void setValue(String expression, Object value) {
+        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
+        if (factory == null) {
+            factory = ExpressionFactory.newInstance();
+            manager.getELContext().putContext(ExpressionFactory.class, factory);
+        }
+        factory.createValueExpression(manager.getELContext(), String.format("${%s}", expression), Object.class).setValue(manager.getELContext(), value);
     }
 
     /**
