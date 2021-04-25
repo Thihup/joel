@@ -121,6 +121,7 @@ public interface ExpressionNode extends Serializable {
         public Object getValue(ELContext context) {
             return node.getValue(context);
         }
+
         @Override
         public String prettyPrint() {
             return "#{%s}".formatted(node.prettyPrint());
@@ -323,7 +324,7 @@ public interface ExpressionNode extends Serializable {
         @Override
         public Object getValue(ELContext context) {
             try {
-                return new ValueReference(object.getValue(context), property instanceof IdentifierNode node ? node.value : property.getValue(context));
+                return context.getELResolver().getValue(context, object.getValue(context), property instanceof IdentifierNode node ? node.value : property.getValue(context));
             } catch (ELException rootCause) {
                 if (object instanceof IdentifierNode node) {
                     ImportHandler importHandler = context.getImportHandler();
@@ -335,6 +336,10 @@ public interface ExpressionNode extends Serializable {
                 }
                 throw new PropertyNotFoundException(prettyPrint(), rootCause);
             }
+        }
+
+        public ValueReference valueReference(ELContext context) {
+            return new ValueReference(object.getValue(context), property instanceof IdentifierNode node ? node.value : property.getValue(context));
         }
 
         @Override
@@ -425,15 +430,12 @@ public interface ExpressionNode extends Serializable {
     record CallExpressionNode(ExpressionNode callee, List<ExpressionNode> arguments) implements ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
-            var value = callee.getValue(context);
-            if (value == null)
-                throw new PropertyNotFoundException();
-            if (value instanceof ValueReference valueReference) {
-                var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
-                return context.getELResolver()
-                        .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
-            }
-            return null;
+            if (!(callee instanceof MemberNode memberNode))
+                throw new UnsupportedOperationException();
+            var valueReference = memberNode.valueReference(context);
+            var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
+            return context.getELResolver()
+                    .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
         }
 
         @Override
