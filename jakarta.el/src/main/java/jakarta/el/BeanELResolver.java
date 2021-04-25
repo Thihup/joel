@@ -3,11 +3,11 @@ package jakarta.el;
 import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -49,6 +49,33 @@ import java.util.Objects;
  * @since Jakarta Server Pages 2.1
  */
 public class BeanELResolver extends ELResolver {
+    private static final MethodHandle GET_MODULE;
+    private static final MethodHandle CAN_READ;
+    private static final MethodHandle THIS_MODULE;
+    private static final MethodHandle ADD_READS;
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+
+    static {
+        Class<?> moduleClass;
+        try {
+            moduleClass = Class.forName("java.lang.Module");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            GET_MODULE = LOOKUP.findVirtual(Class.class, "getModule", MethodType.methodType(moduleClass));
+            THIS_MODULE = GET_MODULE.bindTo(BeanELResolver.class);
+
+            MethodHandle addReads = LOOKUP.findVirtual(moduleClass, "addReads", MethodType.methodType(moduleClass, moduleClass));
+            MethodHandle canRead = LOOKUP.findVirtual(moduleClass, "canRead", MethodType.methodType(boolean.class, moduleClass));
+            CAN_READ = MethodHandles.foldArguments(canRead, THIS_MODULE);
+            ADD_READS = MethodHandles.foldArguments(addReads, THIS_MODULE);
+
+        } catch (Throwable throwable) {
+            throw new IllegalStateException(throwable);
+        }
+    }
+
     private final boolean readyOnly;
 
     /**
@@ -77,7 +104,7 @@ public class BeanELResolver extends ELResolver {
      * </p>
      *
      * @param context The context of this evaluation.
-     * @param base The bean to analyze.
+     * @param base    The bean to analyze.
      * @return <code>null</code> if base is <code>null</code>; otherwise <code>Object.class</code>.
      */
     @Override
@@ -148,6 +175,7 @@ public class BeanELResolver extends ELResolver {
         if (base == null || property == null)
             return null;
         Class<?> aClass = base.getClass();
+        addReads(aClass);
         Method method;
         String methodName = property.toString();
         try {
@@ -196,6 +224,7 @@ public class BeanELResolver extends ELResolver {
         if (base == null || property == null)
             return null;
         Class<?> aClass = base.getClass();
+        addReads(aClass);
         Method method;
         String methodName = property.toString();
         try {
@@ -259,6 +288,7 @@ public class BeanELResolver extends ELResolver {
         if (readyOnly)
             throw new PropertyNotWritableException();
         Class<?> aClass = base.getClass();
+        addReads(aClass);
         String propertyName = property.toString();
         Method method;
         try {
@@ -308,7 +338,7 @@ public class BeanELResolver extends ELResolver {
      *
      * @param context        The context of this evaluation.
      * @param base           The bean on which to invoke the method
-     * @param methodName         The simple name of the method to invoke. Will be coerced to a <code>String</code>. If method is
+     * @param methodName     The simple name of the method to invoke. Will be coerced to a <code>String</code>. If method is
      *                       "&lt;init&gt;"or "&lt;clinit&gt;" a MethodNotFoundException is thrown.
      * @param parameterTypes An array of Class objects identifying the method's formal parameter types, in declared order. Use
      *                       an empty array if the method has no parameters. Can be <code>null</code>, in which case the method's formal parameter
@@ -323,18 +353,21 @@ public class BeanELResolver extends ELResolver {
      * @since Jakarta Expression Language 2.2
      */
     @Override
-    public Object invoke(ELContext context, Object base, Object methodName, Class<?>[] parameterTypes, Object[] params) {
+    public Object invoke(ELContext context, Object base, Object methodName, Class<?>[] parameterTypes, Object[]
+            params) {
         Objects.requireNonNull(context);
         if (base == null || methodName == null)
             return null;
         Class<?> aClass = base.getClass();
         try {
             Method method = Arrays.stream(aClass.getMethods())
-                .filter(x -> x.getName().equals(methodName.toString()))
-                .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
-                .filter(x -> params == null || params.length == x.getParameterCount())
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
+                    .filter(x -> x.getName().equals(methodName.toString()))
+                    .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
+                    .filter(x -> params == null || params.length == x.getParameterCount())
+                    .findFirst()
+                    .orElseThrow(NoSuchMethodException::new);
+
+            addReads(aClass);
             MethodHandle unreflect = MethodHandles.lookup().unreflect(method);
             context.setPropertyResolved(base, method);
             return unreflect.bindTo(base).invokeWithArguments(params);
@@ -386,6 +419,7 @@ public class BeanELResolver extends ELResolver {
         if (readyOnly)
             throw new PropertyNotWritableException();
         Class<?> aClass = base.getClass();
+        addReads(aClass);
         String propertyName = property.toString();
         try {
             aClass.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
@@ -402,6 +436,16 @@ public class BeanELResolver extends ELResolver {
             unreflect.bindTo(base).invoke(value);
         } catch (Throwable e) {
             throw new ELException(e);
+        }
+    }
+
+    private void addReads(Class<?> klass) {
+        try {
+            MethodHandle getModuleForClass = GET_MODULE.bindTo(klass);
+            if (!(boolean)MethodHandles.foldArguments(CAN_READ, getModuleForClass).asType(MethodType.methodType(boolean.class)).invokeExact())
+                MethodHandles.foldArguments(ADD_READS, getModuleForClass).asType(MethodType.methodType(void.class)).invokeExact();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 }
