@@ -121,8 +121,8 @@ public class ELProcessor {
      * @param expression The Jakarta Expression Language expression to be evaluated.
      * @return The result of the expression evaluation.
      */
-    public Object eval(String expression) {
-        return getValue(String.format("${%s}", expression), Object.class);
+    public <T> T eval(String expression) {
+        return (T) getValue(String.format("${%s}", expression), Object.class);
     }
 
     /**
@@ -141,7 +141,7 @@ public class ELProcessor {
      * @param expectedType Specifies the type that the resultant evaluation will be coerced to.
      * @return The result of the expression evaluation.
      */
-    public Object getValue(String expression, Class<?> expectedType) {
+    public <T> T getValue(String expression, Class<T> expectedType) {
         ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
         if (factory == null) {
             factory = ExpressionFactory.newInstance();

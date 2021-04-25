@@ -3,7 +3,6 @@ package io.joel.tests;
 import io.joel.impl.spi.JoelExpressionFactory;
 import jakarta.el.StandardELContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Collections;
@@ -78,7 +77,7 @@ class GetValueTest {
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1}", Long.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
-        assertEquals(1L, valueExpression.getValue(context));
+        assertEquals(1L, valueExpression.<Long>getValue(context));
     }
 
     @Test
@@ -131,7 +130,7 @@ class GetValueTest {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${Integer.MAX_VALUE}", int.class);
-        assertEquals(Integer.MAX_VALUE, valueExpression.getValue(context));
+        assertEquals(Integer.MAX_VALUE, valueExpression.<Integer>getValue(context));
     }
 
     @Test
@@ -165,7 +164,7 @@ class GetValueTest {
         var factory = new JoelExpressionFactory();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${-1}", int.class);
-        assertEquals(-1, valueExpression.getValue(context));
+        assertEquals(-1, valueExpression.<Integer>getValue(context));
     }
 
     @Test
