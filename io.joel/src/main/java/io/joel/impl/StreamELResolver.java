@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -68,6 +69,18 @@ public class StreamELResolver extends ELResolver {
     @Override
     public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
         Objects.requireNonNull(context);
+        if (base instanceof Optional<?> && method != null && method.toString().equals("orElseGet") && params != null && params.length > 0 && params[0] instanceof LambdaExpression lambda) {
+            try {
+                Method orElseGet = Optional.class.getMethod("orElseGet", Supplier.class);
+                Supplier<?> lambdaFromLambdaExpression = (Supplier<?>) createLambdaFromLambdaExpression(context, lambda, Supplier.class, Supplier.class.getMethod("get"));
+                context.setPropertyResolved(base, method);
+                return orElseGet.invoke(base, lambdaFromLambdaExpression);
+            } catch (NoSuchMethodException noSuchMethodException) {
+                throw new MethodNotFoundException(noSuchMethodException);
+            } catch (Exception exception) {
+                throw new ELException(exception);
+            }
+        }
         if (!(base instanceof Stream<?> stream))
             return null;
         try {
@@ -122,7 +135,7 @@ public class StreamELResolver extends ELResolver {
                     .boxed()
                     .map(x -> {
                         try {
-                            return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x]) : currentParams[x];
+                            return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x])) : currentParams[x];
                         } catch (NoSuchMethodException noSuchMethodException) {
                             throw new ELException(noSuchMethodException);
                         }
@@ -137,14 +150,9 @@ public class StreamELResolver extends ELResolver {
         }
     }
 
-    private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass) throws NoSuchMethodException {
-        Method method2 = Arrays.stream(aClass.getMethods())
-                .filter(x -> !x.isDefault())
-                .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                .filter(x -> IGNORED_METHODS.stream().noneMatch(x.getName()::equals))
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
-        Class<?> returnType = method2.getReturnType();
+    private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) throws NoSuchMethodException {
+
+        Class<?> returnType = method.getReturnType();
 
 
         // lambdaExpression.invoke(context, ?)
@@ -162,9 +170,18 @@ public class StreamELResolver extends ELResolver {
         MethodHandle methodHandle1 = methodHandle4
                 // context.convertToType(lambdaExpression.invoke(context, Object...?), returnType)
                 .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
-                .asType(MethodType.methodType(returnType, method2.getParameterTypes()));
+                .asType(MethodType.methodType(returnType, method.getParameterTypes()));
 
         return MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
+    }
+
+    private Method findMethodFromClass(Class<?> klass) throws NoSuchMethodException {
+        return Arrays.stream(klass.getMethods())
+                .filter(x -> !x.isDefault())
+                .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                .filter(x -> IGNORED_METHODS.stream().noneMatch(x.getName()::equals))
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
     }
 
     private Object executeSum(ELContext context, Stream<?> base) {
