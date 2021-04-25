@@ -64,7 +64,13 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public ValueReference getValueReference(ELContext context) {
-        return super.getValueReference(context);
+        if (expressionNode instanceof ExpressionNode.DynamicExpressionNode dynamicNode && dynamicNode.node() instanceof ExpressionNode.MemberNode memberNode) {
+            return memberNode.valueReference(context);
+        }
+        if (expressionNode instanceof ExpressionNode.DeferredExpressionNode deferredNode && deferredNode.node() instanceof ExpressionNode.MemberNode memberNode) {
+            return memberNode.valueReference(context);
+        }
+        return null;
     }
 
     @Override
