@@ -36,7 +36,6 @@ expression
     | expression bop=OR expression #logicalExpression
     | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression #ternaryExpression
     | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
-    | LPAREN (expression) RPAREN arguments* #lambdaCallExpression
     | lambdaParameters ARROW expression #lambdaExpression
     | expression SEMICOLON expression #semicolonExpression
     | IDENTIFIER #identifierExpression
