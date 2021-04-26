@@ -1,11 +1,9 @@
 package jakarta.el;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -78,7 +76,7 @@ public class LambdaExpression {
 
         Map<String, Object> collect = IntStream.range(0, formalParameters.size())
                 .boxed()
-                .collect(Collectors.toMap(formalParameters::get, x -> arguments[x]));
+                .collect(HashMap::new, (map, value) -> map.put(formalParameters.get(value), arguments[value]), HashMap::putAll);
 
         try {
             elContext.enterLambdaScope(collect);
@@ -104,7 +102,7 @@ public class LambdaExpression {
      * The ELContext set by {@link LambdaExpression#setELContext} is used in the evaluation of the lambda Expression.
      *
      * @param arguments The arguments to invoke the Lambda expression. For calls with no arguments, an empty array must be
-     *             provided. A Lambda argument can be <code>null</code>.
+     *                  provided. A Lambda argument can be <code>null</code>.
      * @return The result of invoking the Lambda expression
      * @throws ELException if not enough arguments are provided
      */
