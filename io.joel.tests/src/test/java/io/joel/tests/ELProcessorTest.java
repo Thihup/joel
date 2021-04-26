@@ -41,4 +41,11 @@ class ELProcessorTest {
         assertEquals(10, elProcessor.<Integer>eval("customer.age"));
     }
 
+    @Test
+    void setBean2() {
+        ELProcessor elProcessor = new ELProcessor();
+        elProcessor.setValue("value", 10);
+        assertEquals(10, elProcessor.<Integer>eval("value"));
+    }
+
 }
