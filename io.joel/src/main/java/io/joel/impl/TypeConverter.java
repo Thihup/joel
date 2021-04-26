@@ -89,7 +89,7 @@ public class TypeConverter {
         if (object instanceof String newValue) {
             return coerceStringToObject(newValue, targetType);
         }
-        return null;
+        throw new ELException(CANNOT_CONVERT_TO.formatted(object, targetType));
     }
 
     private static Object coerceStringToObject(String value, Class<?> targetType) {
@@ -171,7 +171,7 @@ public class TypeConverter {
             return new BigDecimal(bigInteger);
         }
         if (value instanceof Number number) {
-            return new BigDecimal(number.doubleValue());
+            return BigDecimal.valueOf(number.doubleValue());
         }
         if (value instanceof String newValue) {
             return new BigDecimal(newValue);
