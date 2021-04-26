@@ -443,12 +443,18 @@ public interface ExpressionNode extends Serializable {
             if (callee instanceof LambdaNode lambdaNode) {
                 return ((LambdaExpression)lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
             }
-            if (!(callee instanceof MemberNode memberNode))
-                throw new UnsupportedOperationException();
-            var valueReference = memberNode.valueReference(context);
-            var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
-            return context.getELResolver()
-                    .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
+            if ((callee instanceof MemberNode memberNode)) {
+                var valueReference = memberNode.valueReference(context);
+                var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
+                return context.getELResolver()
+                        .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
+            }
+            if (callee instanceof IdentifierNode identifierNode) {
+                if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
+                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                }
+            }
+            throw new UnsupportedOperationException();
         }
 
         @Override

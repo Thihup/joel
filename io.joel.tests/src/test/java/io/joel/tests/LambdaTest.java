@@ -165,4 +165,20 @@ class LambdaTest {
         assertEquals(20L, eval);
     }
 
+    @Test
+    void testLambda20() {
+        var elProcessor = new ELProcessor();
+        var eval = elProcessor.<Long>eval("f = ()->5; f()");
+        assertEquals(5L, eval);
+    }
+
+    @Test
+    void testLambda21() {
+        var elProcessor = new ELProcessor();
+        elProcessor.defineBean("a", 5);
+        elProcessor.defineBean("b", 15);
+        var eval = elProcessor.<Long>eval("f = (x)->(tem=x; y->tem + y); f(a)(b)");
+        assertEquals(20L, eval);
+    }
+
 }
