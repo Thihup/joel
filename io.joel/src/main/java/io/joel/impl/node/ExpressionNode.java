@@ -430,6 +430,19 @@ public interface ExpressionNode extends Serializable {
     record CallExpressionNode(ExpressionNode callee, List<ExpressionNode> arguments) implements ExpressionNode {
         @Override
         public Object getValue(ELContext context) {
+            if (callee instanceof CallExpressionNode callNode) {
+                Object value = callNode.getValue(context);
+                if (value instanceof ExpressionNode node) {
+                    return node.getValue(context);
+                }
+                if (value instanceof LambdaExpression lambdaExpression) {
+                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                }
+                return value;
+            }
+            if (callee instanceof LambdaNode lambdaNode) {
+                return ((LambdaExpression)lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+            }
             if (!(callee instanceof MemberNode memberNode))
                 throw new UnsupportedOperationException();
             var valueReference = memberNode.valueReference(context);

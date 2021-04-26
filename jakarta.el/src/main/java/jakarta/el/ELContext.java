@@ -180,7 +180,11 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public Object getLambdaArgument(String argument) {
-        return lambdaArguments.stream().map(x -> x.get(argument)).findFirst().orElse(null);
+        return lambdaArguments.stream()
+            .map(x -> x.get(argument))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     /**
