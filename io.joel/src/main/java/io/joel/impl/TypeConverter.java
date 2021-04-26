@@ -171,7 +171,7 @@ public class TypeConverter {
             return new BigDecimal(bigInteger);
         }
         if (value instanceof Number number) {
-            return BigDecimal.valueOf(number.doubleValue());
+            return new BigDecimal(number.doubleValue());
         }
         if (value instanceof String newValue) {
             return new BigDecimal(newValue);
