@@ -60,8 +60,9 @@ public class ELManager {
      * @return the previous bean (if any) mapped to <code>name</code>
      */
     public Object defineBean(String name, Object bean) {
+        Object oldValue = context.localBeanRepository.getBean(name);
         context.localBeanRepository.setBeanValue(name, bean);
-        return null;
+        return oldValue;
     }
 
     /**

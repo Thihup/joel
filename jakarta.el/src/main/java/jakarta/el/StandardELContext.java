@@ -143,7 +143,7 @@ public class StandardELContext extends ELContext {
 
         @Override
         public void setBeanValue(String beanName, Object value) {
-            if (value == null) {
+            if (localBeans.containsKey(beanName) && value == null) {
                 localBeans.remove(beanName);
                 return;
             }
