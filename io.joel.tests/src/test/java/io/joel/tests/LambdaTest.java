@@ -3,6 +3,8 @@ package io.joel.tests;
 import jakarta.el.ELProcessor;
 import jakarta.el.LambdaExpression;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -179,6 +181,15 @@ class LambdaTest {
         elProcessor.defineBean("b", 15);
         var eval = elProcessor.<Long>eval("f = (x)->(tem=x; y->tem + y); f(a)(b)");
         assertEquals(20L, eval);
+    }
+
+    @Test
+    void testLambda22() {
+        var elProcessor = new ELProcessor();
+        elProcessor.defineBean("a", 5.f);
+        elProcessor.defineBean("b", new BigInteger("15"));
+        var eval = elProcessor.<BigDecimal>eval("(x->(y->x + y)(a))(b)");
+        assertEquals(BigDecimal.valueOf(20), eval);
     }
 
 }
