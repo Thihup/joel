@@ -43,7 +43,16 @@
                                 <copy file="${tck.home}/bin/ts.jte"
                                       tofile="${tck.home}/bin/ts.jte.orig"/>
 
-                                <!-- setup ts.jte for signature tests -->
+                                <!-- keep copy of original ts.jte.jdk11 -->
+                                <copy file="${tck.home}/bin/ts.jte.jdk11"
+                                      tofile="${tck.home}/bin/ts.jte.jdk11.orig"/>
+
+                                <!-- replace the ts.jte with ts.jte.jdk11 -->
+                                <delete file="${tck.home}/bin/ts.jte" />
+                                <copy file="${tck.home}/bin/ts.jte.jdk11"
+                                      tofile="${tck.home}/bin/ts.jte"/>
+
+                                <!-- setup ts.jte -->
                                 <replaceregexp file="${tck.home}/bin/ts.jte"
                                                match="el\.classes=(.*)"
                                                replace="el.classes=${work.home}/jars/*"
