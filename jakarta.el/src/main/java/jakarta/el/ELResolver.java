@@ -97,7 +97,7 @@ public abstract class ELResolver {
      * @return object converted to <code>targetType</code>
      * @throws ELException thrown if errors occur.
      */
-    public <T> T convertToType(ELContext context, Object object, Class<T> targetType) {
+    public Object convertToType(ELContext context, Object object, Class<?> targetType) {
         return null;
     }
 

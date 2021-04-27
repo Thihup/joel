@@ -55,7 +55,7 @@
                                 <!-- setup ts.jte -->
                                 <replaceregexp file="${tck.home}/bin/ts.jte"
                                                match="el\.classes=(.*)"
-                                               replace="el.classes=${work.home}/jars/*"
+                                               replace="el.classes=${work.home}/jars/jakarta.el-api.jar${pathsep}${pathsep}${work.home}/jars/jakarta.el.jar${pathsep}${work.home}/jars/antlr.jar"
                                                byline="true"/>
                             </target>
                         </configuration>

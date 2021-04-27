@@ -50,10 +50,10 @@ public class JoelValueExpression extends ValueExpression {
     }
 
     @Override
-    public <T> T getValue(ELContext context) {
+    public Object getValue(ELContext context) {
         try {
             context.notifyBeforeEvaluation(expression);
-            return (T) context.convertToType(expressionNode.getValue(context), expectedType);
+            return context.convertToType(expressionNode.getValue(context), expectedType);
         } finally {
             context.notifyAfterEvaluation(expression);
         }

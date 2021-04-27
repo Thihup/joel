@@ -121,8 +121,8 @@ public class ELProcessor {
      * @param expression The Jakarta Expression Language expression to be evaluated.
      * @return The result of the expression evaluation.
      */
-    public <T> T eval(String expression) {
-        return (T) getValue(expression, Object.class);
+    public Object eval(String expression) {
+        return getValue(expression, Object.class);
     }
 
     /**
@@ -141,8 +141,8 @@ public class ELProcessor {
      * @param expectedType Specifies the type that the resultant evaluation will be coerced to.
      * @return The result of the expression evaluation.
      */
-    public <T> T getValue(String expression, Class<T> expectedType) {
-        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
+    public Object getValue(String expression, Class<?> expectedType) {
+        ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
         if (factory == null) {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
@@ -164,7 +164,7 @@ public class ELProcessor {
      *                                      must be included as the cause property of this exception, if available.
      */
     public void setValue(String expression, Object value) {
-        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
+        ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
         if (factory == null) {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
@@ -182,7 +182,7 @@ public class ELProcessor {
      * @param expression The Jakarta Expression Language expression to be assigned to the variable.
      */
     public void setVariable(String variable, String expression) {
-        ExpressionFactory factory = manager.getELContext().getContext(ExpressionFactory.class);
+        ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
         manager.setVariable(variable, factory.createValueExpression(manager.getELContext(), expression, Object.class));
     }
 }

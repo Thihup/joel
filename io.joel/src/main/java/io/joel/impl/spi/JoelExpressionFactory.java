@@ -18,10 +18,9 @@ public class JoelExpressionFactory extends ExpressionFactory {
     private static final System.Logger LOGGER = System.getLogger(JoelExpressionFactory.class.getName());
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T coerceToType(Object object, Class<T> targetType) {
+    public Object coerceToType(Object object, Class<?> targetType) {
         try {
-            return (T) io.joel.impl.TypeConverter.coerce(object, targetType);
+            return io.joel.impl.TypeConverter.coerce(object, targetType);
         } catch (Exception rootCause) {
             throw new ELException(rootCause);
         }

@@ -84,7 +84,7 @@ public abstract class ValueExpression extends Expression {
      * @throws ELException               if an exception was thrown while performing property or variable resolution. The thrown exception
      *                                   must be included as the cause property of this exception, if available.
      */
-    public abstract <T> T getValue(ELContext context);
+    public abstract Object getValue(ELContext context);
 
     /**
      * Evaluates the expression relative to the provided context, and returns <code>true</code> if a call to

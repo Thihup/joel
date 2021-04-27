@@ -41,7 +41,7 @@ public abstract class TypeConverter extends ELResolver {
      * @throws ELException thrown if errors occur.
      */
     @Override
-    public abstract <T> T convertToType(ELContext context, Object object, Class<T> targetType);
+    public abstract Object convertToType(ELContext context, Object object, Class<?> targetType);
 
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {

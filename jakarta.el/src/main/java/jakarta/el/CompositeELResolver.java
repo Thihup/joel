@@ -414,7 +414,7 @@ public class CompositeELResolver extends ELResolver {
      * @since Jakarta Expression Language 3.0
      */
     @Override
-    public <T> T convertToType(ELContext context, Object object, Class<T> targetType) {
+    public Object convertToType(ELContext context, Object object, Class<?> targetType) {
         context.setPropertyResolved(false);
         return resolvers.stream()
                 .map(x -> Optional.ofNullable(x.convertToType(context, object, targetType)))

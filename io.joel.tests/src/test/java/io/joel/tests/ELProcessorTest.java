@@ -29,7 +29,7 @@ class ELProcessorTest {
     void defineBean3() {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.defineBean("customers", List.of(new Customer("John", 25)));
-        String eval = elProcessor.eval("customers.stream().map(x -> x.name).findFirst().orElse(null)");
+        var eval = (String) elProcessor.eval("customers.stream().map(x -> x.name).findFirst().orElse(null)");
         assertEquals("John", eval);
     }
 

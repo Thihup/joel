@@ -92,11 +92,11 @@ public abstract class ELContext {
      * @throws ELException thrown if errors occur.
      * @since Jakarta Expression Language 3.0
      */
-    public <T> T convertToType(Object object, Class<T> targetType) {
+    public Object convertToType(Object object, Class<?> targetType) {
         boolean isCurrentResolved = isPropertyResolved();
         setPropertyResolved(false);
         try {
-            T t = getELResolver().convertToType(this, object, targetType);
+            Object t = getELResolver().convertToType(this, object, targetType);
             if (isPropertyResolved())
                 return t;
         } finally {
@@ -145,9 +145,9 @@ public abstract class ELContext {
      * @return The context object associated with the given key, or null if no such context was found.
      * @throws NullPointerException if key is null.
      */
-    public <T> T getContext(Class<T> key) {
+    public Object getContext(Class<?> key) {
         Objects.requireNonNull(key);
-        return (T) contexts.get(key);
+        return contexts.get(key);
     }
 
     /**

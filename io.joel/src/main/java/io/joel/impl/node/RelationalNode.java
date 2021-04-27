@@ -15,7 +15,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
     record AndNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
         @Override
         public Object getValue(ELContext context) {
-            if (!context.convertToType(left.getValue(context), boolean.class))
+            if (!(boolean) context.convertToType(left.getValue(context), boolean.class))
                 return false;
             return context.convertToType(right.getValue(context), boolean.class);
         }
@@ -29,7 +29,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
     record OrNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
         @Override
         public Object getValue(ELContext context) {
-            if (context.convertToType(left.getValue(context), boolean.class))
+            if ((boolean) context.convertToType(left.getValue(context), boolean.class))
                 return true;
             return context.convertToType(right.getValue(context), boolean.class);
         }
@@ -74,7 +74,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return equalsFunction.test(context.convertToType(leftValue, rightValue.getClass()), context.convertToType(rightValue, rightValue.getClass()));
             }
             if (leftValue instanceof String || rightValue instanceof String) {
-                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) == 0;
+                return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) == 0;
             }
             return leftValue.equals(rightValue);
         }
@@ -106,19 +106,19 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return false;
             }
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).compareTo(context.convertToType(rightValue, BigDecimal.class)) > 0;
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).compareTo((BigDecimal) context.convertToType(rightValue, BigDecimal.class)) > 0;
             }
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).compareTo(context.convertToType(rightValue, BigInteger.class)) > 0;
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).compareTo((BigInteger) context.convertToType(rightValue, BigInteger.class)) > 0;
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                return context.convertToType(leftValue, Double.class).compareTo(context.convertToType(rightValue, Double.class)) > 0;
+                return ((Double) context.convertToType(leftValue, Double.class)).compareTo((Double) context.convertToType(rightValue, Double.class)) > 0;
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
-                return context.convertToType(leftValue, Long.class) > context.convertToType(rightValue, Long.class);
+                return (Long) context.convertToType(leftValue, Long.class) > (Long) context.convertToType(rightValue, Long.class);
             }
             if (leftValue instanceof String || rightValue instanceof String) {
-                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) > 0;
+                return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) > 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) > 0;
@@ -128,6 +128,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             throw new ELException("Cannot compare values: %s > %s".formatted(leftValue, rightValue));
         }
+
         @Override
         public String prettyPrint() {
             return "%s > %s".formatted(left.prettyPrint(), right.prettyPrint());
@@ -147,19 +148,19 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (leftValue.equals(rightValue))
                 return true;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).compareTo(context.convertToType(rightValue, BigDecimal.class)) >= 0;
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).compareTo((BigDecimal) context.convertToType(rightValue, BigDecimal.class)) >= 0;
             }
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).compareTo(context.convertToType(rightValue, BigInteger.class)) >= 0;
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).compareTo((BigInteger) context.convertToType(rightValue, BigInteger.class)) >= 0;
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                return context.convertToType(leftValue, Double.class).compareTo(context.convertToType(rightValue, Double.class)) >= 0;
+                return ((Double) context.convertToType(leftValue, Double.class)).compareTo((Double) context.convertToType(rightValue, Double.class)) >= 0;
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
-                return context.convertToType(leftValue, Long.class) >= context.convertToType(rightValue, Long.class);
+                return (Long) context.convertToType(leftValue, Long.class) >= (Long) context.convertToType(rightValue, Long.class);
             }
             if (leftValue instanceof String || rightValue instanceof String) {
-                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) >= 0;
+                return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) >= 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) >= 0;
@@ -169,6 +170,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             throw new ELException("Cannot compare values: %s >= %s".formatted(leftValue, rightValue));
         }
+
         @Override
         public String prettyPrint() {
             return "%s >= %s".formatted(left.prettyPrint(), right.prettyPrint());
@@ -184,19 +186,19 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
                 return false;
             }
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).compareTo(context.convertToType(rightValue, BigDecimal.class)) < 0;
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).compareTo((BigDecimal) context.convertToType(rightValue, BigDecimal.class)) < 0;
             }
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).compareTo(context.convertToType(rightValue, BigInteger.class)) < 0;
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).compareTo((BigInteger) context.convertToType(rightValue, BigInteger.class)) < 0;
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                return context.convertToType(leftValue, Double.class).compareTo(context.convertToType(rightValue, Double.class)) < 0;
+                return ((Double) context.convertToType(leftValue, Double.class)).compareTo((Double) context.convertToType(rightValue, Double.class)) < 0;
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
-                return context.convertToType(leftValue, Long.class) < context.convertToType(rightValue, Long.class);
+                return (Long) context.convertToType(leftValue, Long.class) < (Long) context.convertToType(rightValue, Long.class);
             }
             if (leftValue instanceof String || rightValue instanceof String) {
-                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) < 0;
+                return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) < 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) < 0;
@@ -206,6 +208,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             throw new ELException("Cannot compare values: %s < %s".formatted(leftValue, rightValue));
         }
+
         @Override
         public String prettyPrint() {
             return "%s < %s".formatted(left.prettyPrint(), right.prettyPrint());
@@ -225,19 +228,19 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             if (leftValue.equals(rightValue))
                 return true;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).compareTo(context.convertToType(rightValue, BigDecimal.class)) <= 0;
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).compareTo((BigDecimal) context.convertToType(rightValue, BigDecimal.class)) <= 0;
             }
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).compareTo(context.convertToType(rightValue, BigInteger.class)) <= 0;
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).compareTo((BigInteger) context.convertToType(rightValue, BigInteger.class)) <= 0;
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                return context.convertToType(leftValue, Double.class).compareTo(context.convertToType(rightValue, Double.class)) <= 0;
+                return ((Double) context.convertToType(leftValue, Double.class)).compareTo((Double) context.convertToType(rightValue, Double.class)) <= 0;
             }
             if (leftValue instanceof Number || rightValue instanceof Number) {
-                return context.convertToType(leftValue, Long.class) <= context.convertToType(rightValue, Long.class);
+                return (Long) context.convertToType(leftValue, Long.class) <= (Long) context.convertToType(rightValue, Long.class);
             }
             if (leftValue instanceof String || rightValue instanceof String) {
-                return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) <= 0;
+                return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) <= 0;
             }
             if (leftValue instanceof Comparable comparable) {
                 return comparable.compareTo(rightValue) <= 0;
@@ -247,6 +250,7 @@ public interface RelationalNode extends ExpressionNode.BooleanExpression {
             }
             throw new ELException("Cannot compare values: %s <= %s".formatted(leftValue, rightValue));
         }
+
         @Override
         public String prettyPrint() {
             return "%s <= %s".formatted(left.prettyPrint(), right.prettyPrint());

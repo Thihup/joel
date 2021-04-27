@@ -185,14 +185,14 @@ public class StreamELResolver extends ELResolver {
     }
 
     private Object executeSum(ELContext context, Stream<?> base) {
-        return base.mapToLong(x -> context.convertToType(x, Long.class)).sum();
+        return base.mapToLong(x -> (Long) context.convertToType(x, Long.class)).sum();
     }
 
     private Object executeAverage(ELContext context, Stream<?> base) {
         // We need to return Optional instead of OptionalDouble because
         // the spec requires the method "get", but the OptionalDouble has
         // "getAsDouble"
-        long[] avg = base.mapToLong(x -> context.convertToType(x, Long.class))
+        long[] avg = base.mapToLong(x -> (Long) context.convertToType(x, Long.class))
                 .collect(() -> new long[2],
                         (ll, i) -> {
                             ll[0]++;

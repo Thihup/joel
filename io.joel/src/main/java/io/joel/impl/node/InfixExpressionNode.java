@@ -25,37 +25,37 @@ public interface InfixExpressionNode extends ExpressionNode {
             if (leftValue == null && rightValue == null)
                 return 0L;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(rightValue, BigDecimal.class));
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).add((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
             }
 
             if (leftValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (rightValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).add((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
-                    return context.convertToType(leftValue, Double.class) + (context.convertToType(rightValue, Double.class));
+                    return ((Double) context.convertToType(leftValue, Double.class)) + (Double) (context.convertToType(rightValue, Double.class));
                 }
             }
             if (rightValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (leftValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).add((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
-                    return context.convertToType(leftValue, Double.class) + (context.convertToType(rightValue, Double.class));
+                    return (Double) context.convertToType(leftValue, Double.class) + (Double) (context.convertToType(rightValue, Double.class));
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-                if (leftValue instanceof  BigInteger || rightValue instanceof BigInteger) {
-                    return context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(rightValue, BigDecimal.class));
+                if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
+                    return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).add((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
                 }
-                return context.convertToType(leftValue, Double.class) + (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) + (Double) (context.convertToType(rightValue, Double.class));
             }
 
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).add(context.convertToType(rightValue, BigInteger.class));
+                return ((BigInteger)context.convertToType(leftValue, BigInteger.class)).add((BigInteger) context.convertToType(rightValue, BigInteger.class));
             }
 
-            return context.convertToType(leftValue, Long.class) + context.convertToType(rightValue, Long.class);
+            return (Long) context.convertToType(leftValue, Long.class) + (Long) context.convertToType(rightValue, Long.class);
         }
 
         @Override
@@ -72,37 +72,37 @@ public interface InfixExpressionNode extends ExpressionNode {
             if (leftValue == null && rightValue == null)
                 return 0L;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(rightValue, BigDecimal.class));
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).subtract((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
             }
 
             if (leftValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (rightValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).subtract((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
-                    return context.convertToType(leftValue, Double.class) - (context.convertToType(rightValue, Double.class));
+                    return (Double) context.convertToType(leftValue, Double.class) - (Double) (context.convertToType(rightValue, Double.class));
                 }
             }
             if (rightValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (leftValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).subtract((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
-                    return context.convertToType(leftValue, Double.class) - (context.convertToType(rightValue, Double.class));
+                    return (Double) context.convertToType(leftValue, Double.class) - (Double) (context.convertToType(rightValue, Double.class));
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
                 if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                    return context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(rightValue, BigDecimal.class));
+                    return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).subtract((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
                 }
-                return context.convertToType(leftValue, Double.class) - (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) - (Double) (context.convertToType(rightValue, Double.class));
             }
 
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).subtract(context.convertToType(rightValue, BigInteger.class));
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).subtract((BigInteger) context.convertToType(rightValue, BigInteger.class));
             }
 
-            return context.convertToType(leftValue, Long.class) - context.convertToType(rightValue, Long.class);
+            return (Long) context.convertToType(leftValue, Long.class) - (Long) context.convertToType(rightValue, Long.class);
         }
 
         @Override
@@ -119,37 +119,37 @@ public interface InfixExpressionNode extends ExpressionNode {
             if (leftValue == null && rightValue == null)
                 return 0L;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(rightValue, BigDecimal.class));
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
             }
 
             if (leftValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (rightValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
                 }
-                return context.convertToType(leftValue, Double.class) * (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) * (Double) (context.convertToType(rightValue, Double.class));
             }
             if (rightValue instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
                     if (leftValue instanceof BigInteger asBigInteger) {
-                        return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(asBigInteger, BigDecimal.class));
+                        return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                     }
-                    return context.convertToType(leftValue, Double.class) * (context.convertToType(rightValue, Double.class));
+                    return (Double) context.convertToType(leftValue, Double.class) * (Double) (context.convertToType(rightValue, Double.class));
                 }
             }
             if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
                 if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                    return context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(rightValue, BigDecimal.class));
+                    return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
                 }
-                return context.convertToType(leftValue, Double.class) * (context.convertToType(rightValue, Double.class));
+                return ((Double) context.convertToType(leftValue, Double.class)) * (Double) (context.convertToType(rightValue, Double.class));
             }
 
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).multiply(context.convertToType(rightValue, BigInteger.class));
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).multiply((BigInteger) context.convertToType(rightValue, BigInteger.class));
             }
 
-            return context.convertToType(leftValue, Long.class) * context.convertToType(rightValue, Long.class);
+            return (Long) context.convertToType(leftValue, Long.class) * (Long) context.convertToType(rightValue, Long.class);
         }
 
         @Override
@@ -166,9 +166,9 @@ public interface InfixExpressionNode extends ExpressionNode {
             if (leftValue == null && rightValue == null)
                 return 0L;
             if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal || leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigDecimal.class).divide(context.convertToType(rightValue, BigDecimal.class), RoundingMode.HALF_UP);
+                return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).divide((BigDecimal) context.convertToType(rightValue, BigDecimal.class), RoundingMode.HALF_UP);
             }
-            return context.convertToType(leftValue, Double.class) / context.convertToType(rightValue, Double.class);
+            return (Double) context.convertToType(leftValue, Double.class) / (Double) context.convertToType(rightValue, Double.class);
         }
 
         @Override
@@ -186,19 +186,19 @@ public interface InfixExpressionNode extends ExpressionNode {
                 return 0L;
             if (leftValue instanceof Float || leftValue instanceof Double || leftValue instanceof BigDecimal ||
                     rightValue instanceof Float || rightValue instanceof Double || rightValue instanceof BigDecimal) {
-                return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
             }
             if (leftValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
-                return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
             }
             if (rightValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
-                return context.convertToType(leftValue, Double.class) % (context.convertToType(rightValue, Double.class));
+                return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
             }
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-                return context.convertToType(leftValue, BigInteger.class).remainder(context.convertToType(rightValue, BigInteger.class));
+                return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).remainder((BigInteger) context.convertToType(rightValue, BigInteger.class));
             }
 
-            return context.convertToType(leftValue, Long.class) % context.convertToType(rightValue, Long.class);
+            return (Long) context.convertToType(leftValue, Long.class) % (Long) context.convertToType(rightValue, Long.class);
         }
 
         @Override
@@ -253,7 +253,7 @@ public interface InfixExpressionNode extends ExpressionNode {
 
         @Override
         public Object getValue(ELContext context) {
-            return context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
+            return (String) context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
         }
 
         @Override

@@ -147,9 +147,9 @@ public interface ExpressionNode extends Serializable {
             }
             if (value instanceof String asString) {
                 if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
-                    return -context.convertToType(asString, Double.class);
+                    return -(Double) context.convertToType(asString, Double.class);
                 }
-                return -context.convertToType(asString, Long.class);
+                return -(Long) context.convertToType(asString, Long.class);
             }
             if (value instanceof Long asLong) {
                 return -asLong;
@@ -277,7 +277,7 @@ public interface ExpressionNode extends Serializable {
 
         @Override
         public Object getValue(ELContext context) {
-            return !context.convertToType(node.getValue(context), boolean.class);
+            return !(boolean) context.convertToType(node.getValue(context), boolean.class);
         }
 
         @Override
@@ -370,7 +370,7 @@ public interface ExpressionNode extends Serializable {
                        ExpressionNode falseExpression) implements ExpressionNode {
         @Override
         public Class<?> getType(ELContext context) {
-            if (context.convertToType(condition.getValue(context), boolean.class)) {
+            if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {
                 return trueExpression.getType(context);
             }
             return falseExpression.getType(context);
@@ -378,7 +378,7 @@ public interface ExpressionNode extends Serializable {
 
         @Override
         public Object getValue(ELContext context) {
-            if (context.convertToType(condition.getValue(context), boolean.class)) {
+            if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {
                 return trueExpression.getValue(context);
             }
             return falseExpression.getValue(context);
@@ -421,6 +421,7 @@ public interface ExpressionNode extends Serializable {
                     .map(x -> x.getValue(context))
                     .collect(Collectors.toList());
         }
+
         @Override
         public String prettyPrint() {
             return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "[", "]"));
@@ -441,7 +442,7 @@ public interface ExpressionNode extends Serializable {
                 return value;
             }
             if (callee instanceof LambdaNode lambdaNode) {
-                return ((LambdaExpression)lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                return ((LambdaExpression) lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
             }
             if ((callee instanceof MemberNode memberNode)) {
                 var valueReference = memberNode.valueReference(context);
