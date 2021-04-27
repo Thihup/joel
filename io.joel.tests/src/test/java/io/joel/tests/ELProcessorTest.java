@@ -1,6 +1,8 @@
 package io.joel.tests;
 
 import jakarta.el.ELProcessor;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 
@@ -48,4 +50,19 @@ class ELProcessorTest {
         assertEquals(10, elProcessor.<Integer>eval("value"));
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "a = null; a + b",
+            "a = null; a - b",
+            "a = null; a * b",
+            "a = null; a / b",
+            "a = null; a % b",
+            "a = null; a div b",
+            "a = null; a mod b"
+    })
+    void nullTest(String expression) {
+        ELProcessor elProcessor = new ELProcessor();
+        elProcessor.setValue("b", null);
+        assertEquals(0L, elProcessor.eval(expression));
+    }
 }
