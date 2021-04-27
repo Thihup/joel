@@ -21,7 +21,7 @@
                         <configuration>
                             <target>
                                 <!-- download, unzip and rename TCK -->
-                                <get src="https://download.eclipse.org/jakartaee/expression-language/4.0/jakarta-expression-language-tck-4.0.0.zip"
+                                <get src="https://download.eclipse.org/ee4j/jakartaee-tck/jakartaee9/promoted/expression-language-tck-4.0.1.zip"
                                      dest="${project.build.directory}/tck.zip" skipexisting="true"/>
                                 <unzip src="${project.build.directory}/tck.zip"
                                        dest="${project.build.directory}"/>
