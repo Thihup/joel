@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.util.Arrays;
+
 /**
  * Holds information about a method that a {@link MethodExpression} evaluated to.
  *
@@ -48,5 +50,14 @@ public class MethodInfo {
      */
     public Class<?>[] getParamTypes() {
         return parameterTypes;
+    }
+
+    @Override
+    public String toString() {
+        return "MethodInfo[" +
+                "name=" + name +
+                ", returnType=" + returnType +
+                ", parameterTypes=" + Arrays.toString(parameterTypes) +
+                ']';
     }
 }

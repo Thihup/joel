@@ -1,8 +1,10 @@
 package io.joel.impl.spi;
 
+import io.joel.impl.JoelMethodExpression;
 import io.joel.impl.JoelValueExpression;
 import io.joel.impl.StreamELResolver;
 import io.joel.impl.antlr.JoelExpressionParser;
+import io.joel.impl.node.ExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
@@ -29,7 +31,8 @@ public class JoelExpressionFactory extends ExpressionFactory {
     @Override
     public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes) {
         Objects.requireNonNull(expectedParamTypes);
-        return null;
+        var parse = JoelExpressionParser.parse(expression);
+        return new JoelMethodExpression(expression, parse);
     }
 
     @Override
