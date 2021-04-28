@@ -20,18 +20,8 @@ public class JoelValueExpression extends ValueExpression {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(expression, expressionNode, expectedType);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return false;
-    }
-
-    @Override
     public boolean isLiteralText() {
-        return false;
+        return expressionNode instanceof ExpressionNode.StringNode;
     }
 
     @Override
@@ -61,7 +51,14 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public boolean isReadOnly(ELContext context) {
-        return false;
+        if (expressionNode instanceof ExpressionNode.MemberNode memberNode) {
+            var valueReference = memberNode.valueReference(context);
+            return context.getELResolver().isReadOnly(context, valueReference.getBase(), valueReference.getProperty());
+        }
+        if (expressionNode instanceof ExpressionNode.IdentifierNode identifierNode)
+            return context.getELResolver().isReadOnly(context, null, identifierNode.value());
+
+        return true;
     }
 
     @Override
@@ -75,6 +72,19 @@ public class JoelValueExpression extends ValueExpression {
             return memberNode.valueReference(context);
         }
         return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(expression, expressionNode, expectedType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JoelValueExpression that = (JoelValueExpression) o;
+        return Objects.equals(expression, that.expression) && Objects.equals(expressionNode, that.expressionNode) && Objects.equals(expectedType, that.expectedType);
     }
 
     @Override
