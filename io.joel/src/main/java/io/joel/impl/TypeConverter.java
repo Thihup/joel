@@ -2,14 +2,12 @@ package io.joel.impl;
 
 import jakarta.el.ELException;
 
-import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 
 public class TypeConverter {
-    private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
     public static final Map<Class<?>, Class<?>> primitiveToWrapper = Map.of(
             boolean.class, Boolean.class,
             byte.class, Byte.class,
@@ -19,6 +17,7 @@ public class TypeConverter {
             long.class, Long.class,
             float.class, Float.class,
             double.class, Double.class);
+    private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
     private static final Map<Class<?>, Class<?>> wrapperToPrimitive = Map.of(
             Boolean.class, boolean.class,
             Byte.class, byte.class,
@@ -33,6 +32,8 @@ public class TypeConverter {
     }
 
     public static Object coerce(Object object, Class<?> targetType) {
+        if (targetType == null)
+            return object;
         Class<?> boxedClass = primitiveToWrapper.get(targetType);
         if (boxedClass != null) {
             var boxedValue = coerceImplementation(object, boxedClass, true);
@@ -93,7 +94,7 @@ public class TypeConverter {
     }
 
     private static Object coerceStringToObject(String value, Class<?> targetType) {
-        PropertyEditor editor = PropertyEditorManager.findEditor(targetType);
+        var editor = PropertyEditorManager.findEditor(targetType);
         if (editor == null) {
             if (value.isEmpty()) {
                 return null;
@@ -273,7 +274,7 @@ public class TypeConverter {
         if (value instanceof Boolean newValue)
             return newValue;
         if (value instanceof String newValue) {
-            return newValue.isEmpty() ? false : Boolean.valueOf(newValue);
+            return !newValue.isEmpty() && Boolean.parseBoolean(newValue);
         }
         throw new ELException(CANNOT_CONVERT_TO.formatted(value, isPrimitive ? "boolean" : "Boolean"));
     }
