@@ -207,4 +207,12 @@ class GetValueTest {
         assertEquals(false, valueExpression.getValue(context));
     }
 
+    @Test
+    void compositeExpression() {
+        var factory = new JoelExpressionFactory();
+        var context = new StandardELContext(factory);
+        var valueExpression = factory.createValueExpression(context, "${'hello'} ${'composite'}", String.class);
+        assertEquals("hello composite", valueExpression.getValue(context));
+    }
+
 }

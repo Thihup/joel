@@ -7,6 +7,7 @@ import io.joel.impl.node.ExpressionNode.MemberNode;
 import io.joel.impl.node.InfixExpressionNode.AssignNode;
 import io.joel.impl.node.InfixExpressionNode.ConcatNode;
 import io.joel.impl.node.RelationalNode;
+import jakarta.el.ELException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -55,6 +56,22 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
     @Override
     public ExpressionNode visitParenExpression(ExpressionLanguageParser.ParenExpressionContext ctx) {
         return visit(ctx.getChild(1));
+    }
+
+    @Override
+    public ExpressionNode visitLiteralExpression(ExpressionLanguageParser.LiteralExpressionContext ctx) {
+        return new StringNode(ctx.getText());
+    }
+
+    @Override
+    public ExpressionNode visitCompositeExpression(ExpressionLanguageParser.CompositeExpressionContext ctx) {
+        if (ctx.getChildCount() <= 1)
+            return visit(ctx.getChild(0));
+        if (!ctx.deferredExpression().isEmpty() && !ctx.dynamicExpression().isEmpty())
+            throw new ELException("Cannot mix dynamic expressions with deferred expression");
+        return ctx.children.stream()
+            .map(this::visit)
+            .reduce(new StringNode(""), ConcatNode::new);
     }
 
     @Override
