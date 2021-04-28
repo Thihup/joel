@@ -70,7 +70,8 @@ public class ExpressionVisitor extends ExpressionLanguageGrammarBaseVisitor<Expr
 
     @Override
     public ExpressionNode visitStringLiteralExpression(StringLiteralExpressionContext ctx) {
-        return new StringNode(ctx.getText().substring(1, ctx.getText().length() - 1));
+        String text = ctx.getText().translateEscapes();
+        return new StringNode(text.substring(1, text.length() - 1));
     }
 
     @Override
