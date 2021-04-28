@@ -1,7 +1,20 @@
 lexer grammar ExpressionLanguageLexer;
 
-LCURL: '{';
-RCURL: '}';
+LITERAL_EXPRESSION:
+   (~[$#\\] * '\\' ('$' | '#') ?
+   | (~[$#])* (('$'|'#') ~[{$#\\])
+   | (~[$#]))+
+   | '$'
+   | '#';
+START_DYNAMIC_EXPRESSION: '${'  -> pushMode(IN_EXPRESSION);
+START_DEFERRED_EXPRESSION: '#{' -> pushMode(IN_EXPRESSION);
+
+WS: [ \t\r\n]+ -> skip;
+ANY: .;
+
+mode IN_EXPRESSION;
+LCURL: '{' -> pushMode(IN_EXPRESSION);
+RCURL: '}' -> popMode;
 BOOL_LITERAL: TRUE | FALSE;
 TRUE: 'true';
 FALSE: 'false';
@@ -34,8 +47,6 @@ MOD: ('%' | 'mod');
 CONCAT: '+=';
 ASSIGN: '=';
 ARROW: '->';
-DYNAMIC_START: DOLLAR LCURL;
-DEFERRED_START: HASH LCURL;
 DOLLAR: '$';
 HASH: '#';
 
@@ -85,7 +96,4 @@ DIGIT
     | '\u0ed0'..'\u0ed9'
     | '\u1040'..'\u1049'
     ;
-
-WS: [ \t\r\n]+ -> skip;
-
-ANY: .;
+WHITE_SPACE: [ \t\r\n]+ -> skip;

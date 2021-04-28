@@ -7,13 +7,13 @@ compositeExpression
     : (dynamicExpression | deferredExpression | literalExpression)*
     ;
 dynamicExpression
-    : DYNAMIC_START expression RCURL
+    : START_DYNAMIC_EXPRESSION expression RCURL
     ;
 deferredExpression
-    : DEFERRED_START expression RCURL
+    : START_DEFERRED_EXPRESSION expression RCURL
     ;
 literalExpression
-    : literal
+    : LITERAL_EXPRESSION
     ;
 
 
