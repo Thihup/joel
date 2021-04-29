@@ -29,7 +29,7 @@ public class ImportHandler {
     public void importClass(String className) {
         int index = className.lastIndexOf('.');
         if (index == -1) {
-            throw new ELException(String.format("Not fully qualified classname: %s", className));
+            throw new ELException("Not fully qualified classname: %s".formatted(className));
         }
         packages.add(className.substring(0, index));
     }
@@ -41,7 +41,7 @@ public class ImportHandler {
      */
     public void importPackage(String packageName) {
         if (packageName.indexOf('.') == -1) {
-            throw new ELException(String.format("Package must have a dot: %s", packageName));
+            throw new ELException("Package must have a dot: %s".formatted(packageName));
         }
         packages.add(packageName);
     }
@@ -55,7 +55,7 @@ public class ImportHandler {
     public void importStatic(String name) {
         int index = name.lastIndexOf('.');
         if (index == -1) {
-            throw new ELException(String.format("Not fully qualified classname: %s", name));
+            throw new ELException("Not fully qualified classname: %s".formatted(name));
         }
         staticImports.putIfAbsent(name.substring(index + 1), name.substring(0, index));
     }

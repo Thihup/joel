@@ -41,7 +41,7 @@ public class JoelExpressionParser {
     private static class ELErrorListener extends BaseErrorListener {
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-            throw new ELException(String.format("line %d:%d %s", line, charPositionInLine, msg));
+            throw new ELException("line %d:%d %s".formatted(line, charPositionInLine, msg));
         }
     }
 

@@ -107,7 +107,7 @@ public class ELProcessor {
         Objects.requireNonNull(method);
         Class<?> aClass = manager.getELContext().getImportHandler().resolveClass(className);
         if (aClass == null)
-            throw new ClassNotFoundException(String.format("Class %s not found", className));
+            throw new ClassNotFoundException("Class %s not found".formatted(className));
         try {
             manager.mapFunction(prefix, function, aClass.getMethod(method));
         } catch (NoSuchMethodException e) {
@@ -147,7 +147,7 @@ public class ELProcessor {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
         }
-        return factory.createValueExpression(manager.getELContext(), String.format("${%s}", expression), expectedType).getValue(manager.getELContext());
+        return factory.createValueExpression(manager.getELContext(), "${%s}".formatted(expression), expectedType).getValue(manager.getELContext());
     }
 
     /**
@@ -169,7 +169,7 @@ public class ELProcessor {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
         }
-        factory.createValueExpression(manager.getELContext(), String.format("${%s}", expression), Object.class).setValue(manager.getELContext(), value);
+        factory.createValueExpression(manager.getELContext(), "${%s}".formatted(expression), Object.class).setValue(manager.getELContext(), value);
     }
 
     /**

@@ -238,13 +238,13 @@ public class ArrayELResolver extends ELResolver {
         }
         checkBounds(Array.getLength(base), toInt(property));
         if (!base.getClass().getComponentType().isAssignableFrom(value.getClass()))
-            throw new ClassCastException(String.format("Cannot cast %s to %s", value.getClass(), base.getClass().getComponentType()));
+            throw new ClassCastException("Cannot cast %s to %s".formatted(value.getClass(), base.getClass().getComponentType()));
         Array.set(base, toInt(property), value);
     }
 
     private void checkBounds(int length, int index) {
         if (index < 0 || index >= length)
-            throw new PropertyNotFoundException(String.format("Index %d is out of bounds; array length: %d", index, length));
+            throw new PropertyNotFoundException("Index %d is out of bounds; array length: %d".formatted(index, length));
     }
 
     private int toInt(Object property) {
