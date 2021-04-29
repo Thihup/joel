@@ -147,7 +147,7 @@ public class ELProcessor {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
         }
-        return factory.createValueExpression(manager.getELContext(), "${%s}".formatted(expression), expectedType).getValue(manager.getELContext());
+        return factory.createValueExpression(manager.getELContext(), "${" + expression + "}", expectedType).getValue(manager.getELContext());
     }
 
     /**
@@ -169,7 +169,7 @@ public class ELProcessor {
             factory = ExpressionFactory.newInstance();
             manager.getELContext().putContext(ExpressionFactory.class, factory);
         }
-        factory.createValueExpression(manager.getELContext(), "${%s}".formatted(expression), Object.class).setValue(manager.getELContext(), value);
+        factory.createValueExpression(manager.getELContext(), "${" + expression + "}", Object.class).setValue(manager.getELContext(), value);
     }
 
     /**
