@@ -21,6 +21,8 @@ public class JoelExpressionParser {
     public static ExpressionNode parse(String expression) {
         return CACHED_EXPRESSION.computeIfAbsent(expression, key -> {
             var lexer = new ExpressionLanguageLexer(CharStreams.fromString(expression));
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(ERROR_LISTENER);
             var parser = new ExpressionLanguageParser(new CommonTokenStream(lexer));
             parser.removeErrorListeners();
             parser.addErrorListener(ERROR_LISTENER);
