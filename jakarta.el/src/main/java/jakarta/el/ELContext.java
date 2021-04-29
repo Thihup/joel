@@ -100,11 +100,21 @@ public abstract class ELContext {
             if (isPropertyResolved())
                 return t;
         } finally {
-            setPropertyResolved(isCurrentResolved);
+            if (isCurrentResolved)
+                setPropertyResolved(true);
         }
-        ExpressionFactory factory = ((ExpressionFactory)
-                contexts.computeIfAbsent(ExpressionFactory.class, key -> ExpressionFactory.newInstance()));
+        ExpressionFactory factory = getFactory();
         return factory.coerceToType(object, targetType);
+    }
+
+    private ExpressionFactory getFactory() {
+        var factory = (ExpressionFactory) contexts.get(ExpressionFactory.class);
+        if (factory == null){
+            var expressionFactory = ExpressionFactory.newInstance();
+            contexts.put(ExpressionFactory.class, expressionFactory);
+            return expressionFactory;
+        }
+        return factory;
     }
 
     /**
@@ -181,10 +191,10 @@ public abstract class ELContext {
      */
     public Object getLambdaArgument(String argument) {
         return lambdaArguments.stream()
-            .map(x -> x.get(argument))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+                .map(x -> x.get(argument))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
