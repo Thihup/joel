@@ -70,51 +70,39 @@ public class StreamELResolver extends ELResolver {
     public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
         Objects.requireNonNull(context);
         if (base instanceof Optional<?> && method != null && method.toString().equals("orElseGet") && params != null && params.length > 0 && params[0] instanceof LambdaExpression lambda) {
-            try {
-                Method orElseGet = Optional.class.getMethod("orElseGet", Supplier.class);
-                Supplier<?> lambdaFromLambdaExpression = (Supplier<?>) createLambdaFromLambdaExpression(context, lambda, Supplier.class, Supplier.class.getMethod("get"));
-                context.setPropertyResolved(base, method);
-                return orElseGet.invoke(base, lambdaFromLambdaExpression);
-            } catch (NoSuchMethodException noSuchMethodException) {
-                throw new MethodNotFoundException(noSuchMethodException);
-            } catch (Exception exception) {
-                throw new ELException(exception);
-            }
+            return executeOptionalOrElseGet(context, base, method, lambda);
         }
+        if (method == null)
+            return null;
         if (!(base instanceof Stream<?> stream))
             return null;
         try {
             String methodName = (String) method;
 
-            if ("substream".equals(methodName)) {
-                context.setPropertyResolved(base, method);
-                return executeSubstream(stream, params);
-            }
-
-            if ("average".equals(methodName)) {
-                context.setPropertyResolved(base, method);
-                return executeAverage(context, stream);
-            }
-
-            if ("sum".equals(methodName)) {
-                context.setPropertyResolved(base, method);
-                return executeSum(context, stream);
-            }
-
-            if ("sorted".equals(methodName) || "min".equals(methodName) || "max".equals(methodName)) {
-                if (params == null || params.length == 0) {
-                    params = new Object[]{Comparator.naturalOrder()};
+            switch (methodName) {
+                case "substream" -> {
+                    context.setPropertyResolved(base, method);
+                    return executeSubstream(stream, params);
+                }
+                case "average" -> {
+                    context.setPropertyResolved(base, method);
+                    return executeAverage(context, stream);
+                }
+                case "sum" -> {
+                    context.setPropertyResolved(base, method);
+                    return executeSum(context, stream);
+                }
+                case "sorted", "min", "max" -> {
+                    if (params == null || params.length == 0) {
+                        params = new Object[]{Comparator.naturalOrder()};
+                    }
+                }
+                default -> {
                 }
             }
 
             Object[] currentParams = params;
-            var method1 = Arrays.stream(Stream.class.getMethods())
-                    .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                    .filter(x -> x.getName().equals(methodName))
-                    .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
-                    .filter(x -> currentParams == null || currentParams.length == x.getParameterCount())
-                    .findFirst()
-                    .orElseThrow(NoSuchMethodException::new);
+            var method1 = findMethod(parameterTypes, methodName, currentParams);
 
             // toList() / toArray()
             if (method1.getParameterCount() == 0) {
@@ -131,16 +119,7 @@ public class StreamELResolver extends ELResolver {
             // parameters of stream method
             Class<?>[] parameterTypes1 = method1.getParameterTypes();
 
-            Object[] objects = IntStream.range(0, parameterTypes1.length)
-                    .boxed()
-                    .map(x -> {
-                        try {
-                            return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x])) : currentParams[x];
-                        } catch (NoSuchMethodException noSuchMethodException) {
-                            throw new ELException(noSuchMethodException);
-                        }
-                    })
-                    .toArray();
+            Object[] objects = getArguments(context, currentParams, parameterTypes1);
             context.setPropertyResolved(base, method);
             return method1.invoke(base, objects);
         } catch (NoSuchMethodException noSuchMethodException) {
@@ -150,24 +129,59 @@ public class StreamELResolver extends ELResolver {
         }
     }
 
-    private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) throws NoSuchMethodException {
+    private Object executeOptionalOrElseGet(ELContext context, Object base, Object method, LambdaExpression lambda) {
+        try {
+            var orElseGet = Optional.class.getMethod("orElseGet", Supplier.class);
+            Supplier<?> lambdaFromLambdaExpression = (Supplier<?>) createLambdaFromLambdaExpression(context, lambda, Supplier.class, Supplier.class.getMethod("get"));
+            context.setPropertyResolved(base, method);
+            return orElseGet.invoke(base, lambdaFromLambdaExpression);
+        } catch (NoSuchMethodException noSuchMethodException) {
+            throw new MethodNotFoundException(noSuchMethodException);
+        } catch (Exception exception) {
+            throw new ELException(exception);
+        }
+    }
+
+    private Object[] getArguments(ELContext context, Object[] currentParams, Class<?>[] parameterTypes1) {
+        return IntStream.range(0, parameterTypes1.length)
+                .boxed()
+                .map(x -> {
+                    try {
+                        return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x])) : currentParams[x];
+                    } catch (NoSuchMethodException noSuchMethodException) {
+                        throw new ELException(noSuchMethodException);
+                    }
+                })
+                .toArray();
+    }
+
+    private Method findMethod(Class<?>[] parameterTypes, String methodName, Object[] currentParams) throws NoSuchMethodException {
+        return Arrays.stream(Stream.class.getMethods())
+                .filter(x -> !Modifier.isStatic(x.getModifiers()))
+                .filter(x -> x.getName().equals(methodName))
+                .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
+                .filter(x -> currentParams == null || currentParams.length == x.getParameterCount())
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
+    }
+
+    private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) {
 
         Class<?> returnType = method.getReturnType();
 
-
         // lambdaExpression.invoke(context, ?)
-        MethodHandle methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context);
+        var methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context);
 
         // context.convertToType(?, ?)
-        MethodHandle methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
+        var methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
 
         // context.convertToType(?, returnType)
-        MethodHandle methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
+        var methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
 
         // context.convertToType(lambdaExpression.invoke(context, ?), returnType)
-        MethodHandle methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
+        var methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
 
-        MethodHandle methodHandle1 = methodHandle4
+        var methodHandle1 = methodHandle4
                 // context.convertToType(lambdaExpression.invoke(context, Object...?), returnType)
                 .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
                 .asType(MethodType.methodType(returnType, method.getParameterTypes()));
