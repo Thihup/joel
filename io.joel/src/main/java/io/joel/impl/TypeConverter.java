@@ -3,30 +3,12 @@ package io.joel.impl;
 import jakarta.el.ELException;
 
 import java.beans.PropertyEditorManager;
+import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map;
 
 public class TypeConverter {
-    public static final Map<Class<?>, Class<?>> primitiveToWrapper = Map.of(
-            boolean.class, Boolean.class,
-            byte.class, Byte.class,
-            char.class, Character.class,
-            short.class, Short.class,
-            int.class, Integer.class,
-            long.class, Long.class,
-            float.class, Float.class,
-            double.class, Double.class);
     private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
-    private static final Map<Class<?>, Class<?>> wrapperToPrimitive = Map.of(
-            Boolean.class, boolean.class,
-            Byte.class, byte.class,
-            Character.class, char.class,
-            Short.class, short.class,
-            Integer.class, int.class,
-            Long.class, long.class,
-            Float.class, float.class,
-            Double.class, double.class);
 
     private TypeConverter() {
     }
@@ -34,54 +16,52 @@ public class TypeConverter {
     public static Object coerce(Object object, Class<?> targetType) {
         if (targetType == null)
             return object;
-        Class<?> boxedClass = primitiveToWrapper.get(targetType);
-        if (boxedClass != null) {
-            var boxedValue = coerceImplementation(object, boxedClass, true);
-            if (boxedValue == null) {
-                throw new ELException(CANNOT_CONVERT_TO.formatted(object, targetType));
-            }
-            return boxedValue;
+        if (!targetType.isPrimitive()) {
+            return coerceImplementation(object, targetType);
         }
-        return coerceImplementation(object, targetType, false);
+        try {
+            return coercePrimitive(object, targetType);
+        } catch (Throwable throwable){
+            throw new ELException(throwable);
+        }
     }
 
-    private static Object coerceImplementation(Object object, Class<?> targetType, boolean isPrimitive) {
-        if (targetType == String.class) {
-            return coerceToString(object);
-        }
-        if (targetType == Boolean.class) {
-            return coerceToBoolean(object, isPrimitive);
-        }
-        if (targetType == Enum.class) {
-            return coerceToEnum(object, targetType);
-        }
-        if (targetType == Character.class)
-            return coerceToCharacter(object);
-
+    private static Object coerceImplementation(Object object, Class<?> targetType) {
         if (object == null)
             return null;
+        return switch (targetType.getSimpleName()) {
+            case "String" -> coerceToString(object);
+            case "Boolean" -> coerceToBoolean(object);
+            case "Enum" -> coerceToEnum(object, targetType);
+            case "BigDecimal" -> coerceToBigDecimal(object);
+            case "BigInteger" -> coerceToBigInteger(object);
+            case "Void" -> null;
+            case "Character" -> coerceToCharacter(object);
+            case "Long" -> coerceToLong(object);
+            case "Integer" -> coerceToInteger(object);
+            case "Short" -> coerceToShort(object);
+            case "Byte" -> coerceToByte(object);
+            case "Double" -> coerceToDouble(object);
+            case "Float" -> coerceToFloat(object);
+            default -> coerceToObject(object, targetType);
+        };
+    }
 
-        if (targetType == Long.class)
-            return coerceToLong(object);
-        if (targetType == Integer.class)
-            return coerceToInteger(object);
-        if (targetType == BigDecimal.class)
-            return coerceToBigDecimal(object);
-        if (targetType == BigInteger.class)
-            return coerceToBigInteger(object);
-        if (targetType == Short.class)
-            return coerceToShort(object);
-        if (targetType == Byte.class)
-            return coerceToByte(object);
-        if (targetType == Double.class)
-            return coerceToDouble(object);
-        if (targetType == Float.class)
-            return coerceToFloat(object);
-
-        if (targetType == void.class || targetType == Void.class)
-            return null;
-
-        return coerceToObject(object, targetType);
+    private static Object coercePrimitive(Object object, Class<?> targetType) throws Throwable {
+        if (object == null) {
+            return MethodHandles.zero(targetType).invoke();
+        }
+        return switch (targetType.getSimpleName()) {
+            case "boolean" -> coerceToBoolean(object);
+            case "char" -> coerceToCharacter(object);
+            case "long" -> coerceToLong(object);
+            case "int" -> coerceToInteger(object);
+            case "short" -> coerceToShort(object);
+            case "byte" -> coerceToByte(object);
+            case "double" -> coerceToDouble(object);
+            case "float" -> coerceToFloat(object);
+            default -> null;
+        };
     }
 
     private static Object coerceToObject(Object object, Class<?> targetType) {
@@ -267,16 +247,13 @@ public class TypeConverter {
         throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Double"));
     }
 
-    private static Boolean coerceToBoolean(Object value, boolean isPrimitive) {
-        if (value == null) {
-            return isPrimitive ? false : null;
-        }
+    private static Boolean coerceToBoolean(Object value) {
         if (value instanceof Boolean newValue)
             return newValue;
         if (value instanceof String newValue) {
             return !newValue.isEmpty() && Boolean.parseBoolean(newValue);
         }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, isPrimitive ? "boolean" : "Boolean"));
+        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Boolean"));
     }
 
     private static Enum<?> coerceToEnum(Object value, Class<?> targetType) {
