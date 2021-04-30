@@ -1,11 +1,17 @@
 package jakarta.el;
 
+import jdk.dynalink.CallSiteDescriptor;
+import jdk.dynalink.DynamicLinker;
+import jdk.dynalink.DynamicLinkerFactory;
+import jdk.dynalink.StandardNamespace;
+import jdk.dynalink.StandardOperation;
+import jdk.dynalink.beans.BeansLinker;
+import jdk.dynalink.support.ChainedCallSite;
+
 import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
@@ -49,31 +55,36 @@ import java.util.Objects;
  * @since Jakarta Server Pages 2.1
  */
 public class BeanELResolver extends ELResolver {
-    private static final MethodHandle GET_MODULE;
-    private static final MethodHandle CAN_READ;
-    private static final MethodHandle THIS_MODULE;
-    private static final MethodHandle ADD_READS;
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+    private static final Module THIS_MODULE = BeanELResolver.class.getModule();
+    private static final DynamicLinker LINKER;
+    private static final CallSiteDescriptor GETTER_DESCRIPTOR = new CallSiteDescriptor(LOOKUP,
+            StandardOperation.GET.withNamespaces(StandardNamespace.PROPERTY),
+            MethodType.methodType(Object.class, Object.class, String.class));
+    private static final CallSiteDescriptor SETTER_DESCRIPTOR = new CallSiteDescriptor(LOOKUP,
+            StandardOperation.SET.withNamespaces(StandardNamespace.PROPERTY),
+            MethodType.methodType(void.class, Object.class, String.class, Object.class));
+
+    private static final CallSiteDescriptor METHOD_DESCRIPTOR = new CallSiteDescriptor(LOOKUP,
+            StandardOperation.GET.withNamespaces(StandardNamespace.METHOD),
+            MethodType.methodType(Object.class, Object.class, String.class));
+
+    private static final CallSiteDescriptor CALL_NO_ARGS_DESCRIPTOR = new CallSiteDescriptor(LOOKUP, StandardOperation.CALL,
+            MethodType.methodType(Object.class, Object.class, Object.class));
+
+    private static final MethodHandle INVOKE_GETTER;
+    private static final MethodHandle INVOKE_SETTER;
+    private static final MethodHandle INVOKE_METHOD;
+    private static final MethodHandle INVOKE_CALL_NO_ARGS;
+
 
     static {
-        Class<?> moduleClass;
-        try {
-            moduleClass = Class.forName("java.lang.Module");
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            GET_MODULE = LOOKUP.findVirtual(Class.class, "getModule", MethodType.methodType(moduleClass));
-            THIS_MODULE = GET_MODULE.bindTo(BeanELResolver.class);
-
-            MethodHandle addReads = LOOKUP.findVirtual(moduleClass, "addReads", MethodType.methodType(moduleClass, moduleClass));
-            MethodHandle canRead = LOOKUP.findVirtual(moduleClass, "canRead", MethodType.methodType(boolean.class, moduleClass));
-            CAN_READ = MethodHandles.foldArguments(canRead, THIS_MODULE);
-            ADD_READS = MethodHandles.foldArguments(addReads, THIS_MODULE);
-
-        } catch (Throwable throwable) {
-            throw new IllegalStateException(throwable);
-        }
+        var factory = new DynamicLinkerFactory();
+        LINKER = factory.createLinker();
+        INVOKE_GETTER = LINKER.link(new ChainedCallSite(GETTER_DESCRIPTOR)).dynamicInvoker();
+        INVOKE_SETTER = LINKER.link(new ChainedCallSite(SETTER_DESCRIPTOR)).dynamicInvoker();
+        INVOKE_METHOD = LINKER.link(new ChainedCallSite(METHOD_DESCRIPTOR)).dynamicInvoker();
+        INVOKE_CALL_NO_ARGS = LINKER.link(new ChainedCallSite(CALL_NO_ARGS_DESCRIPTOR)).dynamicInvoker();
     }
 
     private final boolean readyOnly;
@@ -176,19 +187,15 @@ public class BeanELResolver extends ELResolver {
             return null;
         Class<?> aClass = base.getClass();
         addReads(aClass);
-        Method method;
-        String methodName = property.toString();
+        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(property.toString()))
+            throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, aClass));
         try {
-            method = aClass.getMethod("get" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-        } catch (NoSuchMethodException e) {
-            try {
-                method = aClass.getMethod("is" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-            } catch (NoSuchMethodException root) {
-                throw new PropertyNotFoundException(String.format("Property %s not found", property));
-            }
+            var result = INVOKE_GETTER.invokeExact(base, property.toString());
+            context.setPropertyResolved(base, property);
+            return result.getClass();
+        } catch (Throwable throwable) {
+            throw new ELException("Error getting property type %s.%s".formatted(aClass, property), throwable);
         }
-        context.setPropertyResolved(base, property);
-        return method.getReturnType();
     }
 
     /**
@@ -225,26 +232,14 @@ public class BeanELResolver extends ELResolver {
             return null;
         Class<?> aClass = base.getClass();
         addReads(aClass);
-        Method method;
-        String methodName = property.toString();
+        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(property.toString()))
+            throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, aClass));
         try {
-            method = aClass.getMethod(methodName);
-        } catch (NoSuchMethodException ignored) {
-            try {
-                method = aClass.getMethod("get" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-            } catch (NoSuchMethodException e) {
-                try {
-                    method = aClass.getMethod("is" + methodName.substring(0, 1).toUpperCase() + methodName.substring(1));
-                } catch (NoSuchMethodException root) {
-                    throw new PropertyNotFoundException(String.format("Property %s not found", property));
-                }
-            }
-        }
-        try {
+            var result = INVOKE_GETTER.invokeExact(base, property.toString());
             context.setPropertyResolved(base, property);
-            return MethodHandles.lookup().unreflect(method).bindTo(base).invoke();
-        } catch (Throwable e) {
-            throw new ELException(e);
+            return result;
+        } catch (Throwable throwable) {
+            throw new ELException("Error getting property %s.%s".formatted(aClass, property), throwable);
         }
     }
 
@@ -289,24 +284,10 @@ public class BeanELResolver extends ELResolver {
             throw new PropertyNotWritableException();
         Class<?> aClass = base.getClass();
         addReads(aClass);
-        String propertyName = property.toString();
-        Method method;
-        try {
-            method = aClass.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
-        } catch (NoSuchMethodException e) {
-            try {
-                method = aClass.getMethod("is" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
-            } catch (NoSuchMethodException root) {
-                throw new PropertyNotFoundException(String.format("Property %s not found", property));
-            }
-        }
-        try {
-            aClass.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1), method.getReturnType());
-            context.setPropertyResolved(base, property);
-            return false;
-        } catch (Throwable e) {
-            throw new PropertyNotWritableException(e);
-        }
+        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(property.toString()))
+            throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, base.getClass()));
+        context.setPropertyResolved(base, property);
+        return !BeansLinker.getWritableInstancePropertyNames(aClass).contains(property.toString());
     }
 
     /**
@@ -359,22 +340,23 @@ public class BeanELResolver extends ELResolver {
         if (base == null || methodName == null)
             return null;
         Class<?> aClass = base.getClass();
+        addReads(aClass);
+        if (!BeansLinker.getInstanceMethodNames(aClass).contains(methodName.toString()))
+            throw new MethodNotFoundException("Method %s not found in %s".formatted(methodName, aClass));
         try {
-            Method method = Arrays.stream(aClass.getMethods())
-                    .filter(x -> x.getName().equals(methodName.toString()))
-                    .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
-                    .filter(x -> params == null || params.length == x.getParameterCount())
-                    .findFirst()
-                    .orElseThrow(NoSuchMethodException::new);
-
-            addReads(aClass);
-            MethodHandle unreflect = MethodHandles.lookup().unreflect(method);
-            context.setPropertyResolved(base, method);
-            return unreflect.bindTo(base).invokeWithArguments(params);
-        } catch (NoSuchMethodException e) {
-            throw new MethodNotFoundException(e);
-        } catch (Throwable exception) {
-            throw new ELException(exception);
+            var o = INVOKE_METHOD.invokeExact(base, methodName.toString());
+            context.setPropertyResolved(base, methodName);
+            var paramsLength = (params == null) ? 0 : params.length;
+            if (paramsLength == 0) {
+                return INVOKE_CALL_NO_ARGS.invokeExact(o, base);
+            }
+            var callSiteDescriptor = new CallSiteDescriptor(LOOKUP, StandardOperation.CALL, MethodType.genericMethodType(2 + paramsLength));
+            return LINKER.link(new ChainedCallSite(callSiteDescriptor))
+                .dynamicInvoker()
+                .asSpreader(Object[].class, paramsLength)
+                .invokeExact(o, base, params);
+        } catch (Throwable e) {
+            throw new ELException(e);
         }
     }
 
@@ -420,33 +402,20 @@ public class BeanELResolver extends ELResolver {
             throw new PropertyNotWritableException();
         Class<?> aClass = base.getClass();
         addReads(aClass);
-        String propertyName = property.toString();
-        Method getterMethod;
+        var propertyName = property.toString();
+        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(propertyName))
+            throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, base.getClass()));
+
         try {
-            getterMethod = aClass.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
-        } catch (NoSuchMethodException e) {
-            try {
-                getterMethod = aClass.getMethod("is" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
-            } catch (NoSuchMethodException root) {
-                throw new PropertyNotFoundException(String.format("Property %s not found", property));
-            }
-        }
-        try {
-            MethodHandle unreflect = MethodHandles.lookup().unreflect(aClass.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1), getterMethod.getReturnType()));
-            context.setPropertyResolved(base, property);
-            unreflect.bindTo(base).invokeWithArguments(value);
-        } catch (Throwable e) {
-            throw new ELException(e);
+            INVOKE_SETTER.invokeExact(base, propertyName, value);
+        } catch (Throwable throwable) {
+            throw new PropertyNotWritableException(throwable);
         }
     }
 
     private void addReads(Class<?> klass) {
-        try {
-            MethodHandle getModuleForClass = GET_MODULE.bindTo(klass);
-            if (!(boolean)MethodHandles.foldArguments(CAN_READ, getModuleForClass).asType(MethodType.methodType(boolean.class)).invokeExact())
-                MethodHandles.foldArguments(ADD_READS, getModuleForClass).asType(MethodType.methodType(void.class)).invokeExact();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+        var module = klass.getModule();
+        if (!THIS_MODULE.canRead(module))
+            THIS_MODULE.addReads(module);
     }
 }
