@@ -2,6 +2,7 @@ package jakarta.el;
 
 import java.beans.FeatureDescriptor;
 import java.util.Iterator;
+import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -97,6 +98,8 @@ public class ResourceBundleELResolver extends ELResolver {
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
+        if (base instanceof ResourceBundle)
+            context.setPropertyResolved(base, property);
         return null;
     }
 
@@ -124,7 +127,14 @@ public class ResourceBundleELResolver extends ELResolver {
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return null;
+        if (!(base instanceof ResourceBundle resourceBundle))
+            return null;
+        context.setPropertyResolved(base, property);
+        try {
+            return resourceBundle.getObject(property.toString());
+        } catch (MissingResourceException missingResourceException) {
+            return "???" + property + "???";
+        }
     }
 
     /**
@@ -140,7 +150,10 @@ public class ResourceBundleELResolver extends ELResolver {
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        return false;
+        if (!(base instanceof ResourceBundle))
+            return false;
+        context.setPropertyResolved(base, property);
+        return true;
     }
 
 
@@ -157,7 +170,9 @@ public class ResourceBundleELResolver extends ELResolver {
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
-        if (base instanceof ResourceBundle)
-            throw new PropertyNotWritableException();
+        if (!(base instanceof ResourceBundle)) {
+            return;
+        }
+        throw new PropertyNotWritableException();
     }
 }
