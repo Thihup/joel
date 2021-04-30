@@ -144,8 +144,7 @@ public class StreamELResolver extends ELResolver {
 
     private Object[] getArguments(ELContext context, Object[] currentParams, Class<?>[] parameterTypes1) {
         return IntStream.range(0, parameterTypes1.length)
-                .boxed()
-                .map(x -> {
+                .mapToObj(x -> {
                     try {
                         return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x])) : currentParams[x];
                     } catch (NoSuchMethodException noSuchMethodException) {

@@ -75,7 +75,6 @@ public class LambdaExpression {
             throw new ELException("Not enough arguments provided");
 
         Map<String, Object> collect = IntStream.range(0, formalParameters.size())
-                .boxed()
                 .collect(HashMap::new, (map, value) -> map.put(formalParameters.get(value), arguments[value]), HashMap::putAll);
 
         try {
