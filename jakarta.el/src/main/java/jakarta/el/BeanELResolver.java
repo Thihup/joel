@@ -57,7 +57,7 @@ import java.util.Objects;
 public class BeanELResolver extends ELResolver {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     private static final Module THIS_MODULE = BeanELResolver.class.getModule();
-    private static final DynamicLinker LINKER;
+    private static final DynamicLinker LINKER = new DynamicLinkerFactory().createLinker();
     private static final CallSiteDescriptor GETTER_DESCRIPTOR = new CallSiteDescriptor(LOOKUP,
             StandardOperation.GET.withNamespaces(StandardNamespace.PROPERTY),
             MethodType.methodType(Object.class, Object.class, String.class));
@@ -76,11 +76,18 @@ public class BeanELResolver extends ELResolver {
     private static final MethodHandle INVOKE_SETTER;
     private static final MethodHandle INVOKE_METHOD;
     private static final MethodHandle INVOKE_CALL_NO_ARGS;
+    private static final ClassValue<Void> MODULE_CACHE = new ClassValue<Void>() {
+        @Override
+        protected Void computeValue(Class<?> type) {
+            var module = type.getModule();
+            if (!THIS_MODULE.canRead(module))
+                THIS_MODULE.addReads(module);
+            return null;
+        }
+    };
 
 
     static {
-        var factory = new DynamicLinkerFactory();
-        LINKER = factory.createLinker();
         INVOKE_GETTER = LINKER.link(new ChainedCallSite(GETTER_DESCRIPTOR)).dynamicInvoker();
         INVOKE_SETTER = LINKER.link(new ChainedCallSite(SETTER_DESCRIPTOR)).dynamicInvoker();
         INVOKE_METHOD = LINKER.link(new ChainedCallSite(METHOD_DESCRIPTOR)).dynamicInvoker();
@@ -414,8 +421,6 @@ public class BeanELResolver extends ELResolver {
     }
 
     private void addReads(Class<?> klass) {
-        var module = klass.getModule();
-        if (!THIS_MODULE.canRead(module))
-            THIS_MODULE.addReads(module);
+        MODULE_CACHE.get(klass);
     }
 }
