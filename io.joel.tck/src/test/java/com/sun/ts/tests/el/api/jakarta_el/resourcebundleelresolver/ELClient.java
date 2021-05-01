@@ -52,7 +52,6 @@ public class ELClient {
      */
 
     @Test
-    @Disabled
     public void resourceBundleELResolverTest() {
 
         boolean pass = false;

@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.beans.FeatureDescriptor;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.MissingResourceException;
 import java.util.Objects;
@@ -75,7 +76,9 @@ public class ResourceBundleELResolver extends ELResolver {
      */
     @Override
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
+        if (!(base instanceof ResourceBundle))
+            return null;
+        return Collections.emptyIterator();
     }
 
     /**
