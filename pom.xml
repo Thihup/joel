@@ -11,6 +11,7 @@
         <module>jakarta.el</module>
         <module>io.joel</module>
         <module>io.joel.tests</module>
+        <module>io.joel.tck</module>
     </modules>
 
     <properties>
