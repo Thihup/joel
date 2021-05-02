@@ -29,7 +29,6 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.ValueExpression;
 import jakarta.el.VariableMapper;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -43,7 +42,6 @@ public class ELClient {
      */
 
     @Test
-    @Disabled
     public void variableMapperTest() {
 
         StringBuffer buf = new StringBuffer();
@@ -51,7 +49,7 @@ public class ELClient {
         boolean pass = true;
 
         ExpressionFactory expFactory = ExpressionFactory.newInstance();
-        VarMapperELContext context = new VarMapperELContext(null);
+        VarMapperELContext context = new VarMapperELContext(System.getProperties());
         VariableMapper varMapper = context.getVariableMapper();
         TestUtil.logTrace("VariableMapper is " + varMapper.toString());
 

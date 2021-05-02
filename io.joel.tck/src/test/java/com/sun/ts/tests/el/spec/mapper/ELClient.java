@@ -119,7 +119,6 @@ public class ELClient {
      */
 
     @Test
-    @Disabled
     public void ELVariableBindingTest() {
 
         Class expectedClass = Double.class;
@@ -127,7 +126,7 @@ public class ELClient {
 
         // Create a ValueExpression and use it to set a variable
         ExpressionFactory expFactory = ExpressionFactory.newInstance();
-        VarMapperELContext context = new VarMapperELContext(null);
+        VarMapperELContext context = new VarMapperELContext(System.getProperties());
         VariableMapper varMapper = context.getVariableMapper();
         ValueExpression vexp1 = expFactory.createValueExpression(context, "#{1e1}",
                 Object.class);

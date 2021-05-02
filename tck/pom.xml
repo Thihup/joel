@@ -62,6 +62,10 @@
                                                match="el\.classes=(.*)"
                                                replace="el.classes=${work.home}/jars/jakarta.el-api.jar${pathsep}${pathsep}${work.home}/jars/jakarta.el.jar${pathsep}${work.home}/jars/antlr.jar"
                                                byline="true"/>
+                                <replaceregexp file="${tck.home}/bin/ts.jte"
+                                               match="variable.mapper=(.*)"
+                                               replace="variable.mapper=io.joel.impl.mapper.JoelVariableMapper"
+                                               byline="true"/>
                             </target>
                         </configuration>
                         <goals>
