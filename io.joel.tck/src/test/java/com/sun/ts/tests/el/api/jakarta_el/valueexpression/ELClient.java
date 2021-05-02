@@ -33,7 +33,6 @@ import jakarta.el.ValueReference;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -409,7 +408,6 @@ public class ELClient {
      * the behavior is as expected
      */
     @Test
-    @Disabled
     public void valueExpressionEqualsTest() {
 
         StringBuffer buf = new StringBuffer();

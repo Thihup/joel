@@ -87,7 +87,7 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public int hashCode() {
-        return Objects.hash(expression, expressionNode, expectedType);
+        return Objects.hash(expressionNode, expectedType);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class JoelValueExpression extends ValueExpression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JoelValueExpression that = (JoelValueExpression) o;
-        return Objects.equals(expression, that.expression) && Objects.equals(expressionNode, that.expressionNode) && Objects.equals(expectedType, that.expectedType);
+        return Objects.equals(expressionNode, that.expressionNode) && Objects.equals(expectedType, that.expectedType);
     }
 
     @Override
