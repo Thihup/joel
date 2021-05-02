@@ -312,7 +312,6 @@ public class ELClient {
      * and '#' are treated as literals when preceded with '\'.
      */
     @Test
-    @Disabled
     public void elSyntaxEscapeTest() {
 
         boolean pass = true;

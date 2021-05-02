@@ -60,7 +60,10 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
 
     @Override
     public ExpressionNode visitLiteralExpression(ExpressionLanguageParser.LiteralExpressionContext ctx) {
-        return new StringNode(ctx.getText());
+        String text = ctx.getText();
+        if (text.startsWith("\\#") || text.startsWith("\\$"))
+            return new StringNode(text.substring(1));
+        return new StringNode(text);
     }
 
     @Override
