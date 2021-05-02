@@ -55,7 +55,6 @@ public class ELClient {
      * Expression.isLiteralText() Expression.getExpressionString()
      */
     @Test
-    @Disabled
     public void positiveValueExpressionTest() {
 
         StringBuffer buf = new StringBuffer();

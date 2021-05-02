@@ -164,7 +164,7 @@ public class BeanNameELResolver extends ELResolver {
             return false;
         }
         String beanName = ((String) property);
-        if (!beanNameResolver.isNameResolved(beanName))
+        if (!beanNameResolver.isNameResolved(beanName) && !beanNameResolver.canCreateBean(beanName))
             return false;
         context.setPropertyResolved(base, property);
         return beanNameResolver.isReadOnly(beanName);

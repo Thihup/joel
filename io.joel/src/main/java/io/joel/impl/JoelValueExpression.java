@@ -4,6 +4,7 @@ import io.joel.impl.node.ExpressionNode;
 import io.joel.impl.node.InfixExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.PropertyNotFoundException;
+import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
 
@@ -70,9 +71,10 @@ public class JoelValueExpression extends ValueExpression {
 
     @Override
     public void setValue(ELContext context, Object value) {
+        context.setPropertyResolved(false);
+        if (isReadOnly(context))
+            throw new PropertyNotWritableException();
         new InfixExpressionNode.AssignNode(expressionNode, new InfixExpressionNode.ObjectNode(value)).getValue(context);
-        if (!context.isPropertyResolved())
-            throw new PropertyNotFoundException();
     }
 
     @Override
