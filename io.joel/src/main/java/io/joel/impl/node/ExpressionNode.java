@@ -236,7 +236,7 @@ public interface ExpressionNode extends Serializable {
             Class<?> aClass = context.getImportHandler().resolveClass(value);
             if (aClass != null)
                 return aClass;
-            throw new ELException("Property %s not found".formatted(value));
+            throw new PropertyNotFoundException("Property %s not found".formatted(value));
         }
 
         @Override
@@ -260,7 +260,7 @@ public interface ExpressionNode extends Serializable {
                 context.getELResolver().getValue(context, new ELClass(aClass), value);
             }
 
-            throw new ELException("Property %s not found".formatted(value));
+            throw new PropertyNotFoundException("Property %s not found".formatted(value));
         }
 
         @Override

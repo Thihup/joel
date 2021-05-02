@@ -413,6 +413,7 @@ public class BeanELResolver extends ELResolver {
         if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(propertyName))
             throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, base.getClass()));
 
+        context.setPropertyResolved(base, property);
         try {
             INVOKE_SETTER.invokeExact(base, propertyName, value);
         } catch (Throwable throwable) {

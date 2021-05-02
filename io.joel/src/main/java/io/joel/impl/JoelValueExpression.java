@@ -3,6 +3,7 @@ package io.joel.impl;
 import io.joel.impl.node.ExpressionNode;
 import io.joel.impl.node.InfixExpressionNode;
 import jakarta.el.ELContext;
+import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
 
@@ -53,17 +54,25 @@ public class JoelValueExpression extends ValueExpression {
     public boolean isReadOnly(ELContext context) {
         if (expressionNode instanceof ExpressionNode.MemberNode memberNode) {
             var valueReference = memberNode.valueReference(context);
-            return context.getELResolver().isReadOnly(context, valueReference.getBase(), valueReference.getProperty());
+            boolean readOnly = context.getELResolver().isReadOnly(context, valueReference.getBase(), valueReference.getProperty());
+            if (!context.isPropertyResolved())
+                throw new PropertyNotFoundException();
+            return readOnly;
         }
-        if (expressionNode instanceof ExpressionNode.IdentifierNode identifierNode)
-            return context.getELResolver().isReadOnly(context, null, identifierNode.value());
-
+        if (expressionNode instanceof ExpressionNode.IdentifierNode identifierNode) {
+            boolean readOnly = context.getELResolver().isReadOnly(context, null, identifierNode.value());
+            if (!context.isPropertyResolved())
+                throw new PropertyNotFoundException();
+            return readOnly;
+        }
         return true;
     }
 
     @Override
     public void setValue(ELContext context, Object value) {
         new InfixExpressionNode.AssignNode(expressionNode, new InfixExpressionNode.ObjectNode(value)).getValue(context);
+        if (!context.isPropertyResolved())
+            throw new PropertyNotFoundException();
     }
 
     @Override

@@ -155,7 +155,6 @@ public class ELClient {
      * was created, a PropertyNotFoundException is thrown.
      */
     @Test
-    @Disabled
     public void negativeValueExpressionTest() {
 
         boolean pass = true;
