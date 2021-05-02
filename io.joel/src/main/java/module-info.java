@@ -1,6 +1,5 @@
 module io.joel {
     exports io.joel.impl.spi;
-    exports io.joel.impl.mapper;
     requires transitive jakarta.el;
 
     requires org.antlr.antlr4.runtime;
