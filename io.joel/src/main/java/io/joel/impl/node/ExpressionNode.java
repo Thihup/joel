@@ -214,11 +214,6 @@ public interface ExpressionNode extends Serializable {
     }
 
     record IdentifierNode(String value) implements ExpressionNode {
-        public IdentifierNode {
-            if (!Character.isJavaIdentifierStart(value.charAt(0)) || !value.chars().skip(1).allMatch(Character::isJavaIdentifierPart))
-                throw new IllegalArgumentException("Invalid identifier: " + value);
-        }
-
         @Override
         public Class<?> getType(ELContext context) {
             var variableMapper = context.getVariableMapper();

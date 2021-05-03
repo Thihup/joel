@@ -456,7 +456,6 @@ public class ELClient {
      * cannot be parsed due to this rule.
      */
     @Test
-    @Disabled
     public void functionPrecedenceTest() {
 
         boolean pass = false;

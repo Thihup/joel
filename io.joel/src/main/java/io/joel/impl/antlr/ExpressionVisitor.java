@@ -213,20 +213,23 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
         return new MemberNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
     }
 
-    @Override
-    public ExpressionNode visitCallExpression(ExpressionLanguageParser.CallExpressionContext ctx) {
-        if (":".equals(ctx.getChild(1).getText())) {
-            var firstChild = ctx.getChild(0);
-            return new CallExpressionNode(new IdentifierNode(firstChild + ":" + ctx.getChild(2).getText()), List.of());
-        }
-        var expressionList = ctx.arguments().expressionList();
+    private List<ExpressionNode> getArguments(ExpressionLanguageParser.ExpressionListContext expressionList) {
         if (expressionList == null)
-            return new CallExpressionNode(visit(ctx.getChild(0)), List.of());
-        return new CallExpressionNode(visit(ctx.getChild(0)), expressionList
+            return List.of();
+        return expressionList
                 .expression()
                 .stream()
                 .map(this::visit)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ExpressionNode visitCallExpression(ExpressionLanguageParser.CallExpressionContext ctx) {
+        if (ctx.qualifiedFunction() != null){
+            return visit(ctx.qualifiedFunction());
+        }
+        var expressionList = ctx.arguments().expressionList();
+        return new CallExpressionNode(visit(ctx.getChild(0)), getArguments(expressionList));
     }
 
     @Override
@@ -254,7 +257,18 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
     }
 
     @Override
+    public ExpressionNode visitQualifiedFunction(ExpressionLanguageParser.QualifiedFunctionContext ctx) {
+        var expressionList = ctx.arguments().expressionList();
+        return new CallExpressionNode(new IdentifierNode(ctx.getChild(0).getText()), getArguments(expressionList));
+    }
+
+    @Override
     public ExpressionNode visitTernaryExpression(ExpressionLanguageParser.TernaryExpressionContext ctx) {
         return new TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
+    }
+
+    @Override
+    public ExpressionNode visitBadTernaryExpression(ExpressionLanguageParser.BadTernaryExpressionContext ctx) {
+        throw new ELException();
     }
 }

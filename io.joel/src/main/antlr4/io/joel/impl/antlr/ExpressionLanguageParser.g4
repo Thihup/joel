@@ -60,9 +60,14 @@ mapEntries
     : mapEntry (COMMA mapEntry)*
     ;
 
+qualifiedFunction
+    : QUALIFIED_FUNCTION arguments
+    ;
+
 expression
     : expression (LBRACK expression RBRACK) #memberIndexExpression
     | expression bop=DOT (IDENTIFIER) #memberDotExpression
+    | qualifiedFunction #callExpression
     | expression arguments #callExpression
     | prefix=(MINUS | NOT | EMPTY) expression #unaryExpression
     | expression bop=(MULT | DIV | MOD ) expression #infixExpression
@@ -72,6 +77,7 @@ expression
     | expression bop=(EQ | NE) expression #relationalExpression
     | expression bop=AND expression #logicalExpression
     | expression bop=OR expression #logicalExpression
+    | <assoc=right> expression QUESTIONMARK qualifiedFunction #badTernaryExpression
     | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression #ternaryExpression
     | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
     | lambdaParameters ARROW expression #lambdaExpression
