@@ -96,11 +96,7 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
 
     @Override
     public ExpressionNode visitIntegerLiteralExpression(IntegerLiteralExpressionContext ctx) {
-        try {
-            return new NumberNode(Long.valueOf(ctx.getText()));
-        } catch (NumberFormatException ignored) {
-            return new NumberNode(new BigInteger(ctx.getText()));
-        }
+        return new NumberNode(Long.valueOf(ctx.getText()));
     }
 
     @Override
@@ -115,11 +111,7 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
 
     @Override
     public ExpressionNode visitFloatingPointLiteralExpression(FloatingPointLiteralExpressionContext ctx) {
-        try {
-            return new NumberNode(Double.valueOf(ctx.getText()));
-        } catch (NumberFormatException ignored) {
-            return new NumberNode(new BigDecimal(ctx.getText()));
-        }
+        return new NumberNode(Double.valueOf(ctx.getText()));
     }
 
     @Override
