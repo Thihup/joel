@@ -192,4 +192,11 @@ class LambdaTest {
         assertEquals(BigDecimal.valueOf(20), eval);
     }
 
+    @Test
+    void testLambda23() {
+        var elProcessor = new ELProcessor();
+        var eval = (Long) elProcessor.eval("() -> 5");
+        assertEquals(5L, eval);
+    }
+
 }

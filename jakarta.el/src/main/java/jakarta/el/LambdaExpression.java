@@ -121,6 +121,6 @@ public class LambdaExpression {
 
     @Override
     public String toString() {
-        return "LambdaExpression{" + formalParameters + " -> " + expression.toString() + "}";
+        return "LambdaExpression[(" + String.join("," ,formalParameters) + ") -> " + expression.toString() + "]";
     }
 }

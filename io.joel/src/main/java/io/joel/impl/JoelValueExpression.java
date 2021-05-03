@@ -3,6 +3,7 @@ package io.joel.impl;
 import io.joel.impl.node.ExpressionNode;
 import io.joel.impl.node.InfixExpressionNode;
 import jakarta.el.ELContext;
+import jakarta.el.LambdaExpression;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueExpression;
@@ -45,6 +46,10 @@ public class JoelValueExpression extends ValueExpression {
     public Object getValue(ELContext context) {
         try {
             context.notifyBeforeEvaluation(expression);
+            if (expressionNode instanceof ExpressionNode.LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
+                var lambdaExpression = (LambdaExpression) lambdaNode.getValue(context);
+                return context.convertToType(lambdaExpression.invoke(context), expectedType);
+            }
             return context.convertToType(expressionNode.getValue(context), expectedType);
         } finally {
             context.notifyAfterEvaluation(expression);
