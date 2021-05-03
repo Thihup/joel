@@ -1,6 +1,7 @@
 package io.joel.impl.node;
 
 import jakarta.el.ELContext;
+import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueReference;
 
 import java.math.BigDecimal;
@@ -226,7 +227,7 @@ public interface InfixExpressionNode extends ExpressionNode {
                 context.getELResolver().setValue(context, valueReference.getBase(), valueReference.getProperty(), value);
                 return value;
             }
-            return null;
+            throw new PropertyNotWritableException("Illegal syntax for assign operation");
         }
 
         private Object getValue(ELContext context, Object node) {

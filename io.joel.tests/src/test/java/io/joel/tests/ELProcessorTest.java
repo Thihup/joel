@@ -1,6 +1,7 @@
 package io.joel.tests;
 
 import jakarta.el.ELProcessor;
+import jakarta.el.PropertyNotWritableException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -8,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ELProcessorTest {
@@ -64,5 +66,11 @@ class ELProcessorTest {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.setValue("b", null);
         assertEquals(0L, elProcessor.eval(expression));
+    }
+
+    @Test
+    void illegalAssignOperator() {
+        ELProcessor elProcessor = new ELProcessor();
+        assertThrows(PropertyNotWritableException.class, () -> elProcessor.eval("1 + 1 == 2 ? 10 : a = 5"));
     }
 }
