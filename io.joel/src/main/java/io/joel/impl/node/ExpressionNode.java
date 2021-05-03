@@ -4,20 +4,26 @@ import io.joel.impl.JoelValueExpression;
 import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
+import jakarta.el.FunctionMapper;
 import jakarta.el.ImportHandler;
 import jakarta.el.LambdaExpression;
+import jakarta.el.MethodNotFoundException;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public interface ExpressionNode extends Serializable {
 
@@ -420,42 +426,6 @@ public interface ExpressionNode extends Serializable {
         @Override
         public String prettyPrint() {
             return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "[", "]"));
-        }
-    }
-
-    record CallExpressionNode(ExpressionNode callee, List<ExpressionNode> arguments) implements ExpressionNode {
-        @Override
-        public Object getValue(ELContext context) {
-            if (callee instanceof CallExpressionNode callNode) {
-                Object value = callNode.getValue(context);
-                if (value instanceof ExpressionNode node) {
-                    return node.getValue(context);
-                }
-                if (value instanceof LambdaExpression lambdaExpression) {
-                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
-                }
-                return value;
-            }
-            if (callee instanceof LambdaNode lambdaNode) {
-                return ((LambdaExpression) lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
-            }
-            if ((callee instanceof MemberNode memberNode)) {
-                var valueReference = memberNode.valueReference(context);
-                var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
-                return context.getELResolver()
-                        .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
-            }
-            if (callee instanceof IdentifierNode identifierNode) {
-                if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
-                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
-                }
-            }
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String prettyPrint() {
-            return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",")));
         }
     }
 

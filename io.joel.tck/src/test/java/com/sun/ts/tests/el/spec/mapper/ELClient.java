@@ -48,7 +48,6 @@ public class ELClient {
      * is being invoked.
      */
     @Test
-    @Disabled
     public void ELFunctionBindingTest() {
 
         Class expectedClass = Integer.class;

@@ -1,5 +1,6 @@
 package io.joel.impl.antlr;
 
+import io.joel.impl.node.CallExpressionNode;
 import io.joel.impl.node.ExpressionNode;
 import io.joel.impl.node.ExpressionNode.BooleanNode;
 import io.joel.impl.node.ExpressionNode.IdentifierNode;
@@ -9,8 +10,6 @@ import io.joel.impl.node.InfixExpressionNode.ConcatNode;
 import io.joel.impl.node.RelationalNode;
 import jakarta.el.ELException;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +24,6 @@ import static io.joel.impl.antlr.ExpressionLanguageParser.LiteralExprContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.NullLiteralExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.RelationalExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.StringLiteralExpressionContext;
-import static io.joel.impl.node.ExpressionNode.CallExpressionNode;
 import static io.joel.impl.node.ExpressionNode.DeferredExpressionNode;
 import static io.joel.impl.node.ExpressionNode.DynamicExpressionNode;
 import static io.joel.impl.node.ExpressionNode.NullNode;
@@ -73,8 +71,8 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
         if (!ctx.deferredExpression().isEmpty() && !ctx.dynamicExpression().isEmpty())
             throw new ELException("Cannot mix dynamic expressions with deferred expression");
         return ctx.children.stream()
-            .map(this::visit)
-            .reduce(new StringNode(""), ConcatNode::new);
+                .map(this::visit)
+                .reduce(new StringNode(""), ConcatNode::new);
     }
 
     @Override
@@ -217,7 +215,7 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
 
     @Override
     public ExpressionNode visitCallExpression(ExpressionLanguageParser.CallExpressionContext ctx) {
-        if (ctx.qualifiedFunction() != null){
+        if (ctx.qualifiedFunction() != null) {
             return visit(ctx.qualifiedFunction());
         }
         var expressionList = ctx.arguments().expressionList();

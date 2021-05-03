@@ -21,9 +21,14 @@ public class TypeConverter {
         }
         try {
             return coercePrimitive(object, targetType);
-        } catch (Throwable throwable){
-            throw new ELException(throwable);
+        } catch (Throwable throwable) {
+            sneakyThrow(throwable);
+            return null;
         }
+    }
+
+    private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
+        throw (E) e;
     }
 
     private static Object coerceImplementation(Object object, Class<?> targetType) {
