@@ -32,7 +32,7 @@ public class JoelExpressionFactory extends ExpressionFactory {
     public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes) {
         Objects.requireNonNull(expectedParamTypes);
         var parse = JoelExpressionParser.parse(expression);
-        return new JoelMethodExpression(expression, parse);
+        return new JoelMethodExpression(expression, parse, expectedReturnType, expectedParamTypes);
     }
 
     @Override

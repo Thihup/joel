@@ -31,13 +31,11 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
 
     @Test
-    @Disabled
     public void methodInfoTest() {
 
         StringBuffer buf = new StringBuffer();
