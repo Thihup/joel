@@ -5,11 +5,10 @@
     <parent>
         <groupId>io.joel</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-M1</version>
     </parent>
 
     <artifactId>io.joel.tests</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
