@@ -29,7 +29,6 @@ import jakarta.el.ELException;
 
 import java.util.Hashtable;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -413,7 +412,6 @@ public class ELClient {
      * can also be used as a method expression that returns a non-void value.
      */
     @Test
-    @Disabled
     public void literalExprAsMethodExpr1Test() {
 
         boolean pass = true;
@@ -457,7 +455,6 @@ public class ELClient {
      * java.lang.String.
      */
     @Test
-    @Disabled
     public void literalExprAsMethodExpr2Test() {
 
         boolean pass = true;

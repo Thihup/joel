@@ -54,6 +54,8 @@ public class JoelMethodExpression extends MethodExpression {
     public Object invoke(ELContext context, Object[] params) {
         try {
             context.notifyBeforeEvaluation(expression);
+            if (expressionNode instanceof ExpressionNode.StringNode stringLiteral)
+                return context.convertToType(stringLiteral.value(), expectedReturnType);
             return null;
         } finally {
             context.notifyAfterEvaluation(expression);
