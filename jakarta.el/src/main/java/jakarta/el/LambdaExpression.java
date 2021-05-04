@@ -35,6 +35,7 @@ public class LambdaExpression {
     private final List<String> formalParameters;
     private final ValueExpression expression;
     private ELContext context;
+    private final Map<String, Object> outerLambdaArguments;
 
     /**
      * Creates a new LambdaExpression.
@@ -45,6 +46,7 @@ public class LambdaExpression {
     public LambdaExpression(List<String> formalParameters, ValueExpression expression) {
         this.formalParameters = formalParameters;
         this.expression = expression;
+        this.outerLambdaArguments = new HashMap<>();
     }
 
     /**
@@ -75,11 +77,16 @@ public class LambdaExpression {
             throw new ELException("Not enough arguments provided");
 
         Map<String, Object> collect = IntStream.range(0, formalParameters.size())
-                .collect(HashMap::new, (map, value) -> map.put(formalParameters.get(value), arguments[value]), HashMap::putAll);
+                .collect(() -> new HashMap<>(outerLambdaArguments),
+                    (map, value) -> map.put(formalParameters.get(value), arguments[value]),
+                    HashMap::putAll);
 
         try {
             elContext.enterLambdaScope(collect);
-            return expression.getValue(elContext);
+            Object value = expression.getValue(elContext);
+            if (value instanceof LambdaExpression lambdaExpression)
+                lambdaExpression.outerLambdaArguments.putAll(collect);
+            return value;
         } finally {
             elContext.exitLambdaScope();
         }

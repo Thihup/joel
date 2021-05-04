@@ -28,7 +28,6 @@ import jakarta.el.ELProcessor;
 
 import java.lang.reflect.Array;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -73,7 +72,6 @@ public class ELClient {
      * @since: 3.0
      */
     @Test
-    @Disabled
     public void elCollectionMinTest() {
         buildELContext();
 
@@ -98,7 +96,6 @@ public class ELClient {
      * @since: 3.0
      */
     @Test
-    @Disabled
     public void elCollectionMaxTest() {
         buildELContext();
 
