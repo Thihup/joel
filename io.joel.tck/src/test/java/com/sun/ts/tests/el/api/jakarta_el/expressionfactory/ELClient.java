@@ -33,7 +33,6 @@ import jakarta.el.ValueExpression;
 
 import java.util.Properties;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -303,7 +302,6 @@ public class ELClient {
      * errors, and for expressions that are not lvalues.
      */
     @Test
-    @Disabled
     public void createMethodExpressionELExceptionTest() {
 
         boolean pass = true;

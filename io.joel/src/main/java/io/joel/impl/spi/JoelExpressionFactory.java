@@ -32,6 +32,8 @@ public class JoelExpressionFactory extends ExpressionFactory {
     public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes) {
         Objects.requireNonNull(expectedParamTypes);
         var parse = JoelExpressionParser.parse(expression);
+        if (!(parse instanceof ExpressionNode.StringNode) && !(parse instanceof ExpressionNode.MemberNode) && !(parse instanceof ExpressionNode.IdentifierNode))
+            throw new ELException("Invalid method expression: " + expression);
         return new JoelMethodExpression(expression, parse, expectedReturnType, expectedParamTypes);
     }
 
