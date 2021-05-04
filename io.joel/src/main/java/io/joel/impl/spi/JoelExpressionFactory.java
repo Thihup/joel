@@ -14,10 +14,7 @@ import jakarta.el.ValueExpression;
 
 import java.util.Objects;
 
-import static java.lang.System.Logger.Level.INFO;
-
 public class JoelExpressionFactory extends ExpressionFactory {
-    private static final System.Logger LOGGER = System.getLogger(JoelExpressionFactory.class.getName());
 
     @Override
     public Object coerceToType(Object object, Class<?> targetType) {
@@ -40,7 +37,6 @@ public class JoelExpressionFactory extends ExpressionFactory {
     @Override
     public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
         Objects.requireNonNull(expectedType);
-        LOGGER.log(INFO, "[JOEL] Evaluating expression: " + expression);
         var parseResult = JoelExpressionParser.parse(expression);
         return new JoelValueExpression(expression, parseResult, expectedType);
     }
