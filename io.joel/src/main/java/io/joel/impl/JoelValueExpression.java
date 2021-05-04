@@ -47,8 +47,7 @@ public class JoelValueExpression extends ValueExpression {
         try {
             context.notifyBeforeEvaluation(expression);
             if (expressionNode instanceof ExpressionNode.LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                var lambdaExpression = (LambdaExpression) lambdaNode.getValue(context);
-                return context.convertToType(lambdaExpression.invoke(context), expectedType);
+                return context.convertToType(lambdaNode.expression().getValue(context), expectedType);
             }
             return context.convertToType(expressionNode.getValue(context), expectedType);
         } finally {
