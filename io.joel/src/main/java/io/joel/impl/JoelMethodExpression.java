@@ -2,10 +2,12 @@ package io.joel.impl;
 
 import io.joel.impl.node.ExpressionNode;
 import jakarta.el.ELContext;
+import jakarta.el.ELException;
 import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.MethodNotFoundException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -54,8 +56,22 @@ public class JoelMethodExpression extends MethodExpression {
     public Object invoke(ELContext context, Object[] params) {
         try {
             context.notifyBeforeEvaluation(expression);
-            if (expressionNode instanceof ExpressionNode.StringNode stringLiteral)
+            if (expressionNode instanceof ExpressionNode.StringNode stringLiteral) {
                 return context.convertToType(stringLiteral.value(), expectedReturnType);
+            }
+            if (expressionNode instanceof ExpressionNode.MemberNode memberNode) {
+                var valueReference = memberNode.valueReference(context);
+                try {
+                    Object base = valueReference.getBase();
+                    var property = valueReference.getProperty().toString();
+                    var method = base.getClass().getMethod(property, expectedParameterTypes);
+                    return method.invoke(base, params);
+                } catch (NoSuchMethodException noSuchMethodException) {
+                    throw new MethodNotFoundException(noSuchMethodException);
+                } catch (IllegalAccessException | InvocationTargetException exception) {
+                    throw new ELException(exception);
+                }
+             }
             return null;
         } finally {
             context.notifyAfterEvaluation(expression);

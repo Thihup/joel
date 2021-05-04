@@ -34,7 +34,6 @@ import jakarta.el.MethodExpression;
 import jakarta.el.MethodNotFoundException;
 import jakarta.el.PropertyNotFoundException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ELClient {
@@ -42,7 +41,6 @@ public class ELClient {
     private static final String NL = System.getProperty("line.seperator", "\n");
 
     @Test
-    @Disabled
     public void positiveMethodExpressionTest() {
 
         StringBuffer buf = new StringBuffer();
@@ -115,7 +113,6 @@ public class ELClient {
      */
 
     @Test
-    @Disabled
     public void negativeMethodExpressionTest() {
 
         boolean pass = true;

@@ -40,7 +40,7 @@ public class TypeConverter {
             case "Enum" -> coerceToEnum(object, targetType);
             case "BigDecimal" -> coerceToBigDecimal(object);
             case "BigInteger" -> coerceToBigInteger(object);
-            case "Void" -> null;
+            case "Void" -> throw new ELException("Cannot convert " + object + " to java.lang.Void");
             case "Character" -> coerceToCharacter(object);
             case "Long" -> coerceToLong(object);
             case "Integer" -> coerceToInteger(object);
@@ -65,6 +65,7 @@ public class TypeConverter {
             case "byte" -> coerceToByte(object);
             case "double" -> coerceToDouble(object);
             case "float" -> coerceToFloat(object);
+            case "void" -> throw new ELException("Cannot convert " + object + " to void");
             default -> null;
         };
     }

@@ -167,6 +167,13 @@ public class StreamELResolver extends ELResolver {
     private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) {
 
         Class<?> returnType = method.getReturnType();
+        if (returnType == void.class || returnType == Void.class) {
+            var methodHandle = MethodHandles.filterReturnValue(
+                    MethodHandles.dropReturn(MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context)),
+                    MethodHandles.constant(Void.class, null));
+            var methodHandle1 = methodHandle.withVarargs(true).asType(MethodType.methodType(returnType, method.getParameterTypes()));
+            return MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
+        }
 
         // lambdaExpression.invoke(context, ?)
         var methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context);
