@@ -1,5 +1,6 @@
 package io.joel.impl.antlr;
 
+import io.joel.impl.node.AddExpressionNode;
 import io.joel.impl.node.CallExpressionNode;
 import io.joel.impl.node.ExpressionNode;
 import io.joel.impl.node.ExpressionNode.BooleanNode;
@@ -34,7 +35,6 @@ import static io.joel.impl.node.ExpressionNode.TernaryNode;
 import static io.joel.impl.node.ExpressionNode.UnaryEmptyNode;
 import static io.joel.impl.node.ExpressionNode.UnaryMinusNode;
 import static io.joel.impl.node.ExpressionNode.UnaryNotNode;
-import static io.joel.impl.node.InfixExpressionNode.AddExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.DivExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.ModExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.MulExpressionNode;

@@ -4,26 +4,23 @@ import io.joel.impl.JoelValueExpression;
 import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
-import jakarta.el.FunctionMapper;
 import jakarta.el.ImportHandler;
 import jakarta.el.LambdaExpression;
-import jakarta.el.MethodNotFoundException;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public interface ExpressionNode extends Serializable {
 
@@ -36,6 +33,10 @@ public interface ExpressionNode extends Serializable {
     }
 
     default String prettyPrint() {
+        throw new UnsupportedOperationException();
+    }
+
+    default MethodHandle compile(MethodHandle context) throws Throwable {
         throw new UnsupportedOperationException();
     }
 
@@ -60,6 +61,11 @@ public interface ExpressionNode extends Serializable {
         @Override
         public String toString() {
             return "NullNode[" + super.toString() + "]";
+        }
+
+        @Override
+        public MethodHandle compile(MethodHandle context) {
+            return MethodHandles.filterReturnValue(MethodHandles.dropReturn(MethodHandles.dropArguments(context, 0)), MethodHandles.zero(Object.class));
         }
     }
 
@@ -90,6 +96,11 @@ public interface ExpressionNode extends Serializable {
         @Override
         public String prettyPrint() {
             return super.toString();
+        }
+
+        @Override
+        public MethodHandle compile(MethodHandle context) {
+            return MethodHandles.filterReturnValue(MethodHandles.dropReturn(MethodHandles.dropArguments(context, 0)), MethodHandles.constant(Boolean.class, this == TRUE ? Boolean.TRUE : Boolean.FALSE));
         }
     }
 
@@ -200,6 +211,12 @@ public interface ExpressionNode extends Serializable {
         public String prettyPrint() {
             return value.toString();
         }
+
+        @Override
+        // (ELContext)Object
+        public MethodHandle compile(MethodHandle context) {
+            return MethodHandles.filterReturnValue(MethodHandles.dropReturn(MethodHandles.dropArguments(context, 0)), MethodHandles.constant(value.getClass(), value));
+        }
     }
 
     record StringNode(String value) implements ExpressionNode {
@@ -216,6 +233,10 @@ public interface ExpressionNode extends Serializable {
         @Override
         public String prettyPrint() {
             return "'%s'".formatted(value);
+        }
+
+        public MethodHandle compile(MethodHandle context) {
+            return MethodHandles.filterReturnValue(MethodHandles.dropReturn(context), MethodHandles.constant(String.class, value));
         }
     }
 
@@ -438,6 +459,19 @@ public interface ExpressionNode extends Serializable {
         @Override
         public String prettyPrint() {
             return "(%s) -> %s".formatted(String.join(",", parameters), expression.prettyPrint());
+        }
+    }
+
+}
+
+class Foo {
+    public static final MethodHandle CONVERT_TO_TYPE;
+
+    static {
+        try {
+            CONVERT_TO_TYPE = MethodHandles.lookup().findVirtual(ELContext.class, "convertToType", MethodType.methodType(Object.class, Object.class, Class.class));
+        } catch (Throwable e) {
+            throw new IllegalStateException(e);
         }
     }
 

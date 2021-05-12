@@ -10,6 +10,10 @@
 
     <artifactId>io.joel</artifactId>
 
+    <properties>
+        <kotlin.version>1.5.0</kotlin.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.joel</groupId>
@@ -20,6 +24,11 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.headius</groupId>
+            <artifactId>invokebinder</artifactId>
+            <version>1.12</version>
         </dependency>
     </dependencies>
 
