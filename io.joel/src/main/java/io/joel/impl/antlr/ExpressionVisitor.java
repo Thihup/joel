@@ -1,13 +1,10 @@
 package io.joel.impl.antlr;
 
-import io.joel.impl.node.CallExpressionNode;
-import io.joel.impl.node.ExpressionNode;
-import io.joel.impl.node.ExpressionNode.BooleanNode;
-import io.joel.impl.node.ExpressionNode.IdentifierNode;
-import io.joel.impl.node.ExpressionNode.MemberNode;
+import io.joel.impl.node.*;
+import io.joel.impl.node.IdentifierNode;
+import io.joel.impl.node.MemberNode;
 import io.joel.impl.node.InfixExpressionNode.AssignNode;
 import io.joel.impl.node.InfixExpressionNode.ConcatNode;
-import io.joel.impl.node.RelationalNode;
 import jakarta.el.ELException;
 
 import java.util.Collections;
@@ -24,16 +21,14 @@ import static io.joel.impl.antlr.ExpressionLanguageParser.LiteralExprContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.NullLiteralExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.RelationalExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.StringLiteralExpressionContext;
-import static io.joel.impl.node.ExpressionNode.DeferredExpressionNode;
-import static io.joel.impl.node.ExpressionNode.DynamicExpressionNode;
-import static io.joel.impl.node.ExpressionNode.NullNode;
-import static io.joel.impl.node.ExpressionNode.NumberNode;
-import static io.joel.impl.node.ExpressionNode.SemicolonNode;
-import static io.joel.impl.node.ExpressionNode.StringNode;
-import static io.joel.impl.node.ExpressionNode.TernaryNode;
-import static io.joel.impl.node.ExpressionNode.UnaryEmptyNode;
-import static io.joel.impl.node.ExpressionNode.UnaryMinusNode;
-import static io.joel.impl.node.ExpressionNode.UnaryNotNode;
+
+import io.joel.impl.node.SemicolonNode;
+import io.joel.impl.node.StringNode;
+
+import io.joel.impl.node.TernaryNode;
+import io.joel.impl.node.UnaryEmptyNode;
+
+import io.joel.impl.node.UnaryNotNode;
 import static io.joel.impl.node.InfixExpressionNode.AddExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.DivExpressionNode;
 import static io.joel.impl.node.InfixExpressionNode.ModExpressionNode;
@@ -104,7 +99,7 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
 
     @Override
     public ExpressionNode visitLambdaExpression(ExpressionLanguageParser.LambdaExpressionContext ctx) {
-        return new ExpressionNode.LambdaNode(ctx.lambdaParameters().IDENTIFIER().stream().map(Objects::toString).toList(), visit(ctx.expression()));
+        return new LambdaNode(ctx.lambdaParameters().IDENTIFIER().stream().map(Objects::toString).toList(), visit(ctx.expression()));
     }
 
     @Override
@@ -226,8 +221,8 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
     public ExpressionNode visitListExpression(ExpressionLanguageParser.ListExpressionContext ctx) {
         var expressionListContext = ctx.expressionList();
         if (expressionListContext == null)
-            return new ExpressionNode.ListNode(Collections.emptyList());
-        return new ExpressionNode.ListNode(expressionListContext
+            return new ListNode(Collections.emptyList());
+        return new ListNode(expressionListContext
                 .expression()
                 .stream()
                 .map(this::visit)
@@ -238,8 +233,8 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
     public ExpressionNode visitSetExpression(ExpressionLanguageParser.SetExpressionContext ctx) {
         var expressionListContext = ctx.expressionList();
         if (expressionListContext == null)
-            return new ExpressionNode.SetNode(Collections.emptyList());
-        return new ExpressionNode.SetNode(ctx.expressionList()
+            return new SetNode(Collections.emptyList());
+        return new SetNode(ctx.expressionList()
                 .expression()
                 .stream()
                 .map(this::visit)

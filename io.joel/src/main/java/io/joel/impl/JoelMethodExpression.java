@@ -1,6 +1,8 @@
 package io.joel.impl;
 
 import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.MemberNode;
+import io.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.MethodExpression;
@@ -26,7 +28,7 @@ public class JoelMethodExpression extends MethodExpression {
 
     @Override
     public boolean isLiteralText() {
-        return expressionNode instanceof ExpressionNode.StringNode;
+        return expressionNode instanceof StringNode;
     }
 
     @Override
@@ -36,9 +38,9 @@ public class JoelMethodExpression extends MethodExpression {
 
     @Override
     public MethodInfo getMethodInfo(ELContext context) {
-        if (expressionNode instanceof ExpressionNode.StringNode stringLiteral)
+        if (expressionNode instanceof StringNode stringLiteral)
             return new MethodInfo(stringLiteral.value(), expectedReturnType, expectedParameterTypes);
-        if (expressionNode instanceof ExpressionNode.MemberNode memberNode) {
+        if (expressionNode instanceof MemberNode memberNode) {
             var valueReference = memberNode.valueReference(context);
             try {
                 Object base = valueReference.getBase();
@@ -56,10 +58,10 @@ public class JoelMethodExpression extends MethodExpression {
     public Object invoke(ELContext context, Object[] params) {
         try {
             context.notifyBeforeEvaluation(expression);
-            if (expressionNode instanceof ExpressionNode.StringNode stringLiteral) {
+            if (expressionNode instanceof StringNode stringLiteral) {
                 return context.convertToType(stringLiteral.value(), expectedReturnType);
             }
-            if (expressionNode instanceof ExpressionNode.MemberNode memberNode) {
+            if (expressionNode instanceof MemberNode memberNode) {
                 var valueReference = memberNode.valueReference(context);
                 try {
                     Object base = valueReference.getBase();

@@ -1,0 +1,25 @@
+package io.joel.impl.node;
+
+import jakarta.el.ELContext;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public record ListNode(List<ExpressionNode> values) implements ExpressionNode {
+    @Override
+    public Class<?> getType(ELContext context) {
+        return List.class;
+    }
+
+    @Override
+    public Object getValue(ELContext context) {
+        return values.stream()
+                .map(x -> x.getValue(context))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String prettyPrint() {
+        return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "[", "]"));
+    }
+}

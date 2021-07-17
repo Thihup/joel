@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public interface InfixExpressionNode extends ExpressionNode {
+public sealed interface InfixExpressionNode extends ExpressionNode {
     ExpressionNode left();
 
     ExpressionNode right();
@@ -263,15 +263,4 @@ public interface InfixExpressionNode extends ExpressionNode {
         }
     }
 
-    record ObjectNode(Object value) implements ExpressionNode {
-        @Override
-        public Class<?> getType(ELContext context) {
-            return value.getClass();
-        }
-
-        @Override
-        public Object getValue(ELContext context) {
-            return value;
-        }
-    }
 }

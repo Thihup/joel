@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.BiPredicate;
 
-public interface RelationalNode extends ExpressionNode.BooleanExpression {
+public sealed interface RelationalNode extends BooleanExpression {
     ExpressionNode left();
 
     ExpressionNode right();

@@ -1,5 +1,7 @@
 package io.joel.impl.antlr;
 
+import io.joel.impl.node.DeferredExpressionNode;
+import io.joel.impl.node.DynamicExpressionNode;
 import io.joel.impl.node.ExpressionNode;
 import jakarta.el.ELException;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -28,10 +30,10 @@ public class JoelExpressionParser {
             parser.addErrorListener(ERROR_LISTENER);
             var prog = parser.prog();
             ExpressionNode visit = new ExpressionVisitor().visit(prog);
-            if (visit instanceof ExpressionNode.DynamicExpressionNode dynamicExpression) {
+            if (visit instanceof DynamicExpressionNode dynamicExpression) {
                 return dynamicExpression.node();
             }
-            if (visit instanceof ExpressionNode.DeferredExpressionNode deferredExpression) {
+            if (visit instanceof DeferredExpressionNode deferredExpression) {
                 return deferredExpression.node();
             }
             return visit;
