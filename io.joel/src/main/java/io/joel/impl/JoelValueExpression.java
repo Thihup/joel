@@ -76,7 +76,7 @@ public class JoelValueExpression extends ValueExpression {
         context.setPropertyResolved(false);
         if (isReadOnly(context))
             throw new PropertyNotWritableException();
-        new InfixExpressionNode.AssignNode(expressionNode, new ObjectNode(value)).getValue(context);
+        new AssignNode(expressionNode, new ObjectNode(value)).getValue(context);
     }
 
     @Override

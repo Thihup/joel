@@ -3,8 +3,8 @@ package io.joel.impl.antlr;
 import io.joel.impl.node.*;
 import io.joel.impl.node.IdentifierNode;
 import io.joel.impl.node.MemberNode;
-import io.joel.impl.node.InfixExpressionNode.AssignNode;
-import io.joel.impl.node.InfixExpressionNode.ConcatNode;
+import io.joel.impl.node.AssignNode;
+import io.joel.impl.node.ConcatNode;
 import jakarta.el.ELException;
 
 import java.util.Collections;
@@ -29,11 +29,13 @@ import io.joel.impl.node.TernaryNode;
 import io.joel.impl.node.UnaryEmptyNode;
 
 import io.joel.impl.node.UnaryNotNode;
-import static io.joel.impl.node.InfixExpressionNode.AddExpressionNode;
-import static io.joel.impl.node.InfixExpressionNode.DivExpressionNode;
-import static io.joel.impl.node.InfixExpressionNode.ModExpressionNode;
-import static io.joel.impl.node.InfixExpressionNode.MulExpressionNode;
-import static io.joel.impl.node.InfixExpressionNode.SubExpressionNode;
+import io.joel.impl.node.AddExpressionNode;
+import io.joel.impl.node.DivExpressionNode;
+import io.joel.impl.node.ModExpressionNode;
+
+import io.joel.impl.node.MulExpressionNode;
+
+import io.joel.impl.node.SubExpressionNode;
 import static io.joel.impl.node.RelationalNode.EqualNode;
 import static io.joel.impl.node.RelationalNode.GreaterEqualNode;
 import static io.joel.impl.node.RelationalNode.GreaterThanNode;

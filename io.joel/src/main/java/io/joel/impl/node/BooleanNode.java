@@ -10,7 +10,7 @@ public enum BooleanNode implements BooleanExpression {
         return this == TRUE ? Boolean.TRUE : Boolean.FALSE;
     }
 
-    public io.joel.impl.node.BooleanNode negate() {
+    public BooleanNode negate() {
         if (this == TRUE)
             return FALSE;
         return TRUE;
