@@ -36,12 +36,14 @@ import io.joel.impl.node.ModExpressionNode;
 import io.joel.impl.node.MulExpressionNode;
 
 import io.joel.impl.node.SubExpressionNode;
-import static io.joel.impl.node.RelationalNode.EqualNode;
-import static io.joel.impl.node.RelationalNode.GreaterEqualNode;
-import static io.joel.impl.node.RelationalNode.GreaterThanNode;
-import static io.joel.impl.node.RelationalNode.LessEqualNode;
-import static io.joel.impl.node.RelationalNode.LessThanNode;
-import static io.joel.impl.node.RelationalNode.NotEqualNode;
+import io.joel.impl.node.EqualNode;
+import io.joel.impl.node.GreaterEqualNode;
+
+import io.joel.impl.node.GreaterThanNode;
+import io.joel.impl.node.LessEqualNode;
+import io.joel.impl.node.LessThanNode;
+
+import io.joel.impl.node.NotEqualNode;
 
 public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<ExpressionNode> {
 
@@ -77,8 +79,8 @@ public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Expre
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
         return switch (ctx.bop.getText()) {
-            case "&&", "and" -> new RelationalNode.AndNode(left, right);
-            case "||", "or" -> new RelationalNode.OrNode(left, right);
+            case "&&", "and" -> new AndNode(left, right);
+            case "||", "or" -> new OrNode(left, right);
             default -> throw new IllegalStateException("%s %s %s".formatted(left, ctx.bop.getText(), right));
         };
     }
