@@ -1,5 +1,6 @@
 package io.joel.impl.node;
 
+import io.joel.impl.Utils;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 
@@ -24,7 +25,7 @@ public record UnaryMinusNode(ExpressionNode node) implements ExpressionNode {
             return bigInteger.negate();
         }
         if (value instanceof String asString) {
-            if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
+            if (Utils.isFloatingPointNumber(asString)) {
                 return -(Double) context.convertToType(asString, Double.class);
             }
             return -(Long) context.convertToType(asString, Long.class);

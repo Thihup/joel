@@ -1,5 +1,6 @@
 package io.joel.impl.node;
 
+import io.joel.impl.Utils;
 import jakarta.el.ELContext;
 
 import java.math.BigDecimal;
@@ -16,10 +17,10 @@ public record ModExpressionNode(ExpressionNode left, ExpressionNode right) imple
                 rightValue instanceof Float || rightValue instanceof Double || rightValue instanceof BigDecimal) {
             return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
         }
-        if (leftValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
+        if (leftValue instanceof String asString && (Utils.isFloatingPointNumber(asString))) {
             return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
         }
-        if (rightValue instanceof String asString && (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0)) {
+        if (rightValue instanceof String asString && (Utils.isFloatingPointNumber(asString))) {
             return (Double) context.convertToType(leftValue, Double.class) % (Double) (context.convertToType(rightValue, Double.class));
         }
         if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {

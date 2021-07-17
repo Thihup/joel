@@ -1,5 +1,6 @@
 package io.joel.impl.node;
 
+import io.joel.impl.Utils;
 import jakarta.el.ELContext;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public record MulExpressionNode(ExpressionNode left, ExpressionNode right) imple
         }
 
         if (leftValue instanceof String asString) {
-            if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
+            if (Utils.isFloatingPointNumber(asString)) {
                 if (rightValue instanceof BigInteger asBigInteger) {
                     return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                 }
@@ -25,7 +26,7 @@ public record MulExpressionNode(ExpressionNode left, ExpressionNode right) imple
             return (Double) context.convertToType(leftValue, Double.class) * (Double) (context.convertToType(rightValue, Double.class));
         }
         if (rightValue instanceof String asString) {
-            if (asString.indexOf('.') >= 0 || asString.indexOf('e') >= 0 || asString.indexOf('E') >= 0) {
+            if (Utils.isFloatingPointNumber(asString)) {
                 if (leftValue instanceof BigInteger asBigInteger) {
                     return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(asBigInteger, BigDecimal.class));
                 }
