@@ -83,7 +83,7 @@ public class CompositeELResolver extends ELResolver {
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         return resolvers.stream()
                 .map(x -> Optional.ofNullable(x.getCommonPropertyType(context, base)))
-                .flatMap(x -> x.isPresent() ? Stream.of(x.get()) : Stream.empty())
+                .flatMap(Optional::stream)
                 .min((x, y) -> x == y ? 0 : x.isAssignableFrom(y) ? -1 : 1)
                 .orElse(null);
     }
