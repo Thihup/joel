@@ -13,9 +13,4 @@ public record SemicolonNode(ExpressionNode left, ExpressionNode right) implement
         left.getValue(context);
         return right.getValue(context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s; %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

@@ -13,8 +13,4 @@ public record NumberNode(Number value) implements ExpressionNode {
         return value;
     }
 
-    @Override
-    public String prettyPrint() {
-        return value.toString();
-    }
 }

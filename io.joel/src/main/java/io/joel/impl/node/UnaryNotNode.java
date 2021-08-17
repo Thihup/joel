@@ -12,9 +12,4 @@ public record UnaryNotNode(ExpressionNode node) implements ExpressionNode {
     public Object getValue(ELContext context) {
         return !(boolean) context.convertToType(node.getValue(context), boolean.class);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "! %s".formatted(node.prettyPrint());
-    }
 }

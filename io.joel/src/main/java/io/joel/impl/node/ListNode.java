@@ -19,8 +19,4 @@ public record ListNode(List<ExpressionNode> values) implements ExpressionNode {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    @Override
-    public String prettyPrint() {
-        return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "[", "]"));
-    }
 }

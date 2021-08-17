@@ -12,9 +12,4 @@ public record DynamicExpressionNode(ExpressionNode node) implements ExpressionNo
     public Object getValue(ELContext context) {
         return node.getValue(context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "${%s}".formatted(node.prettyPrint());
-    }
 }

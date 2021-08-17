@@ -41,9 +41,4 @@ public record LessEqualNode(ExpressionNode left, ExpressionNode right) implement
         }
         throw new ELException("Cannot compare values: %s <= %s".formatted(leftValue, rightValue));
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s <= %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

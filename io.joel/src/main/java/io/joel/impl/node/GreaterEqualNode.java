@@ -41,9 +41,4 @@ public record GreaterEqualNode(ExpressionNode left, ExpressionNode right) implem
         }
         throw new ELException("Cannot compare values: %s >= %s".formatted(leftValue, rightValue));
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s >= %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

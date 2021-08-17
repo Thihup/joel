@@ -96,11 +96,6 @@ public final class CallExpressionNode implements ExpressionNode {
         throw (E) e;
     }
 
-    @Override
-    public String prettyPrint() {
-        return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",")));
-    }
-
     public ExpressionNode callee() {
         return callee;
     }

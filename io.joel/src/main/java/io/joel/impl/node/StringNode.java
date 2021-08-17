@@ -12,9 +12,4 @@ public record StringNode(String value) implements ExpressionNode {
     public Object getValue(ELContext context) {
         return value;
     }
-
-    @Override
-    public String prettyPrint() {
-        return "'%s'".formatted(value);
-    }
 }

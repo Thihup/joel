@@ -1,5 +1,6 @@
 package io.joel.impl.node;
 
+import io.joel.impl.Utils;
 import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
@@ -29,16 +30,11 @@ public record MemberNode(ExpressionNode object, ExpressionNode property) impleme
                         return context.getELResolver().getValue(context, new ELClass(aClass), property instanceof IdentifierNode identifier ? identifier.value() : property.getValue(context));
                 }
             }
-            throw new PropertyNotFoundException(prettyPrint(), rootCause);
+            throw new PropertyNotFoundException(Utils.prettyPrint(this), rootCause);
         }
     }
 
     public ValueReference valueReference(ELContext context) {
         return new ValueReference(object.getValue(context), property instanceof IdentifierNode node ? node.value() : property.getValue(context));
-    }
-
-    @Override
-    public String prettyPrint() {
-        return "%s.%s".formatted(object.prettyPrint(), property.prettyPrint());
     }
 }

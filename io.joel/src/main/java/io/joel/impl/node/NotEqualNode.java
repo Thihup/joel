@@ -7,9 +7,4 @@ public record NotEqualNode(ExpressionNode left, ExpressionNode right) implements
     public Object getValue(ELContext context) {
         return !(Boolean) new EqualNode(left, right).getValue(context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s != %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

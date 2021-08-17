@@ -9,9 +9,4 @@ public record OrNode(ExpressionNode left, ExpressionNode right) implements Relat
             return true;
         return context.convertToType(right.getValue(context), boolean.class);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s || %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

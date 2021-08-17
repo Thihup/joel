@@ -16,11 +16,6 @@ public enum NullNode implements ExpressionNode {
     }
 
     @Override
-    public String prettyPrint() {
-        return "null";
-    }
-
-    @Override
     public String toString() {
         return "NullNode[" + super.toString() + "]";
     }

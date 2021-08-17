@@ -10,9 +10,4 @@ public record MulExpressionNode(ExpressionNode left, ExpressionNode right) imple
         var rightValue = right.getValue(context);
         return Operation.MULTIPLICATION.calculate(leftValue, rightValue, context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s * %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

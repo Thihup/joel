@@ -25,12 +25,4 @@ public enum BooleanNode implements BooleanExpression {
     public Class<?> getType(ELContext context) {
         return Boolean.class;
     }
-
-    @Override
-    public String prettyPrint() {
-        return switch (this) {
-            case TRUE -> "true";
-            case FALSE -> "false";
-        };
-    }
 }

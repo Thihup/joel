@@ -49,8 +49,4 @@ public record IdentifierNode(String value) implements ExpressionNode {
         throw new PropertyNotFoundException("Property %s not found".formatted(value));
     }
 
-    @Override
-    public String prettyPrint() {
-        return value;
-    }
 }

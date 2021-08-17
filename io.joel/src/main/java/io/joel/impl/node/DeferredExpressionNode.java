@@ -12,9 +12,4 @@ public record DeferredExpressionNode(ExpressionNode node) implements ExpressionN
     public Object getValue(ELContext context) {
         return node.getValue(context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "#{%s}".formatted(node.prettyPrint());
-    }
 }

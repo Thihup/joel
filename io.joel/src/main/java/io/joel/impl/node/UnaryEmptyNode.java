@@ -25,9 +25,4 @@ public record UnaryEmptyNode(ExpressionNode node) implements ExpressionNode {
             return true;
         return value instanceof Collection<?> newValue && newValue.isEmpty();
     }
-
-    @Override
-    public String prettyPrint() {
-        return "empty %s".formatted(node.prettyPrint());
-    }
 }

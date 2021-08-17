@@ -35,9 +35,4 @@ public record AssignNode(ExpressionNode left, ExpressionNode right) implements I
             return expressionNode.getValue(context);
         return null;
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s = %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

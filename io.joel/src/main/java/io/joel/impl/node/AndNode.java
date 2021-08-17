@@ -9,9 +9,4 @@ public record AndNode(ExpressionNode left, ExpressionNode right) implements Rela
             return false;
         return context.convertToType(right.getValue(context), boolean.class);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s && %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

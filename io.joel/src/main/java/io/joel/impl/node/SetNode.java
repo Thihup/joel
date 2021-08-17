@@ -20,8 +20,4 @@ public record SetNode(List<ExpressionNode> values) implements ExpressionNode {
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    @Override
-    public String prettyPrint() {
-        return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "{", "}"));
-    }
 }

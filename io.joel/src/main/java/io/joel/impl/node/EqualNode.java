@@ -44,9 +44,4 @@ public record EqualNode(ExpressionNode left, ExpressionNode right) implements Re
         }
         return leftValue.equals(rightValue);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s == %s".formatted(left.prettyPrint(), right.prettyPrint());
-    }
 }

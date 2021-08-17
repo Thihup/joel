@@ -19,9 +19,4 @@ public record TernaryNode(ExpressionNode condition, ExpressionNode trueExpressio
         }
         return falseExpression.getValue(context);
     }
-
-    @Override
-    public String prettyPrint() {
-        return "%s ? %s : %s".formatted(condition.prettyPrint(), trueExpression.prettyPrint(), falseExpression.prettyPrint());
-    }
 }

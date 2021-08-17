@@ -50,9 +50,4 @@ public record UnaryMinusNode(ExpressionNode node) implements ExpressionNode {
         }
         throw new ELException("Cannot apply the '-' operator to %s".formatted(value));
     }
-
-    @Override
-    public String prettyPrint() {
-        return "-%s".formatted(node.prettyPrint());
-    }
 }

@@ -33,7 +33,4 @@ public sealed interface ExpressionNode extends Serializable
         throw new UnsupportedOperationException(this.toString());
     }
 
-    default String prettyPrint() {
-        throw new UnsupportedOperationException();
-    }
 }
