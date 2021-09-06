@@ -33,7 +33,7 @@ public final class JoelExpressionFactory extends ExpressionFactory {
         var parse = JoelExpressionParser.parse(expression);
         if (!(parse instanceof StringNode) && !(parse instanceof MemberNode) && !(parse instanceof IdentifierNode))
             throw new ELException("Invalid method expression: " + expression);
-        return new JoelMethodExpression(expression, parse, expectedReturnType, expectedParamTypes);
+        return JoelMethodExpression.newInstance(expression, parse, expectedReturnType, expectedParamTypes);
     }
 
     @Override

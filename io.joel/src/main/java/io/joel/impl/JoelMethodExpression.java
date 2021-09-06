@@ -9,8 +9,13 @@ import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.MethodNotFoundException;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public final class JoelMethodExpression extends MethodExpression {
@@ -19,11 +24,15 @@ public final class JoelMethodExpression extends MethodExpression {
     private final Class<?>[] expectedParameterTypes;
     private final String expression;
 
-    public JoelMethodExpression(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
+    private JoelMethodExpression(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
         this.expression = expression;
         this.expressionNode = expressionNode;
         this.expectedReturnType = expectedReturnType;
         this.expectedParameterTypes = expectedParameterTypes;
+    }
+
+    public static JoelMethodExpression newInstance(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
+        return new JoelMethodExpression(expression, expressionNode, expectedReturnType, expectedParameterTypes);
     }
 
     @Override
@@ -73,7 +82,7 @@ public final class JoelMethodExpression extends MethodExpression {
                 } catch (IllegalAccessException | InvocationTargetException exception) {
                     throw new ELException(exception);
                 }
-             }
+            }
             return null;
         } finally {
             context.notifyAfterEvaluation(expression);
@@ -106,4 +115,23 @@ public final class JoelMethodExpression extends MethodExpression {
                 && Arrays.equals(expectedParameterTypes, that.expectedParameterTypes)
                 && Objects.equals(expectedReturnType, that.expectedReturnType);
     }
+
+    @Serial
+    private Object writeReplace() {
+        return new SerializedMethodExpression(expression, expressionNode, expectedReturnType, List.of(expectedParameterTypes));
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Proxy required");
+    }
+
+    private record SerializedMethodExpression(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType,
+                                      List<Class<?>> expectedParameterTypes) implements Serializable {
+        @Serial
+        public Object readResolve() {
+            return JoelMethodExpression.newInstance(expression, expressionNode, expectedReturnType, expectedParameterTypes.toArray(Class[]::new));
+        }
+    }
+
 }
