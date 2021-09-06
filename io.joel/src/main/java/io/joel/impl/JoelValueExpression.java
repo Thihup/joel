@@ -1,12 +1,22 @@
 package io.joel.impl;
 
-import io.joel.impl.node.*;
+import io.joel.impl.node.AssignNode;
+import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.IdentifierNode;
+import io.joel.impl.node.LambdaNode;
+import io.joel.impl.node.MemberNode;
+import io.joel.impl.node.ObjectNode;
+import io.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
 public final class JoelValueExpression extends ValueExpression {
@@ -14,10 +24,14 @@ public final class JoelValueExpression extends ValueExpression {
     private final ExpressionNode expressionNode;
     private final Class<?> expectedType;
 
-    public JoelValueExpression(String expression, ExpressionNode expressionNode, Class<?> expectedType) {
+    private JoelValueExpression(String expression, ExpressionNode expressionNode, Class<?> expectedType) {
         this.expression = expression;
         this.expressionNode = expressionNode;
         this.expectedType = expectedType;
+    }
+
+    public static JoelValueExpression newInstance(String expression, ExpressionNode expressionNode, Class<?> expectedType) {
+        return new JoelValueExpression(expression, expressionNode, expectedType);
     }
 
     @Override
@@ -104,4 +118,23 @@ public final class JoelValueExpression extends ValueExpression {
     public String toString() {
         return expression;
     }
+
+    @Serial
+    private Object writeReplace() {
+        return new SerializedValueExpression(expression, expressionNode, expectedType);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Proxy required");
+    }
+
+    private record SerializedValueExpression(String expression, ExpressionNode expressionNode,
+                                             Class<?> expectedType) implements Serializable {
+        @Serial
+        public Object readResolve() {
+            return JoelValueExpression.newInstance(expression, expressionNode, expectedType);
+        }
+    }
+
 }

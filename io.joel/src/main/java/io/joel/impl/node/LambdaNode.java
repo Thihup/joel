@@ -9,7 +9,7 @@ import java.util.List;
 public record LambdaNode(List<String> parameters, ExpressionNode expression) implements ExpressionNode {
     @Override
     public Object getValue(ELContext context) {
-        return new LambdaExpression(parameters, new JoelValueExpression(expression.prettyPrint(), expression, Object.class));
+        return new LambdaExpression(parameters, JoelValueExpression.newInstance(expression.prettyPrint(), expression, Object.class));
     }
 
     @Override

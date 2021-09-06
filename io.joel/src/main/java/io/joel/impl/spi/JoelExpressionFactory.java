@@ -40,7 +40,7 @@ public final class JoelExpressionFactory extends ExpressionFactory {
     public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
         Objects.requireNonNull(expectedType);
         var parseResult = JoelExpressionParser.parse(expression);
-        return new JoelValueExpression(expression, parseResult, expectedType);
+        return JoelValueExpression.newInstance(expression, parseResult, expectedType);
     }
 
     @Override
