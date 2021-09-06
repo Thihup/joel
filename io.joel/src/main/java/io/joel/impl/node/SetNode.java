@@ -2,6 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ public record SetNode(List<ExpressionNode> values) implements ExpressionNode {
     public Object getValue(ELContext context) {
         return values.stream()
                 .map(x -> x.getValue(context))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     @Override
