@@ -9,7 +9,7 @@ import jakarta.el.ValueReference;
 
 import java.util.Objects;
 
-public class JoelValueExpression extends ValueExpression {
+public final class JoelValueExpression extends ValueExpression {
     private final String expression;
     private final ExpressionNode expressionNode;
     private final Class<?> expectedType;

@@ -45,7 +45,7 @@ import io.joel.impl.node.LessThanNode;
 
 import io.joel.impl.node.NotEqualNode;
 
-public class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<ExpressionNode> {
+public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<ExpressionNode> {
 
     public ExpressionVisitor() {
     }

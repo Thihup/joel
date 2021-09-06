@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.Recognizer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JoelExpressionParser {
+public final class JoelExpressionParser {
     private static final Map<String, ExpressionNode> CACHED_EXPRESSION = new HashMap<>();
     private static final ELErrorListener ERROR_LISTENER = new ELErrorListener();
 

@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class JoelMethodExpression extends MethodExpression {
+public final class JoelMethodExpression extends MethodExpression {
     private final ExpressionNode expressionNode;
     private final Class<?> expectedReturnType;
     private final Class<?>[] expectedParameterTypes;

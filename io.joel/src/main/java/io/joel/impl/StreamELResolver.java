@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class StreamELResolver extends ELResolver {
+public final class StreamELResolver extends ELResolver {
     private static final MethodHandle CONVERT_TO_TYPE;
     private static final MethodHandle LAMBDA_INVOKE;
     private static final List<String> IGNORED_METHODS = List.of("equals", "hashCode", "toString");

@@ -7,7 +7,7 @@ import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class TypeConverter {
+public final class TypeConverter {
     private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
 
     private TypeConverter() {
