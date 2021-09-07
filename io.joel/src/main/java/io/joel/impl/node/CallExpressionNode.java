@@ -20,10 +20,10 @@ public final class CallExpressionNode implements ExpressionNode {
     @Serial
     private static final long serialVersionUID = 0L;
     private final ExpressionNode callee;
-    private final List<ExpressionNode> arguments;
+    private final List<? extends ExpressionNode> arguments;
     private final transient Map<String, MethodHandle> resolvedFunction = new HashMap<>();
 
-    public CallExpressionNode(ExpressionNode callee, List<ExpressionNode> arguments) {
+    public CallExpressionNode(ExpressionNode callee, List<? extends ExpressionNode> arguments) {
         this.callee = callee;
         this.arguments = arguments;
     }
@@ -105,7 +105,7 @@ public final class CallExpressionNode implements ExpressionNode {
         return callee;
     }
 
-    public List<ExpressionNode> arguments() {
+    public List<? extends ExpressionNode> arguments() {
         return arguments;
     }
 
