@@ -6,6 +6,7 @@ import io.joel.impl.StreamELResolver;
 import io.joel.impl.antlr.JoelExpressionParser;
 import io.joel.impl.node.IdentifierNode;
 import io.joel.impl.node.MemberNode;
+import io.joel.impl.node.ObjectNode;
 import io.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
@@ -46,7 +47,7 @@ public final class JoelExpressionFactory extends ExpressionFactory {
     @Override
     public ValueExpression createValueExpression(Object instance, Class<?> expectedType) {
         Objects.requireNonNull(expectedType);
-        return null;
+        return JoelValueExpression.newInstance("", new ObjectNode(instance), expectedType);
     }
 
     @Override
