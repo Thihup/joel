@@ -126,8 +126,9 @@ public final class JoelMethodExpression extends MethodExpression {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private record SerializedMethodExpression(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType,
-                                      List<Class<?>> expectedParameterTypes) implements Serializable {
+    private record SerializedMethodExpression(String expression, ExpressionNode expressionNode,
+                                              Class<?> expectedReturnType,
+                                              List<Class<?>> expectedParameterTypes) implements Serializable {
         @Serial
         public Object readResolve() {
             return JoelMethodExpression.newInstance(expression, expressionNode, expectedReturnType, expectedParameterTypes.toArray(Class[]::new));

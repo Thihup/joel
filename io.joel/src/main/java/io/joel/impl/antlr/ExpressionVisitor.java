@@ -1,10 +1,38 @@
 package io.joel.impl.antlr;
 
-import io.joel.impl.node.*;
-import io.joel.impl.node.IdentifierNode;
-import io.joel.impl.node.MemberNode;
+import io.joel.impl.node.AddExpressionNode;
+import io.joel.impl.node.AndNode;
 import io.joel.impl.node.AssignNode;
+import io.joel.impl.node.BooleanNode;
+import io.joel.impl.node.CallExpressionNode;
 import io.joel.impl.node.ConcatNode;
+import io.joel.impl.node.DeferredExpressionNode;
+import io.joel.impl.node.DivExpressionNode;
+import io.joel.impl.node.DynamicExpressionNode;
+import io.joel.impl.node.EqualNode;
+import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.GreaterEqualNode;
+import io.joel.impl.node.GreaterThanNode;
+import io.joel.impl.node.IdentifierNode;
+import io.joel.impl.node.LambdaNode;
+import io.joel.impl.node.LessEqualNode;
+import io.joel.impl.node.LessThanNode;
+import io.joel.impl.node.ListNode;
+import io.joel.impl.node.MemberNode;
+import io.joel.impl.node.ModExpressionNode;
+import io.joel.impl.node.MulExpressionNode;
+import io.joel.impl.node.NotEqualNode;
+import io.joel.impl.node.NullNode;
+import io.joel.impl.node.NumberNode;
+import io.joel.impl.node.OrNode;
+import io.joel.impl.node.SemicolonNode;
+import io.joel.impl.node.SetNode;
+import io.joel.impl.node.StringNode;
+import io.joel.impl.node.SubExpressionNode;
+import io.joel.impl.node.TernaryNode;
+import io.joel.impl.node.UnaryEmptyNode;
+import io.joel.impl.node.UnaryMinusNode;
+import io.joel.impl.node.UnaryNotNode;
 import jakarta.el.ELException;
 
 import java.util.Collections;
@@ -21,29 +49,6 @@ import static io.joel.impl.antlr.ExpressionLanguageParser.LiteralExprContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.NullLiteralExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.RelationalExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.StringLiteralExpressionContext;
-
-import io.joel.impl.node.SemicolonNode;
-import io.joel.impl.node.StringNode;
-
-import io.joel.impl.node.TernaryNode;
-import io.joel.impl.node.UnaryEmptyNode;
-
-import io.joel.impl.node.UnaryNotNode;
-import io.joel.impl.node.AddExpressionNode;
-import io.joel.impl.node.DivExpressionNode;
-import io.joel.impl.node.ModExpressionNode;
-
-import io.joel.impl.node.MulExpressionNode;
-
-import io.joel.impl.node.SubExpressionNode;
-import io.joel.impl.node.EqualNode;
-import io.joel.impl.node.GreaterEqualNode;
-
-import io.joel.impl.node.GreaterThanNode;
-import io.joel.impl.node.LessEqualNode;
-import io.joel.impl.node.LessThanNode;
-
-import io.joel.impl.node.NotEqualNode;
 
 public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<ExpressionNode> {
 
