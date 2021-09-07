@@ -199,7 +199,9 @@ public class BeanELResolver extends ELResolver {
         try {
             var result = INVOKE_GETTER.invokeExact(base, property.toString());
             context.setPropertyResolved(base, property);
-            return result.getClass();
+            if (result != null)
+                return result.getClass();
+            return null;
         } catch (Throwable throwable) {
             throw new ELException("Error getting property type %s.%s".formatted(aClass, property), throwable);
         }
