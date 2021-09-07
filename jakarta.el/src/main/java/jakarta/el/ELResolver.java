@@ -92,7 +92,7 @@ public abstract class ELResolver {
      * </p>
      *
      * @param context    The context of this evaluation.
-     * @param object        The object to convert.
+     * @param object     The object to convert.
      * @param targetType The target type for the conversion.
      * @return object converted to <code>targetType</code>
      * @throws ELException thrown if errors occur.

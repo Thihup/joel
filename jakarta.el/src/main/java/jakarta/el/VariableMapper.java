@@ -17,8 +17,8 @@ public abstract class VariableMapper {
      * Assign a ValueExpression to an Jakarta Expression Language variable, replacing any previously assignment to the same
      * variable. The assignment for the variable is removed if the expression is <code>null</code>.
      *
-     * @param variable   The variable name
-     * @param value The ValueExpression to be assigned to the variable.
+     * @param variable The variable name
+     * @param value    The ValueExpression to be assigned to the variable.
      * @return The previous ValueExpression assigned to this variable, null if there is no previous assignment to this
      * variable.
      */

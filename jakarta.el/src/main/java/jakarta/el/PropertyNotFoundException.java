@@ -31,8 +31,8 @@ public class PropertyNotFoundException extends ELException {
     /**
      * Creates a <code>PropertyNotFoundException</code> with the given detail message and root cause.
      *
-     * @param message   the detail message
-     * @param cause the originating cause of this exception
+     * @param message the detail message
+     * @param cause   the originating cause of this exception
      */
     public PropertyNotFoundException(String message, Throwable cause) {
         super(message, cause);

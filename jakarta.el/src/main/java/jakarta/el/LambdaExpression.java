@@ -78,8 +78,8 @@ public class LambdaExpression {
 
         Map<String, Object> collect = IntStream.range(0, formalParameters.size())
                 .collect(() -> new HashMap<>(outerLambdaArguments),
-                    (map, value) -> map.put(formalParameters.get(value), arguments[value]),
-                    HashMap::putAll);
+                        (map, value) -> map.put(formalParameters.get(value), arguments[value]),
+                        HashMap::putAll);
 
         try {
             elContext.enterLambdaScope(collect);
@@ -128,6 +128,6 @@ public class LambdaExpression {
 
     @Override
     public String toString() {
-        return "LambdaExpression[(" + String.join("," ,formalParameters) + ") -> " + expression.toString() + "]";
+        return "LambdaExpression[(" + String.join(",", formalParameters) + ") -> " + expression.toString() + "]";
     }
 }

@@ -109,7 +109,7 @@ public abstract class ELContext {
 
     private ExpressionFactory getFactory() {
         var factory = (ExpressionFactory) contexts.get(ExpressionFactory.class);
-        if (factory == null){
+        if (factory == null) {
             var expressionFactory = ExpressionFactory.newInstance();
             contexts.put(ExpressionFactory.class, expressionFactory);
             return expressionFactory;

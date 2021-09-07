@@ -29,8 +29,8 @@ public class PropertyNotWritableException extends ELException {
     /**
      * Creates a <code>PropertyNotWritableException</code> with the given detail message and root cause.
      *
-     * @param message   the detail message
-     * @param cause the originating cause of this exception
+     * @param message the detail message
+     * @param cause   the originating cause of this exception
      */
     public PropertyNotWritableException(String message, Throwable cause) {
         super(message, cause);

@@ -1,7 +1,6 @@
 package jakarta.el;
 
 import java.beans.FeatureDescriptor;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -116,7 +115,7 @@ public class ListELResolver extends ELResolver {
             return null;
         context.setPropertyResolved(base, property);
         int index = toString(property);
-        if (index < 0 || index >= ((List<?>)base).size()) {
+        if (index < 0 || index >= ((List<?>) base).size()) {
             throw new PropertyNotFoundException();
         }
         return Object.class;
@@ -150,7 +149,7 @@ public class ListELResolver extends ELResolver {
             return null;
         context.setPropertyResolved(base, property);
         int index = toString(property);
-        if (index < 0 || index >= ((List<?>)base).size()) {
+        if (index < 0 || index >= ((List<?>) base).size()) {
             return null;
         }
         return ((List<?>) base).get(index);
@@ -195,7 +194,7 @@ public class ListELResolver extends ELResolver {
             return false;
         context.setPropertyResolved(base, property);
         int index = toString(property);
-        if (index < 0 || index >= ((List<?>)base).size()) {
+        if (index < 0 || index >= ((List<?>) base).size()) {
             throw new PropertyNotFoundException();
         }
         if (readyOnly)
@@ -203,7 +202,7 @@ public class ListELResolver extends ELResolver {
         try {
             ((List<?>) base).add(null);
             return false;
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             return true;
         }
     }
@@ -254,14 +253,14 @@ public class ListELResolver extends ELResolver {
             return;
         context.setPropertyResolved(base, property);
         int index = toString(property);
-        if (index < 0 || index >= ((List<?>)base).size()) {
+        if (index < 0 || index >= ((List<?>) base).size()) {
             throw new PropertyNotFoundException();
         }
         if (readyOnly)
             throw new PropertyNotWritableException();
         try {
             ((List<Object>) base).set(index, value);
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             throw new PropertyNotWritableException();
         }
     }

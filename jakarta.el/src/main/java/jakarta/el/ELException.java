@@ -24,8 +24,8 @@ public class ELException extends RuntimeException {
     /**
      * Creates an ELException with the given detail message and root cause.
      *
-     * @param message   the detail message
-     * @param cause the originating cause of this exception
+     * @param message the detail message
+     * @param cause   the originating cause of this exception
      */
 
     public ELException(String message, Throwable cause) {

@@ -27,8 +27,8 @@ public class MethodNotFoundException extends ELException {
     /**
      * Creates a <code>MethodNotFoundException</code> with the given detail message and root cause.
      *
-     * @param message   the detail message
-     * @param cause the originating cause of this exception
+     * @param message the detail message
+     * @param cause   the originating cause of this exception
      */
     public MethodNotFoundException(String message, Throwable cause) {
         super(message, cause);

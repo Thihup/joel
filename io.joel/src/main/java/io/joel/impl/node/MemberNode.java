@@ -1,6 +1,11 @@
 package io.joel.impl.node;
 
-import jakarta.el.*;
+import jakarta.el.ELClass;
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.ImportHandler;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.el.ValueReference;
 
 public record MemberNode(ExpressionNode object, ExpressionNode property) implements ExpressionNode {
     @Override

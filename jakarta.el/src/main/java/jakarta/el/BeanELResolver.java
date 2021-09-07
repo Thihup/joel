@@ -361,9 +361,9 @@ public class BeanELResolver extends ELResolver {
             }
             var callSiteDescriptor = new CallSiteDescriptor(LOOKUP, StandardOperation.CALL, MethodType.genericMethodType(2 + paramsLength));
             return LINKER.link(new ChainedCallSite(callSiteDescriptor))
-                .dynamicInvoker()
-                .asSpreader(Object[].class, paramsLength)
-                .invokeExact(o, base, params);
+                    .dynamicInvoker()
+                    .asSpreader(Object[].class, paramsLength)
+                    .invokeExact(o, base, params);
         } catch (Throwable e) {
             throw new ELException(e);
         }
