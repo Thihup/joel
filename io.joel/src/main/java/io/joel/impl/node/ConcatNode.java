@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record ConcatNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
+public record ConcatNode(Node left, Node right) implements InfixExpressionNode {
     @Override
     public Class<?> getType(ELContext context) {
         throw new UnsupportedOperationException();

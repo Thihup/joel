@@ -6,7 +6,7 @@ import jakarta.el.ELException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public record GreaterThanNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
+public record GreaterThanNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
         var leftValue = left.getValue(context);

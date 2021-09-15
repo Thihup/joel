@@ -9,8 +9,8 @@ public sealed interface RelationalNode extends BooleanExpression permits
         LessThanNode,
         NotEqualNode,
         OrNode {
-    ExpressionNode left();
+    Node left();
 
-    ExpressionNode right();
+    Node right();
 
 }

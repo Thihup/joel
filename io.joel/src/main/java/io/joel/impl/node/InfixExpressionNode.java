@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public sealed interface InfixExpressionNode extends ExpressionNode permits
+public sealed interface InfixExpressionNode extends Node permits
         AddExpressionNode,
         AssignNode,
         ConcatNode,
@@ -10,9 +10,9 @@ public sealed interface InfixExpressionNode extends ExpressionNode permits
         ModExpressionNode,
         MulExpressionNode,
         SubExpressionNode {
-    ExpressionNode left();
+    Node left();
 
-    ExpressionNode right();
+    Node right();
 
     @Override
     default Class<?> getType(ELContext context) {

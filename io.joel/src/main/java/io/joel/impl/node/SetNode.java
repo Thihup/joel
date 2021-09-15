@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public record SetNode(List<ExpressionNode> values) implements ExpressionNode {
+public record SetNode(List<Node> values) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return Set.class;
@@ -22,6 +22,6 @@ public record SetNode(List<ExpressionNode> values) implements ExpressionNode {
 
     @Override
     public String prettyPrint() {
-        return values.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",", "{", "}"));
+        return values.stream().map(Node::prettyPrint).collect(Collectors.joining(",", "{", "}"));
     }
 }

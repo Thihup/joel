@@ -16,14 +16,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class CallExpressionNode implements ExpressionNode {
+public final class CallExpressionNode implements Node {
     @Serial
     private static final long serialVersionUID = 0L;
-    private final ExpressionNode callee;
-    private final List<? extends ExpressionNode> arguments;
+    private final Node callee;
+    private final List<? extends Node> arguments;
     private final transient Map<String, MethodHandle> resolvedFunction = new HashMap<>();
 
-    public CallExpressionNode(ExpressionNode callee, List<? extends ExpressionNode> arguments) {
+    public CallExpressionNode(Node callee, List<? extends Node> arguments) {
         this.callee = callee;
         this.arguments = arguments;
     }
@@ -32,7 +32,7 @@ public final class CallExpressionNode implements ExpressionNode {
     public Object getValue(ELContext context) {
         if (callee instanceof CallExpressionNode callNode) {
             Object value = callNode.getValue(context);
-            if (value instanceof ExpressionNode node) {
+            if (value instanceof Node node) {
                 return node.getValue(context);
             }
             if (value instanceof LambdaExpression lambdaExpression) {
@@ -98,14 +98,14 @@ public final class CallExpressionNode implements ExpressionNode {
 
     @Override
     public String prettyPrint() {
-        return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(ExpressionNode::prettyPrint).collect(Collectors.joining(",")));
+        return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(Node::prettyPrint).collect(Collectors.joining(",")));
     }
 
-    public ExpressionNode callee() {
+    public Node callee() {
         return callee;
     }
 
-    public List<? extends ExpressionNode> arguments() {
+    public List<? extends Node> arguments() {
         return arguments;
     }
 

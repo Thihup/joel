@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record OrNode(ExpressionNode left, ExpressionNode right) implements RelationalNode {
+public record OrNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
         if ((boolean) context.convertToType(left.getValue(context), boolean.class))

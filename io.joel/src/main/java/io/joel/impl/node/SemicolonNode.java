@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record SemicolonNode(ExpressionNode left, ExpressionNode right) implements ExpressionNode {
+public record SemicolonNode(Node left, Node right) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return right.getType(context);

@@ -4,7 +4,7 @@ import jakarta.el.ELClass;
 import jakarta.el.ELContext;
 import jakarta.el.PropertyNotFoundException;
 
-public record IdentifierNode(String value) implements ExpressionNode {
+public record IdentifierNode(String value) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         var variableMapper = context.getVariableMapper();

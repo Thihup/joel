@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record DeferredExpressionNode(ExpressionNode node) implements ExpressionNode {
+public record DeferredExpressionNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return node.getType(context);

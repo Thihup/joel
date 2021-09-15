@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record NumberNode(Number value) implements ExpressionNode {
+public record NumberNode(Number value) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return value.getClass();

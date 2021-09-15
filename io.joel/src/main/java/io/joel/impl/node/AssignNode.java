@@ -4,7 +4,7 @@ import jakarta.el.ELContext;
 import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueReference;
 
-public record AssignNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
+public record AssignNode(Node left, Node right) implements InfixExpressionNode {
     @Override
     public Class<?> getType(ELContext context) {
         throw new UnsupportedOperationException();
@@ -31,7 +31,7 @@ public record AssignNode(ExpressionNode left, ExpressionNode right) implements I
             return getValue(context, memberNode.valueReference(context));
         if (node instanceof ValueReference reference)
             return context.getELResolver().getValue(context, reference.getBase(), reference.getProperty());
-        if (node instanceof ExpressionNode expressionNode)
+        if (node instanceof Node expressionNode)
             return expressionNode.getValue(context);
         return null;
     }

@@ -10,7 +10,7 @@ import io.joel.impl.node.DeferredExpressionNode;
 import io.joel.impl.node.DivExpressionNode;
 import io.joel.impl.node.DynamicExpressionNode;
 import io.joel.impl.node.EqualNode;
-import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.Node;
 import io.joel.impl.node.GreaterEqualNode;
 import io.joel.impl.node.GreaterThanNode;
 import io.joel.impl.node.IdentifierNode;
@@ -50,18 +50,18 @@ import static io.joel.impl.antlr.ExpressionLanguageParser.NullLiteralExpressionC
 import static io.joel.impl.antlr.ExpressionLanguageParser.RelationalExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.StringLiteralExpressionContext;
 
-public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<ExpressionNode> {
+public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor<Node> {
 
     public ExpressionVisitor() {
     }
 
     @Override
-    public ExpressionNode visitParenExpression(ExpressionLanguageParser.ParenExpressionContext ctx) {
+    public Node visitParenExpression(ExpressionLanguageParser.ParenExpressionContext ctx) {
         return visit(ctx.getChild(1));
     }
 
     @Override
-    public ExpressionNode visitLiteralExpression(ExpressionLanguageParser.LiteralExpressionContext ctx) {
+    public Node visitLiteralExpression(ExpressionLanguageParser.LiteralExpressionContext ctx) {
         String text = ctx.getText();
         if (text.startsWith("\\#") || text.startsWith("\\$"))
             return new StringNode(text.substring(1));
@@ -69,7 +69,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitCompositeExpression(ExpressionLanguageParser.CompositeExpressionContext ctx) {
+    public Node visitCompositeExpression(ExpressionLanguageParser.CompositeExpressionContext ctx) {
         if (ctx.getChildCount() <= 1)
             return visit(ctx.getChild(0));
         if (!ctx.deferredExpression().isEmpty() && !ctx.dynamicExpression().isEmpty())
@@ -80,7 +80,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitLogicalExpression(ExpressionLanguageParser.LogicalExpressionContext ctx) {
+    public Node visitLogicalExpression(ExpressionLanguageParser.LogicalExpressionContext ctx) {
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
         return switch (ctx.bop.getText()) {
@@ -91,34 +91,34 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitStringLiteralExpression(StringLiteralExpressionContext ctx) {
+    public Node visitStringLiteralExpression(StringLiteralExpressionContext ctx) {
         String text = ctx.getText().translateEscapes();
         return new StringNode(text.substring(1, text.length() - 1));
     }
 
     @Override
-    public ExpressionNode visitIntegerLiteralExpression(IntegerLiteralExpressionContext ctx) {
+    public Node visitIntegerLiteralExpression(IntegerLiteralExpressionContext ctx) {
         return new NumberNode(Long.valueOf(ctx.getText()));
     }
 
     @Override
-    public ExpressionNode visitNullLiteralExpression(NullLiteralExpressionContext ctx) {
+    public Node visitNullLiteralExpression(NullLiteralExpressionContext ctx) {
         return NullNode.INSTANCE;
     }
 
     @Override
-    public ExpressionNode visitLambdaExpression(ExpressionLanguageParser.LambdaExpressionContext ctx) {
+    public Node visitLambdaExpression(ExpressionLanguageParser.LambdaExpressionContext ctx) {
         return new LambdaNode(ctx.lambdaParameters().IDENTIFIER().stream().map(Objects::toString).toList(), visit(ctx.expression()));
     }
 
     @Override
-    public ExpressionNode visitFloatingPointLiteralExpression(FloatingPointLiteralExpressionContext ctx) {
+    public Node visitFloatingPointLiteralExpression(FloatingPointLiteralExpressionContext ctx) {
         return new NumberNode(Double.valueOf(ctx.getText()));
     }
 
     @Override
-    public ExpressionNode visitUnaryExpression(ExpressionLanguageParser.UnaryExpressionContext ctx) {
-        ExpressionNode node = visit(ctx.getChild(1));
+    public Node visitUnaryExpression(ExpressionLanguageParser.UnaryExpressionContext ctx) {
+        Node node = visit(ctx.getChild(1));
         return switch (ctx.prefix.getText()) {
             case "-" -> new UnaryMinusNode(node);
             case "!", "not" -> new UnaryNotNode(node);
@@ -128,7 +128,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitRelationalExpression(RelationalExpressionContext ctx) {
+    public Node visitRelationalExpression(RelationalExpressionContext ctx) {
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
         return switch (ctx.bop.getText()) {
@@ -143,17 +143,17 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitSemicolonExpression(ExpressionLanguageParser.SemicolonExpressionContext ctx) {
+    public Node visitSemicolonExpression(ExpressionLanguageParser.SemicolonExpressionContext ctx) {
         return new SemicolonNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
     }
 
     @Override
-    public ExpressionNode visitBooleanLiteralExpression(ExpressionLanguageParser.BooleanLiteralExpressionContext ctx) {
+    public Node visitBooleanLiteralExpression(ExpressionLanguageParser.BooleanLiteralExpressionContext ctx) {
         return ctx.getText().equals("true") ? BooleanNode.TRUE : BooleanNode.FALSE;
     }
 
     @Override
-    public ExpressionNode visitAssignExpression(ExpressionLanguageParser.AssignExpressionContext ctx) {
+    public Node visitAssignExpression(ExpressionLanguageParser.AssignExpressionContext ctx) {
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
         return switch (ctx.bop.getText()) {
@@ -164,12 +164,12 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitLiteralExpr(LiteralExprContext ctx) {
+    public Node visitLiteralExpr(LiteralExprContext ctx) {
         return visit(ctx.getChild(0));
     }
 
     @Override
-    public ExpressionNode visitInfixExpression(InfixExpressionContext ctx) {
+    public Node visitInfixExpression(InfixExpressionContext ctx) {
         var left = visit(ctx.getChild(0));
         var right = visit(ctx.getChild(2));
         return switch (ctx.bop.getText()) {
@@ -183,31 +183,31 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitDeferredExpression(DeferredExpressionContext ctx) {
+    public Node visitDeferredExpression(DeferredExpressionContext ctx) {
         return new DeferredExpressionNode(visit(ctx.getChild(1)));
     }
 
     @Override
-    public ExpressionNode visitDynamicExpression(DynamicExpressionContext ctx) {
+    public Node visitDynamicExpression(DynamicExpressionContext ctx) {
         return new DynamicExpressionNode(visit(ctx.getChild(1)));
     }
 
     @Override
-    public ExpressionNode visitMemberDotExpression(ExpressionLanguageParser.MemberDotExpressionContext ctx) {
+    public Node visitMemberDotExpression(ExpressionLanguageParser.MemberDotExpressionContext ctx) {
         return new MemberNode(visit(ctx.getChild(0)), new IdentifierNode(ctx.getChild(2).getText()));
     }
 
     @Override
-    public ExpressionNode visitIdentifierExpression(ExpressionLanguageParser.IdentifierExpressionContext ctx) {
+    public Node visitIdentifierExpression(ExpressionLanguageParser.IdentifierExpressionContext ctx) {
         return new IdentifierNode(ctx.getText());
     }
 
     @Override
-    public ExpressionNode visitMemberIndexExpression(ExpressionLanguageParser.MemberIndexExpressionContext ctx) {
+    public Node visitMemberIndexExpression(ExpressionLanguageParser.MemberIndexExpressionContext ctx) {
         return new MemberNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
     }
 
-    private List<ExpressionNode> getArguments(ExpressionLanguageParser.ExpressionListContext expressionList) {
+    private List<Node> getArguments(ExpressionLanguageParser.ExpressionListContext expressionList) {
         if (expressionList == null)
             return List.of();
         return expressionList
@@ -218,7 +218,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitCallExpression(ExpressionLanguageParser.CallExpressionContext ctx) {
+    public Node visitCallExpression(ExpressionLanguageParser.CallExpressionContext ctx) {
         if (ctx.qualifiedFunction() != null) {
             return visit(ctx.qualifiedFunction());
         }
@@ -227,7 +227,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitListExpression(ExpressionLanguageParser.ListExpressionContext ctx) {
+    public Node visitListExpression(ExpressionLanguageParser.ListExpressionContext ctx) {
         var expressionListContext = ctx.expressionList();
         if (expressionListContext == null)
             return new ListNode(Collections.emptyList());
@@ -239,7 +239,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitSetExpression(ExpressionLanguageParser.SetExpressionContext ctx) {
+    public Node visitSetExpression(ExpressionLanguageParser.SetExpressionContext ctx) {
         var expressionListContext = ctx.expressionList();
         if (expressionListContext == null)
             return new SetNode(Collections.emptyList());
@@ -251,18 +251,18 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     }
 
     @Override
-    public ExpressionNode visitQualifiedFunction(ExpressionLanguageParser.QualifiedFunctionContext ctx) {
+    public Node visitQualifiedFunction(ExpressionLanguageParser.QualifiedFunctionContext ctx) {
         var expressionList = ctx.arguments().expressionList();
         return new CallExpressionNode(new IdentifierNode(ctx.getChild(0).getText()), getArguments(expressionList));
     }
 
     @Override
-    public ExpressionNode visitTernaryExpression(ExpressionLanguageParser.TernaryExpressionContext ctx) {
+    public Node visitTernaryExpression(ExpressionLanguageParser.TernaryExpressionContext ctx) {
         return new TernaryNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)), visit(ctx.getChild(4)));
     }
 
     @Override
-    public ExpressionNode visitBadTernaryExpression(ExpressionLanguageParser.BadTernaryExpressionContext ctx) {
+    public Node visitBadTernaryExpression(ExpressionLanguageParser.BadTernaryExpressionContext ctx) {
         throw new ELException();
     }
 }

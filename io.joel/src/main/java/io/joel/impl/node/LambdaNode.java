@@ -6,7 +6,7 @@ import jakarta.el.LambdaExpression;
 
 import java.util.List;
 
-public record LambdaNode(List<String> parameters, ExpressionNode expression) implements ExpressionNode {
+public record LambdaNode(List<String> parameters, Node expression) implements Node {
     @Override
     public Object getValue(ELContext context) {
         return new LambdaExpression(parameters, JoelValueExpression.newInstance(expression.prettyPrint(), expression, Object.class));

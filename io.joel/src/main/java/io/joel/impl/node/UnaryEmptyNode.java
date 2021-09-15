@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-public record UnaryEmptyNode(ExpressionNode node) implements ExpressionNode {
+public record UnaryEmptyNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return Boolean.class;

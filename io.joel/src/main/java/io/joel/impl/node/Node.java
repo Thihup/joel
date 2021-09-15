@@ -4,7 +4,7 @@ import jakarta.el.ELContext;
 
 import java.io.Serializable;
 
-public sealed interface ExpressionNode extends Serializable
+public sealed interface Node extends Serializable
         permits CallExpressionNode,
         BooleanExpression,
         InfixExpressionNode,

@@ -7,7 +7,7 @@ import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
-public record MemberNode(ExpressionNode object, ExpressionNode property) implements ExpressionNode {
+public record MemberNode(Node object, Node property) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         if (property instanceof IdentifierNode node)

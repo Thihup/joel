@@ -2,8 +2,8 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record TernaryNode(ExpressionNode condition, ExpressionNode trueExpression,
-                          ExpressionNode falseExpression) implements ExpressionNode {
+public record TernaryNode(Node condition, Node trueExpression,
+                          Node falseExpression) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {

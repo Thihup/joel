@@ -1,6 +1,6 @@
 package io.joel.impl;
 
-import io.joel.impl.node.ExpressionNode;
+import io.joel.impl.node.Node;
 import io.joel.impl.node.MemberNode;
 import io.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
@@ -19,25 +19,25 @@ import java.util.List;
 import java.util.Objects;
 
 public final class JoelMethodExpression extends MethodExpression {
-    private final ExpressionNode expressionNode;
+    private final Node node;
     private final Class<?> expectedReturnType;
     private final Class<?>[] expectedParameterTypes;
     private final String expression;
 
-    private JoelMethodExpression(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
+    private JoelMethodExpression(String expression, Node node, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
         this.expression = expression;
-        this.expressionNode = expressionNode;
+        this.node = node;
         this.expectedReturnType = expectedReturnType;
         this.expectedParameterTypes = expectedParameterTypes;
     }
 
-    public static JoelMethodExpression newInstance(String expression, ExpressionNode expressionNode, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
-        return new JoelMethodExpression(expression, expressionNode, expectedReturnType, expectedParameterTypes);
+    public static JoelMethodExpression newInstance(String expression, Node node, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
+        return new JoelMethodExpression(expression, node, expectedReturnType, expectedParameterTypes);
     }
 
     @Override
     public boolean isLiteralText() {
-        return expressionNode instanceof StringNode;
+        return node instanceof StringNode;
     }
 
     @Override
@@ -47,9 +47,9 @@ public final class JoelMethodExpression extends MethodExpression {
 
     @Override
     public MethodInfo getMethodInfo(ELContext context) {
-        if (expressionNode instanceof StringNode stringLiteral)
+        if (node instanceof StringNode stringLiteral)
             return new MethodInfo(stringLiteral.value(), expectedReturnType, expectedParameterTypes);
-        if (expressionNode instanceof MemberNode memberNode) {
+        if (node instanceof MemberNode memberNode) {
             var valueReference = memberNode.valueReference(context);
             try {
                 Object base = valueReference.getBase();
@@ -67,10 +67,10 @@ public final class JoelMethodExpression extends MethodExpression {
     public Object invoke(ELContext context, Object[] params) {
         try {
             context.notifyBeforeEvaluation(expression);
-            if (expressionNode instanceof StringNode stringLiteral) {
+            if (node instanceof StringNode stringLiteral) {
                 return context.convertToType(stringLiteral.value(), expectedReturnType);
             }
-            if (expressionNode instanceof MemberNode memberNode) {
+            if (node instanceof MemberNode memberNode) {
                 var valueReference = memberNode.valueReference(context);
                 try {
                     Object base = valueReference.getBase();
@@ -101,7 +101,7 @@ public final class JoelMethodExpression extends MethodExpression {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(expressionNode, expectedReturnType);
+        int result = Objects.hash(node, expectedReturnType);
         result = 31 * result + Arrays.hashCode(expectedParameterTypes);
         return result;
     }
@@ -111,14 +111,14 @@ public final class JoelMethodExpression extends MethodExpression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JoelMethodExpression that = (JoelMethodExpression) o;
-        return Objects.equals(expressionNode, that.expressionNode)
+        return Objects.equals(node, that.node)
                 && Arrays.equals(expectedParameterTypes, that.expectedParameterTypes)
                 && Objects.equals(expectedReturnType, that.expectedReturnType);
     }
 
     @Serial
     private Object writeReplace() {
-        return new SerializedMethodExpression(expression, expressionNode, expectedReturnType, List.of(expectedParameterTypes));
+        return new SerializedMethodExpression(expression, node, expectedReturnType, List.of(expectedParameterTypes));
     }
 
     @Serial
@@ -126,12 +126,12 @@ public final class JoelMethodExpression extends MethodExpression {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private record SerializedMethodExpression(String expression, ExpressionNode expressionNode,
+    private record SerializedMethodExpression(String expression, Node node,
                                               Class<?> expectedReturnType,
                                               List<Class<?>> expectedParameterTypes) implements Serializable {
         @Serial
         public Object readResolve() {
-            return JoelMethodExpression.newInstance(expression, expressionNode, expectedReturnType, expectedParameterTypes.toArray(Class[]::new));
+            return JoelMethodExpression.newInstance(expression, node, expectedReturnType, expectedParameterTypes.toArray(Class[]::new));
         }
     }
 

@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public enum NullNode implements ExpressionNode {
+public enum NullNode implements Node {
     INSTANCE;
 
     @Override

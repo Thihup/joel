@@ -2,7 +2,7 @@ package io.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record UnaryNotNode(ExpressionNode node) implements ExpressionNode {
+public record UnaryNotNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return Boolean.class;

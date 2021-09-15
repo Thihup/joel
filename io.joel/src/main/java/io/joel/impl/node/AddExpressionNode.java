@@ -3,7 +3,7 @@ package io.joel.impl.node;
 import io.joel.impl.calculator.Operation;
 import jakarta.el.ELContext;
 
-public record AddExpressionNode(ExpressionNode left, ExpressionNode right) implements InfixExpressionNode {
+public record AddExpressionNode(Node left, Node right) implements InfixExpressionNode {
     @Override
     public Object getValue(ELContext context) {
         var leftValue = left.getValue(context);
