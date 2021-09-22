@@ -28,6 +28,9 @@ import java.util.Iterator;
  */
 public abstract class TypeConverter extends ELResolver {
 
+    public TypeConverter() {
+    }
+
     /**
      * Converts an object to a specific type.
      *

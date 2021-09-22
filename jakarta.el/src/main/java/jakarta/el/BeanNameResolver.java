@@ -9,6 +9,9 @@ package jakarta.el;
  */
 public abstract class BeanNameResolver {
 
+    public BeanNameResolver() {
+    }
+
     public boolean canCreateBean(String beanName) {
         return false;
     }

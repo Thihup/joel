@@ -1,5 +1,6 @@
 package jakarta.el;
 
+import java.io.Serial;
 import java.util.EventObject;
 
 /**
@@ -11,6 +12,9 @@ import java.util.EventObject;
  * @since Jakarta Server Pages 2.1
  */
 public class ELContextEvent extends EventObject {
+    @Serial
+    private static final long serialVersionUID = -194442233316685665L;
+
     /**
      * Constructs an ELContextEvent object to indicate that an <code>ELContext</code> has been created.
      *

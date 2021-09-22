@@ -68,6 +68,9 @@ public abstract class ELContext {
     private Locale locale = Locale.getDefault();
     private boolean propertyResolved;
 
+    public ELContext() {
+    }
+
     /**
      * Registers an evaluation listener to the ELContext.
      *

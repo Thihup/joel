@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Objects;
 
 public final class JoelMethodExpression extends MethodExpression {
+
+    @Serial
+    private static final long serialVersionUID = 165770279277199402L;
+
     private final Node node;
     private final Class<?> expectedReturnType;
     private final Class<?>[] expectedParameterTypes;
@@ -95,6 +99,7 @@ public final class JoelMethodExpression extends MethodExpression {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean isParmetersProvided() {
         return isParametersProvided();
     }

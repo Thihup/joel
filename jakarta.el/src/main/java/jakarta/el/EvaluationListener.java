@@ -7,6 +7,9 @@ package jakarta.el;
  */
 public abstract class EvaluationListener {
 
+    public EvaluationListener() {
+    }
+
     /**
      * Receives notification after a Jakarta Expression Language expression is evaluated
      *

@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * Thrown when a property could not be found while evaluating a {@link ValueExpression} or {@link MethodExpression}.
  *
@@ -11,6 +13,9 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public class PropertyNotFoundException extends ELException {
+
+    @Serial
+    private static final long serialVersionUID = -2952411072102736850L;
 
     /**
      * Creates a <code>PropertyNotFoundException</code> with no detail message.

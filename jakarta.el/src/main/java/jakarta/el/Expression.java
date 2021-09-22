@@ -1,5 +1,6 @@
 package jakarta.el;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -24,6 +25,12 @@ import java.io.Serializable;
  * @since Jakarta Server Pages 2.1
  */
 public abstract class Expression implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = -31000551981650964L;
+
+    public Expression() {
+    }
 
     /**
      * Returns the hash code for this <code>Expression</code>.

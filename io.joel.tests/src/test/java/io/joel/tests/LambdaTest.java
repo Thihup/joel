@@ -131,6 +131,7 @@ class LambdaTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testSimpleLambda15() {
         var elProcessor = new ELProcessor();
         var eval = (Optional<Long>) elProcessor.eval("[1,2,3,4,5].stream().reduce((l,r)->l+r)");

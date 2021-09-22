@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * Thrown when a property could not be written to while setting the value on a {@link ValueExpression}.
  *
@@ -10,6 +12,9 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public class PropertyNotWritableException extends ELException {
+    @Serial
+    private static final long serialVersionUID = 3062351653639276188L;
+
     /**
      * Creates a <code>PropertyNotWritableException</code> with no detail message.
      */

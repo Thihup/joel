@@ -21,6 +21,9 @@ import java.util.Objects;
  */
 public class StaticFieldELResolver extends ELResolver {
 
+    public StaticFieldELResolver() {
+    }
+
     /**
      * Returns the type of the property. Always returns <code>String.class</code>, since a field name is a String.
      *

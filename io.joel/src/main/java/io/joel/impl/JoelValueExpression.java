@@ -20,6 +20,10 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public final class JoelValueExpression extends ValueExpression {
+
+    @Serial
+    private static final long serialVersionUID = 2278002437607003601L;
+
     private final String expression;
     private final Node node;
     private final Class<?> expectedType;

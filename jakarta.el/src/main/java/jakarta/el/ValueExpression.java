@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * An <code>Expression</code> that can get or set a value.
  *
@@ -41,6 +43,12 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public abstract class ValueExpression extends Expression {
+
+    @Serial
+    private static final long serialVersionUID = 5037184918549826983L;
+
+    public ValueExpression() {
+    }
 
     /**
      * Returns the type the result of the expression will be coerced to after evaluation.

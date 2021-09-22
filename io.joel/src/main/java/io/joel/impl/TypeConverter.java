@@ -262,6 +262,7 @@ public final class TypeConverter {
         throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Boolean"));
     }
 
+    @SuppressWarnings("unchecked")
     private static Enum<?> coerceToEnum(Object value, Class<?> targetType) {
         if (value == null) {
             return null;

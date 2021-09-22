@@ -72,6 +72,9 @@ import java.util.ServiceLoader;
  */
 public abstract class ExpressionFactory {
 
+    public ExpressionFactory() {
+    }
+
     /**
      * Creates a new instance of a <code>ExpressionFactory</code>. This method uses the following ordered lookup procedure
      * to determine the <code>ExpressionFactory</code> implementation class to load:

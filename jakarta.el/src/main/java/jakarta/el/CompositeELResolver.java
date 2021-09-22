@@ -47,6 +47,9 @@ public class CompositeELResolver extends ELResolver {
 
     private final List<ELResolver> resolvers = new ArrayList<>();
 
+    public CompositeELResolver() {
+    }
+
     /**
      * Adds the given resolver to the list of component resolvers.
      *

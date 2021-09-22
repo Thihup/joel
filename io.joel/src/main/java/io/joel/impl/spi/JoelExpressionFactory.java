@@ -20,6 +20,9 @@ import java.util.Objects;
 
 public final class JoelExpressionFactory extends ExpressionFactory {
 
+    public JoelExpressionFactory() {
+    }
+
     @Override
     public Object coerceToType(Object object, Class<?> targetType) {
         try {

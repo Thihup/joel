@@ -7,6 +7,10 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public abstract class VariableMapper {
+
+    public VariableMapper() {
+    }
+
     /**
      * @param variable The variable name
      * @return the ValueExpression assigned to the variable, null if there is no previous assignment to this variable.

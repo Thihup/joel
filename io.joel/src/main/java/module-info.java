@@ -1,3 +1,4 @@
+@SuppressWarnings("requires-automatic")
 module io.joel {
     exports io.joel.impl.spi;
     requires transitive jakarta.el;

@@ -29,6 +29,8 @@ import java.util.ResourceBundle;
  */
 public class ResourceBundleELResolver extends ELResolver {
 
+    public ResourceBundleELResolver() {
+    }
 
     /**
      * If the base object is a ResourceBundle, returns the most general type that this resolver accepts for the

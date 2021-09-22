@@ -84,6 +84,10 @@ public abstract class ELResolver {
      */
     public static final String RESOLVABLE_AT_DESIGN_TIME = "resolvableAtDesignTime";
 
+    public ELResolver() {
+
+    }
+
     /**
      * Converts an object to a specific type.
      *

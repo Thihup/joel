@@ -92,6 +92,7 @@ public final class CallExpressionNode implements Node {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("unchecked")
     private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
         throw (E) e;
     }

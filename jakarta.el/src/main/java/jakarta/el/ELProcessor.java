@@ -58,6 +58,9 @@ public class ELProcessor {
 
     private final ELManager manager = new ELManager();
 
+    public ELProcessor() {
+    }
+
     /**
      * Define a bean in a local bean repository, hiding other beans of the same name.
      *

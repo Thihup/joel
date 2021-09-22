@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * An <code>Expression</code> that refers to a method on an object.
  *
@@ -31,6 +33,13 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public abstract class MethodExpression extends Expression {
+
+    @Serial
+    private static final long serialVersionUID = 3457299014218517628L;
+
+    public MethodExpression() {
+    }
+
     /**
      * Evaluates the expression relative to the provided context, and returns information about the actual referenced
      * method.

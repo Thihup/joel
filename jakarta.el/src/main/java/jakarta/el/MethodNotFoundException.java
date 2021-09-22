@@ -1,5 +1,7 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * Thrown when a method could not be found while evaluating a {@link MethodExpression}.
  *
@@ -7,6 +9,9 @@ package jakarta.el;
  * @since Jakarta Server Pages 2.1
  */
 public class MethodNotFoundException extends ELException {
+
+    @Serial
+    private static final long serialVersionUID = 566253848995989092L;
 
     /**
      * Creates a <code>MethodNotFoundException</code> with no detail message.

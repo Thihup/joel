@@ -12,6 +12,10 @@ import java.lang.reflect.Method;
  * @since Jakarta Server Pages 2.1
  */
 public abstract class FunctionMapper {
+
+    public FunctionMapper() {
+    }
+
     /**
      * Adds a static method that can be used as a function.
      *

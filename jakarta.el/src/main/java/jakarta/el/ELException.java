@@ -1,11 +1,16 @@
 package jakarta.el;
 
+import java.io.Serial;
+
 /**
  * Represents any of the exception conditions that can arise during expression evaluation.
  *
  * @since Jakarta Server Pages 2.1
  */
 public class ELException extends RuntimeException {
+    @Serial
+    private static final long serialVersionUID = -4129157481800354613L;
+
     /**
      * Creates an <code>ELException</code> with no detail message.
      */

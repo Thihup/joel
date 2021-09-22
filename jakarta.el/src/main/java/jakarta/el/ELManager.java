@@ -13,6 +13,9 @@ public class ELManager {
     private static final ExpressionFactory FACTORY = ExpressionFactory.newInstance();
     private StandardELContext context = new StandardELContext(FACTORY);
 
+    public ELManager() {
+    }
+
     /**
      * Return the ExpressionFactory instance used for Jakarta Expression Language evaluations.
      *

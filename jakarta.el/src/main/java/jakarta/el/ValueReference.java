@@ -1,5 +1,6 @@
 package jakarta.el;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -8,6 +9,8 @@ import java.io.Serializable;
  * @since Jakarta Expression Language 2.2
  */
 public class ValueReference implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1665440650760183774L;
     private final Object base;
     private final Object property;
 

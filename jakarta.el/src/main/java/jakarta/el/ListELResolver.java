@@ -247,6 +247,7 @@ public class ListELResolver extends ELResolver {
      *                                      exception must be included as the cause property of this exception, if available.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void setValue(ELContext context, Object base, Object property, Object value) {
         Objects.requireNonNull(context);
         if (!(base instanceof List<?>))

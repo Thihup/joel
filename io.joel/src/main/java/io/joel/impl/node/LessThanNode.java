@@ -8,6 +8,7 @@ import java.math.BigInteger;
 
 public record LessThanNode(Node left, Node right) implements RelationalNode {
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Object getValue(ELContext context) {
         var leftValue = left.getValue(context);
         var rightValue = right.getValue(context);
