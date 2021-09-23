@@ -1,6 +1,6 @@
 package io.joel.tests;
 
-import io.joel.impl.spi.JoelExpressionFactory;
+import jakarta.el.ExpressionFactory;
 import jakarta.el.StandardELContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,7 +15,7 @@ class GetValueTest {
 
     @Test
     void getTypeAndBooleanExpressionFalse() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${true && false}", Boolean.class);
         assertEquals(Boolean.FALSE, valueExpression.getValue(context));
@@ -23,7 +23,7 @@ class GetValueTest {
 
     @Test
     void getTypeAndBooleanExpressionFalse2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${false && false}", Boolean.class);
         assertEquals(Boolean.FALSE, valueExpression.getValue(context));
@@ -31,7 +31,7 @@ class GetValueTest {
 
     @Test
     void getTypeAndBooleanExpressionTrue() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${true && true}", Boolean.class);
         assertEquals(Boolean.TRUE, valueExpression.getValue(context));
@@ -39,7 +39,7 @@ class GetValueTest {
 
     @Test
     void getTypeOrBooleanExpressionTrue() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${true || false}", Boolean.class);
         assertEquals(Boolean.TRUE, valueExpression.getValue(context));
@@ -48,7 +48,7 @@ class GetValueTest {
 
     @Test
     void getTypeOrBooleanExpressionTrue2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${false || true}", Boolean.class);
         assertEquals(Boolean.TRUE, valueExpression.getValue(context));
@@ -56,7 +56,7 @@ class GetValueTest {
 
     @Test
     void getTypeOrBooleanExpressionTrue3() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${true || true}", Boolean.class);
         assertEquals(Boolean.TRUE, valueExpression.getValue(context));
@@ -65,7 +65,7 @@ class GetValueTest {
 
     @Test
     void getTypeOrBooleanExpressionFalse() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${false || false}", Boolean.class);
         assertEquals(Boolean.FALSE, valueExpression.getValue(context));
@@ -73,7 +73,7 @@ class GetValueTest {
 
     @Test
     void getValueLongExpression() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1}", Long.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -82,7 +82,7 @@ class GetValueTest {
 
     @Test
     void getValueDoubleExpression() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1.}", Double.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -91,7 +91,7 @@ class GetValueTest {
 
     @Test
     void getValueDoubleExpression2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1.0}", Double.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -100,7 +100,7 @@ class GetValueTest {
 
     @Test
     void getValueDoubleExpression3() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1e0}", Double.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -109,7 +109,7 @@ class GetValueTest {
 
     @Test
     void getValueStringExpression() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${\"hi\"}", String.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -118,7 +118,7 @@ class GetValueTest {
 
     @Test
     void getValueStringExpression2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${'hi'}", String.class);
         assertEquals(valueExpression.getExpectedType(), valueExpression.getValue(context).getClass());
@@ -127,7 +127,7 @@ class GetValueTest {
 
     @Test
     void getValueStaticMemberAccess() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${Integer.MAX_VALUE}", int.class);
         assertEquals(Integer.MAX_VALUE, valueExpression.<Integer>getValue(context));
@@ -135,7 +135,7 @@ class GetValueTest {
 
     @Test
     void getValueStaticMemberAccess2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${Double.MIN_VALUE}", double.class);
         assertEquals(Double.MIN_VALUE, valueExpression.getValue(context));
@@ -144,7 +144,7 @@ class GetValueTest {
     @ParameterizedTest
     @CsvSource("Collections.EMPTY_LIST,Collections['EMPTY_LIST'],Collections['EMPTY' += '_LIST']")
     void getValueStaticMemberAccess3(String value) {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         context.getImportHandler().importPackage("java.util");
         var valueExpression = factory.createValueExpression(context, "${%s}".formatted(value), List.class);
@@ -153,7 +153,7 @@ class GetValueTest {
 
     @Test
     void getValuePlusOperator() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${1 + 2}", double.class);
         assertEquals(3.0, valueExpression.getValue(context));
@@ -161,7 +161,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryMinus() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${-1}", int.class);
         assertEquals(-1, valueExpression.<Integer>getValue(context));
@@ -169,7 +169,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryMinus2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${-Double.MAX_VALUE}", double.class);
         assertEquals(-Double.MAX_VALUE, valueExpression.getValue(context));
@@ -177,7 +177,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryNot() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${! true}", boolean.class);
         assertEquals(false, valueExpression.getValue(context));
@@ -185,7 +185,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryNot2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${not true}", boolean.class);
         assertEquals(false, valueExpression.getValue(context));
@@ -193,7 +193,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryEmpty() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${empty ''}", boolean.class);
         assertEquals(true, valueExpression.getValue(context));
@@ -201,7 +201,7 @@ class GetValueTest {
 
     @Test
     void getValueUnaryEmpty2() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${empty 'a'}", boolean.class);
         assertEquals(false, valueExpression.getValue(context));
@@ -209,7 +209,7 @@ class GetValueTest {
 
     @Test
     void compositeExpression() {
-        var factory = new JoelExpressionFactory();
+        var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${'hello'} ${'composite'}", String.class);
         assertEquals("hello composite", valueExpression.getValue(context));

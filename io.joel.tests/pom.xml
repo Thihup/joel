@@ -10,13 +10,31 @@
 
     <artifactId>io.joel.tests</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.joel</groupId>
-            <artifactId>io.joel</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>io.joel</groupId>
+                    <artifactId>io.joel</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>el-ri</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.glassfish</groupId>
+                    <artifactId>jakarta.el</artifactId>
+                    <version>4.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
