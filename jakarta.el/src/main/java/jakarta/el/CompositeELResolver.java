@@ -174,12 +174,13 @@ public class CompositeELResolver extends ELResolver {
     public Class<?> getType(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
         context.setPropertyResolved(false);
-        return resolvers.stream()
-                .map(x -> Optional.ofNullable(x.getType(context, base, property)))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .flatMap(Function.identity())
-                .orElse(null);
+        for (ELResolver resolver : resolvers) {
+            Class<?> type = resolver.getType(context, base, property);
+            if (context.isPropertyResolved()) {
+                return type;
+            }
+        }
+        return null;
     }
 
     /**
@@ -228,12 +229,13 @@ public class CompositeELResolver extends ELResolver {
     public Object getValue(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
         context.setPropertyResolved(false);
-        return resolvers.stream()
-                .map(x -> Optional.ofNullable(x.getValue(context, base, property)))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .flatMap(Function.identity())
-                .orElse(null);
+        for (ELResolver resolver : resolvers) {
+            Object value = resolver.getValue(context, base, property);
+            if (context.isPropertyResolved()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -287,11 +289,13 @@ public class CompositeELResolver extends ELResolver {
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
         context.setPropertyResolved(false);
-        return resolvers.stream()
-                .map(x -> x.isReadOnly(context, base, property))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .orElse(false);
+        for (ELResolver resolver : resolvers) {
+            boolean readOnly = resolver.isReadOnly(context, base, property);
+            if (context.isPropertyResolved()) {
+                return readOnly;
+            }
+        }
+        return false;
     }
 
     /**
@@ -394,12 +398,13 @@ public class CompositeELResolver extends ELResolver {
     @Override
     public Object invoke(ELContext context, Object base, Object method, Class<?>[] parameterTypes, Object[] params) {
         context.setPropertyResolved(false);
-        return resolvers.stream()
-                .map(x -> Optional.ofNullable(x.invoke(context, base, method, parameterTypes, params)))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .flatMap(Function.identity())
-                .orElse(null);
+        for (ELResolver resolver : resolvers) {
+            Object invoke = resolver.invoke(context, base, method, parameterTypes, params);
+            if (context.isPropertyResolved()) {
+                return invoke;
+            }
+        }
+        return null;
     }
 
     /**
@@ -418,11 +423,12 @@ public class CompositeELResolver extends ELResolver {
     @Override
     public Object convertToType(ELContext context, Object object, Class<?> targetType) {
         context.setPropertyResolved(false);
-        return resolvers.stream()
-                .map(x -> Optional.ofNullable(x.convertToType(context, object, targetType)))
-                .filter(x -> context.isPropertyResolved())
-                .findFirst()
-                .flatMap(Function.identity())
-                .orElse(null);
+        for (ELResolver resolver : resolvers) {
+            Object o = resolver.convertToType(context, object, targetType);
+            if (context.isPropertyResolved()) {
+                return o;
+            }
+        }
+        return null;
     }
 }
