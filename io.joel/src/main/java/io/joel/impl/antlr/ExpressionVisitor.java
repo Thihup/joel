@@ -38,7 +38,6 @@ import jakarta.el.ELException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.joel.impl.antlr.ExpressionLanguageParser.DeferredExpressionContext;
 import static io.joel.impl.antlr.ExpressionLanguageParser.DynamicExpressionContext;
@@ -214,7 +213,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
                 .expression()
                 .stream()
                 .map(this::visit)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -235,7 +234,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
                 .expression()
                 .stream()
                 .map(this::visit)
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     @Override
@@ -247,7 +246,7 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
                 .expression()
                 .stream()
                 .map(this::visit)
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     @Override
