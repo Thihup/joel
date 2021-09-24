@@ -20,22 +20,30 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class StreamELResolver extends ELResolver {
-    private static final MethodHandle CONVERT_TO_TYPE;
-    private static final MethodHandle LAMBDA_INVOKE;
+    private static final MethodHandle LAMBDA_IMPL_WITH_RETURN;
+    private static final MethodHandle LAMBDA_IMPL_WITHOUT_RETURN;
     private static final List<String> IGNORED_METHODS = List.of("equals", "hashCode", "toString");
     private static final Method[] STREAM_METHODS = Stream.class.getMethods();
 
     static {
         try {
-            CONVERT_TO_TYPE = MethodHandles.lookup().findVirtual(ELContext.class, "convertToType", MethodType.methodType(Object.class, Object.class, Class.class));
-            LAMBDA_INVOKE = MethodHandles.lookup().findVirtual(LambdaExpression.class, "invoke", MethodType.methodType(Object.class, ELContext.class, Object[].class));
+            var lookup = MethodHandles.lookup();
+            LAMBDA_IMPL_WITH_RETURN = lookup.findStatic(StreamELResolver.class, "proxyWithReturnType", MethodType.methodType(Object.class, Class.class, ELContext.class, LambdaExpression.class, Object[].class));
+            LAMBDA_IMPL_WITHOUT_RETURN = lookup.findStatic(StreamELResolver.class, "proxyWithoutReturnType", MethodType.methodType(void.class, ELContext.class, LambdaExpression.class, Object[].class));
         } catch (Throwable throwable) {
             throw new IllegalStateException(throwable);
         }
+    }
+
+    private static Object proxyWithReturnType(Class<?> returnType, ELContext context, LambdaExpression x, Object... args) {
+        return context.convertToType(x.invoke(context, args), returnType);
+    }
+
+    private static void proxyWithoutReturnType(ELContext context, LambdaExpression x, Object... args) {
+        x.invoke(context, args);
     }
 
     @Override
@@ -166,34 +174,9 @@ public final class StreamELResolver extends ELResolver {
     }
 
     private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) {
-
-        Class<?> returnType = method.getReturnType();
-        if (returnType == void.class || returnType == Void.class) {
-            var methodHandle = MethodHandles.filterReturnValue(
-                    MethodHandles.dropReturn(MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context)),
-                    MethodHandles.constant(Void.class, null));
-            var methodHandle1 = methodHandle.withVarargs(true).asType(MethodType.methodType(returnType, method.getParameterTypes()));
-            return MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
-        }
-
-        // lambdaExpression.invoke(context, ?)
-        var methodHandle = MethodHandles.insertArguments(LAMBDA_INVOKE, 0, lambdaExpression, context);
-
-        // context.convertToType(?, ?)
-        var methodHandle2 = CONVERT_TO_TYPE.bindTo(context);
-
-        // context.convertToType(?, returnType)
-        var methodHandle3 = MethodHandles.insertArguments(methodHandle2, 1, returnType);
-
-        // context.convertToType(lambdaExpression.invoke(context, ?), returnType)
-        var methodHandle4 = MethodHandles.filterArguments(methodHandle3, 0, methodHandle);
-
-        var methodHandle1 = methodHandle4
-                // context.convertToType(lambdaExpression.invoke(context, Object...?), returnType)
-                .asType(MethodType.methodType(returnType, Object[].class)).withVarargs(true)
-                .asType(MethodType.methodType(returnType, method.getParameterTypes()));
-
-        return MethodHandleProxies.asInterfaceInstance(aClass, methodHandle1);
+        if (method.getReturnType() == void.class)
+            return MethodHandleProxies.asInterfaceInstance(aClass, LAMBDA_IMPL_WITHOUT_RETURN.bindTo(context).bindTo(lambdaExpression).asVarargsCollector(Object[].class));
+        return MethodHandleProxies.asInterfaceInstance(aClass, LAMBDA_IMPL_WITH_RETURN.bindTo(method.getReturnType()).bindTo(context).bindTo(lambdaExpression).asVarargsCollector(Object[].class));
     }
 
     private Method findMethodFromClass(Class<?> klass) throws NoSuchMethodException {
