@@ -152,15 +152,17 @@ public final class StreamELResolver extends ELResolver {
     }
 
     private Object[] getArguments(ELContext context, Object[] currentParams, Class<?>[] parameterTypes1) {
-        return IntStream.range(0, parameterTypes1.length)
-                .mapToObj(x -> {
-                    try {
-                        return parameterTypes1[x].isInterface() ? createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x])) : currentParams[x];
-                    } catch (NoSuchMethodException noSuchMethodException) {
-                        throw new ELException(noSuchMethodException);
-                    }
-                })
-                .toArray();
+        Object[] array = new Object[parameterTypes1.length];
+        for (int x = 0; x < parameterTypes1.length; x++) {
+            try {
+                array[x] = parameterTypes1[x].isInterface() ?
+                        createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x]))
+                        : currentParams[x];
+            } catch (NoSuchMethodException noSuchMethodException) {
+                throw new ELException(noSuchMethodException);
+            }
+        }
+        return array;
     }
 
     private Method findMethod(Class<?>[] parameterTypes, String methodName, Object[] currentParams) throws NoSuchMethodException {
