@@ -27,6 +27,7 @@ public final class StreamELResolver extends ELResolver {
     private static final MethodHandle CONVERT_TO_TYPE;
     private static final MethodHandle LAMBDA_INVOKE;
     private static final List<String> IGNORED_METHODS = List.of("equals", "hashCode", "toString");
+    private static final Method[] STREAM_METHODS = Stream.class.getMethods();
 
     static {
         try {
@@ -155,7 +156,7 @@ public final class StreamELResolver extends ELResolver {
     }
 
     private Method findMethod(Class<?>[] parameterTypes, String methodName, Object[] currentParams) throws NoSuchMethodException {
-        return Arrays.stream(Stream.class.getMethods())
+        return Arrays.stream(STREAM_METHODS)
                 .filter(x -> !Modifier.isStatic(x.getModifiers()))
                 .filter(x -> x.getName().equals(methodName))
                 .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
