@@ -34,20 +34,20 @@ public final class TypeConverter {
     private static Object coerceImplementation(Object object, Class<?> targetType) {
         if (object == null)
             return null;
-        return switch (targetType.getSimpleName()) {
-            case "String" -> coerceToString(object);
-            case "Boolean" -> coerceToBoolean(object);
-            case "Enum" -> coerceToEnum(object, targetType);
-            case "BigDecimal" -> coerceToBigDecimal(object);
-            case "BigInteger" -> coerceToBigInteger(object);
-            case "Void" -> throw new ELException("Cannot convert " + object + " to java.lang.Void");
-            case "Character" -> coerceToCharacter(object);
-            case "Long" -> coerceToLong(object);
-            case "Integer" -> coerceToInteger(object);
-            case "Short" -> coerceToShort(object);
-            case "Byte" -> coerceToByte(object);
-            case "Double" -> coerceToDouble(object);
-            case "Float" -> coerceToFloat(object);
+        return switch (targetType.getName()) {
+            case "java.lang.String" -> coerceToString(object);
+            case "java.lang.Boolean" -> coerceToBoolean(object);
+            case "java.lang.Enum" -> coerceToEnum(object, targetType);
+            case "java.math.BigDecimal" -> coerceToBigDecimal(object);
+            case "java.math.BigInteger" -> coerceToBigInteger(object);
+            case "java.lang.Void" -> throw new ELException("Cannot convert " + object + " to java.lang.Void");
+            case "java.lang.Character" -> coerceToCharacter(object);
+            case "java.lang.Long" -> coerceToLong(object);
+            case "java.lang.Integer" -> coerceToInteger(object);
+            case "java.lang.Short" -> coerceToShort(object);
+            case "java.lang.Byte" -> coerceToByte(object);
+            case "java.lang.Double" -> coerceToDouble(object);
+            case "java.lang.Float" -> coerceToFloat(object);
             default -> coerceToObject(object, targetType);
         };
     }
@@ -56,7 +56,7 @@ public final class TypeConverter {
         if (object == null) {
             return MethodHandles.zero(targetType).invoke();
         }
-        return switch (targetType.getSimpleName()) {
+        return switch (targetType.getName()) {
             case "boolean" -> coerceToBoolean(object);
             case "char" -> coerceToCharacter(object);
             case "long" -> coerceToLong(object);
