@@ -13,14 +13,15 @@ public final class TypeConverter {
     private TypeConverter() {
     }
 
-    public static Object coerce(Object object, Class<?> targetType) {
+    @SuppressWarnings("unchecked")
+    public static <T> T coerce(Object object, Class<T> targetType) {
         if (targetType == null)
-            return object;
+            return (T) object;
         if (!targetType.isPrimitive()) {
-            return coerceImplementation(object, targetType);
+            return (T) coerceImplementation(object, targetType);
         }
         try {
-            return coercePrimitive(object, targetType);
+            return (T) coercePrimitive(object, targetType);
         } catch (Throwable throwable) {
             return sneakyThrow(throwable);
         }
