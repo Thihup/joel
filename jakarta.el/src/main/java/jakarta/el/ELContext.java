@@ -106,18 +106,8 @@ public abstract class ELContext {
             if (isCurrentResolved)
                 setPropertyResolved(true);
         }
-        ExpressionFactory factory = getFactory();
+        ExpressionFactory factory = ELManager.getExpressionFactory();
         return factory.coerceToType(object, targetType);
-    }
-
-    private ExpressionFactory getFactory() {
-        var factory = (ExpressionFactory) contexts.get(ExpressionFactory.class);
-        if (factory == null) {
-            var expressionFactory = ExpressionFactory.newInstance();
-            contexts.put(ExpressionFactory.class, expressionFactory);
-            return expressionFactory;
-        }
-        return factory;
     }
 
     /**
