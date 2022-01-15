@@ -11,7 +11,9 @@ import java.io.Serializable;
 public class ValueReference implements Serializable {
     @Serial
     private static final long serialVersionUID = 1665440650760183774L;
+    @SuppressWarnings("serial")
     private final Object base;
+    @SuppressWarnings("serial")
     private final Object property;
 
     public ValueReference(Object base, Object property) {
