@@ -19,7 +19,9 @@ import java.util.stream.IntStream;
 public final class CallExpressionNode implements Node {
     @Serial
     private static final long serialVersionUID = 0L;
+    @SuppressWarnings("serial")
     private final Node callee;
+    @SuppressWarnings("serial")
     private final List<? extends Node> arguments;
     private final transient Map<String, MethodHandle> resolvedFunction = new HashMap<>();
 
