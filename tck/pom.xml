@@ -64,7 +64,7 @@
                                                byline="true"/>
                                 <replaceregexp file="${tck.home}/bin/ts.jte"
                                                match="variable.mapper=(.*)"
-                                               replace="variable.mapper=JoelVariableMapper"
+                                               replace="variable.mapper=dev.thihup.joel.impl.mapper.JoelVariableMapper"
                                                byline="true"/>
                             </target>
                         </configuration>
