@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.joel</groupId>
+    <groupId>dev.thihup.joel</groupId>
     <artifactId>tck</artifactId>
     <version>1.0.0-M1</version>
 
@@ -64,7 +64,7 @@
                                                byline="true"/>
                                 <replaceregexp file="${tck.home}/bin/ts.jte"
                                                match="variable.mapper=(.*)"
-                                               replace="variable.mapper=io.joel.impl.mapper.JoelVariableMapper"
+                                               replace="variable.mapper=JoelVariableMapper"
                                                byline="true"/>
                             </target>
                         </configuration>
@@ -105,14 +105,14 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>io.joel</groupId>
-                                    <artifactId>io.joel</artifactId>
+                                    <groupId>dev.thihup.joel</groupId>
+                                    <artifactId>dev.thihup.joel</artifactId>
                                     <version>1.0.0-M1</version>
                                     <outputDirectory>${work.home}/jars</outputDirectory>
                                     <destFileName>jakarta.el.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>io.joel</groupId>
+                                    <groupId>dev.thihup.joel</groupId>
                                     <artifactId>jakarta.el</artifactId>
                                     <version>1.0.0-M1</version>
                                     <outputDirectory>${work.home}/jars</outputDirectory>

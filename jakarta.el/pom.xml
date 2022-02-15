@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.joel</groupId>
+        <groupId>dev.thihup.joel</groupId>
         <artifactId>parent</artifactId>
         <version>1.0.0-M1</version>
     </parent>
