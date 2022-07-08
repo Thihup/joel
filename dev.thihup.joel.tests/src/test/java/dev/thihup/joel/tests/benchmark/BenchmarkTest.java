@@ -4,7 +4,6 @@ package dev.thihup.joel.tests.benchmark;
 import jakarta.el.ELProcessor;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.infra.Blackhole;
 
 public class BenchmarkTest {
 
@@ -12,7 +11,7 @@ public class BenchmarkTest {
 
     @Benchmark
     @Fork(1)
-    public void benchmark(Blackhole blackhole) {
-        blackhole.consume(PROCESSOR.eval("1+1"));
+    public Object benchmark() {
+        return PROCESSOR.eval("1+1");
     }
 }

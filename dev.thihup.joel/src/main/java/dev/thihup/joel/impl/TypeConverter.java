@@ -15,13 +15,13 @@ public final class TypeConverter {
 
     @SuppressWarnings("unchecked")
     public static <T> T coerce(Object object, Class<T> targetType) {
-        if (targetType == null)
-            return (T) object;
-        if (!targetType.isPrimitive()) {
-            return (T) coerceImplementation(object, targetType);
-        }
         try {
-            return (T) coercePrimitive(object, targetType);
+            return (T) switch(targetType) {
+                case null -> null;
+                case Class<?> type when object == null -> null;
+                case Class<?> type when type.isPrimitive() -> coercePrimitive(object, type);
+                case Class<?> type -> coerceImplementation(object, type);
+            };
         } catch (Throwable throwable) {
             return sneakyThrow(throwable);
         }
@@ -33,40 +33,38 @@ public final class TypeConverter {
     }
 
     private static Object coerceImplementation(Object object, Class<?> targetType) {
-        if (object == null)
-            return null;
-        return switch (targetType.getName()) {
-            case "java.lang.String" -> coerceToString(object);
-            case "java.lang.Boolean" -> coerceToBoolean(object);
-            case "java.lang.Enum" -> coerceToEnum(object, targetType);
-            case "java.math.BigDecimal" -> coerceToBigDecimal(object);
-            case "java.math.BigInteger" -> coerceToBigInteger(object);
-            case "java.lang.Void" -> throw new ELException("Cannot convert " + object + " to java.lang.Void");
-            case "java.lang.Character" -> coerceToCharacter(object);
-            case "java.lang.Long" -> coerceToLong(object);
-            case "java.lang.Integer" -> coerceToInteger(object);
-            case "java.lang.Short" -> coerceToShort(object);
-            case "java.lang.Byte" -> coerceToByte(object);
-            case "java.lang.Double" -> coerceToDouble(object);
-            case "java.lang.Float" -> coerceToFloat(object);
+        return switch (targetType) {
+            case Class<?> foo when object == null -> null;
+            case Class<?> foo when foo == Object.class  -> coerceToObject(object, Object.class);
+            case Class<?> foo when foo == String.class  -> coerceToString(object);
+            case Class<?> foo when foo == Boolean.class  -> coerceToBoolean(object);
+            case Class<?> foo when foo == Enum.class  -> coerceToEnum(object, targetType);
+            case Class<?> foo when foo == BigDecimal.class  -> coerceToBigDecimal(object);
+            case Class<?> foo when foo == BigInteger.class  -> coerceToBigInteger(object);
+            case Class<?> foo when foo == Void.class  -> throw new ELException("Cannot convert " + object + " to java.lang.Void");
+            case Class<?> foo when foo == Character.class  -> coerceToCharacter(object);
+            case Class<?> foo when foo == Long.class  -> coerceToLong(object);
+            case Class<?> foo when foo == Integer.class  -> coerceToInteger(object);
+            case Class<?> foo when foo == Short.class  -> coerceToShort(object);
+            case Class<?> foo when foo == Byte.class  -> coerceToByte(object);
+            case Class<?> foo when foo == Double.class  -> coerceToDouble(object);
+            case Class<?> foo when foo == Float.class  -> coerceToFloat(object);
             default -> coerceToObject(object, targetType);
         };
     }
 
     private static Object coercePrimitive(Object object, Class<?> targetType) throws Throwable {
-        if (object == null) {
-            return MethodHandles.zero(targetType).invoke();
-        }
-        return switch (targetType.getName()) {
-            case "boolean" -> coerceToBoolean(object);
-            case "char" -> coerceToCharacter(object);
-            case "long" -> coerceToLong(object);
-            case "int" -> coerceToInteger(object);
-            case "short" -> coerceToShort(object);
-            case "byte" -> coerceToByte(object);
-            case "double" -> coerceToDouble(object);
-            case "float" -> coerceToFloat(object);
-            case "void" -> throw new ELException("Cannot convert " + object + " to void");
+        return switch (targetType) {
+            case Class<?> type when type == Boolean.TYPE -> coerceToBoolean(object);
+            case Class<?> type when type == Character.TYPE -> coerceToCharacter(object);
+            case Class<?> type when type == Long.TYPE -> coerceToLong(object);
+            case Class<?> type when type == Integer.TYPE -> coerceToInteger(object);
+            case Class<?> type when type == Short.TYPE -> coerceToShort(object);
+            case Class<?> type when type == Byte.TYPE -> coerceToByte(object);
+            case Class<?> type when type == Double.TYPE -> coerceToDouble(object);
+            case Class<?> type when type == Float.TYPE -> coerceToFloat(object);
+            case Class<?> type when type == Void.TYPE -> throw new ELException("Cannot convert " + object + " to void");
+            case null -> MethodHandles.zero(targetType).invokeExact();
             default -> null;
         };
     }
@@ -115,166 +113,122 @@ public final class TypeConverter {
     }
 
     private static String coerceToString(Object value) {
-        if (value == null)
-            return "";
-        if (value instanceof String newValue) {
-            return newValue;
-        }
-        if (value instanceof Enum<?> newValue) {
-            return newValue.name();
-        }
-        return value.toString();
+        return switch (value) {
+            case String newValue -> newValue;
+            case Enum<?> newValue -> newValue.name();
+            case null -> "";
+            default -> value.toString();
+        };
     }
 
     private static Object convertToNumber(Object value) {
-        if (value instanceof String newValue && newValue.isEmpty())
-            return 0L;
-        Object valueToConvert = (value instanceof Character newValue) ? Short.valueOf((short) newValue.charValue()) : value;
-        if (valueToConvert instanceof Boolean) {
-            throw new ELException("Cannot convert value %s from Boolean to Number".formatted(value));
-        }
-        return valueToConvert;
+        return switch (value) {
+            case String newValue when newValue.isEmpty() -> 0L;
+            case Character newValue -> Short.valueOf((short) newValue.charValue());
+            case Boolean newValue -> throw new ELException("Cannot convert value %s from Boolean to Number".formatted(newValue));
+            case default -> value;
+        };
     }
 
     private static Long coerceToLong(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Long newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        if (value instanceof String newValue) {
-            return Long.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Long"));
+        return switch (value) {
+            case Long newValue -> newValue;
+            case Number newValue -> newValue.longValue();
+            case String newValue -> Long.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Long"));
+        };
     }
 
     private static BigDecimal coerceToBigDecimal(Object value) {
         value = convertToNumber(value);
-        if (value instanceof BigDecimal newValue) {
-            return newValue;
-        }
-        if (value instanceof BigInteger bigInteger) {
-            return new BigDecimal(bigInteger);
-        }
-        if (value instanceof Number number) {
-            return new BigDecimal(number.doubleValue());
-        }
-        if (value instanceof String newValue) {
-            return new BigDecimal(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "BigDecimal"));
+        return switch (value) {
+            case BigDecimal newValue -> newValue;
+            case BigInteger newValue -> new BigDecimal(newValue);
+            case Number newValue -> new BigDecimal(newValue.doubleValue());
+            case String newValue -> new BigDecimal(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "BigDecimal"));
+        };
     }
 
     private static BigInteger coerceToBigInteger(Object value) {
         value = convertToNumber(value);
-        if (value instanceof BigInteger newValue) {
-            return newValue;
-        }
-        if (value instanceof BigDecimal bigDecimal) {
-            return bigDecimal.toBigInteger();
-        }
-        if (value instanceof Number number) {
-            return BigInteger.valueOf(number.longValue());
-        }
-        if (value instanceof String newValue) {
-            return new BigInteger(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "BigInteger"));
+        return switch (value) {
+            case BigInteger newValue -> newValue;
+            case BigDecimal newValue -> newValue.toBigInteger();
+            case Number newValue -> BigInteger.valueOf(newValue.longValue());
+            case String newValue -> new BigInteger(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "BigInteger"));
+        };
     }
 
     private static Byte coerceToByte(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Byte newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.byteValue();
-        }
-        if (value instanceof String newValue) {
-            return Byte.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Byte"));
+        return switch (value) {
+            case Byte newValue -> newValue;
+            case Number newValue -> newValue.byteValue();
+            case String newValue -> Byte.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Byte"));
+        };
     }
 
     private static Short coerceToShort(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Short newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.shortValue();
-        }
-        if (value instanceof String newValue) {
-            return Short.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Short"));
+        return switch (value) {
+            case Short newValue -> newValue;
+            case Number newValue -> newValue.shortValue();
+            case String newValue -> Short.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Short"));
+        };
     }
 
     private static Integer coerceToInteger(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Integer newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        if (value instanceof String newValue) {
-            return Integer.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Integer"));
+        return switch (value) {
+            case Integer newValue -> newValue;
+            case Number newValue -> newValue.intValue();
+            case String newValue -> Integer.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Integer"));
+        };
     }
 
     private static Float coerceToFloat(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Float newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.floatValue();
-        }
-        if (value instanceof String newValue) {
-            return Float.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Float"));
+        return switch (value) {
+            case Float newValue -> newValue;
+            case Number newValue -> newValue.floatValue();
+            case String newValue -> Float.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Float"));
+        };
     }
 
     private static Double coerceToDouble(Object value) {
         value = convertToNumber(value);
-        if (value instanceof Double newValue) {
-            return newValue;
-        }
-        if (value instanceof Number number) {
-            return number.doubleValue();
-        }
-        if (value instanceof String newValue) {
-            return Double.valueOf(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Double"));
+        return switch (value) {
+            case Double newValue -> newValue;
+            case Number newValue -> newValue.doubleValue();
+            case String newValue -> Double.valueOf(newValue);
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Double"));
+        };
     }
 
     private static Boolean coerceToBoolean(Object value) {
-        if (value instanceof Boolean newValue)
-            return newValue;
-        if (value instanceof String newValue) {
-            return !newValue.isEmpty() && Boolean.parseBoolean(newValue);
-        }
-        throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Boolean"));
+        return switch (value) {
+            case Boolean newValue -> newValue;
+            case String newValue when !newValue.isEmpty() -> Boolean.parseBoolean(newValue);
+            case String newValue when newValue.isEmpty() -> false;
+            default -> throw new ELException(CANNOT_CONVERT_TO.formatted(value, "Boolean"));
+        };
     }
 
     @SuppressWarnings("unchecked")
     private static Enum<?> coerceToEnum(Object value, Class<?> targetType) {
-        if (value == null) {
-            return null;
-        }
-        if (targetType.isInstance(value)) {
-            return (Enum<?>) targetType.cast(value);
-        }
-        if (value instanceof String newValue && newValue.isEmpty()) {
-            return null;
-        }
-        return Enum.valueOf(targetType.asSubclass(Enum.class), coerceToString(value));
+        return switch (value) {
+            case Object obj when targetType.isInstance(value) -> (Enum<?>) targetType.cast(obj);
+            case String newValue when newValue.isEmpty() -> null;
+            case default -> Enum.valueOf(targetType.asSubclass(Enum.class), coerceToString(value));
+            case null -> null;
+        };
     }
 
 }
