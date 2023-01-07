@@ -9,7 +9,6 @@ import dev.thihup.joel.impl.node.MemberNode;
 import dev.thihup.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
 import jakarta.el.PropertyNotFoundException;
-import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
 

@@ -6,7 +6,6 @@ import jakarta.el.ELResolver;
 import jakarta.el.LambdaExpression;
 import jakarta.el.MethodNotFoundException;
 
-import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
@@ -15,7 +14,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
