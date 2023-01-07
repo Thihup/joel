@@ -99,12 +99,6 @@ public final class JoelMethodExpression extends MethodExpression {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean isParmetersProvided() {
-        return isParametersProvided();
-    }
-
-    @Override
     public int hashCode() {
         int result = Objects.hash(node, expectedReturnType);
         result = 31 * result + Arrays.hashCode(expectedParameterTypes);
