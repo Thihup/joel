@@ -93,8 +93,6 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public void setValue(ELContext context, Object value) {
         context.setPropertyResolved(false);
-        if (isReadOnly(context))
-            throw new PropertyNotWritableException();
         new AssignNode(node, new ObjectNode(value)).getValue(context);
     }
 
