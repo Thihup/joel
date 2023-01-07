@@ -8,7 +8,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jakarta.el</module>
         <module>dev.thihup.joel</module>
         <module>dev.thihup.joel.tests</module>
         <module>dev.thihup.joel.tck</module>
