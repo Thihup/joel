@@ -12,9 +12,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>dev.thihup.joel</groupId>
-            <artifactId>jakarta.el</artifactId>
-            <version>${project.version}</version>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
         </dependency>
         <dependency>
             <groupId>dev.thihup.joel</groupId>
