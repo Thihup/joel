@@ -8,7 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GetTypeTest {
 
@@ -73,7 +74,9 @@ class GetTypeTest {
         var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${Integer.MAX_VALUE}", int.class);
-        assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
+        // StaticFieldELResolver is read-only, so it always returns null if found
+        assertNull(valueExpression.getType(context));
+        assertTrue(context.isPropertyResolved());
     }
 
     @Test
@@ -81,7 +84,9 @@ class GetTypeTest {
         var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${Double.MIN_VALUE}", double.class);
-        assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
+        // StaticFieldELResolver is read-only, so it always returns null if found
+        assertNull(valueExpression.getType(context));
+        assertTrue(context.isPropertyResolved());
     }
 
     @ParameterizedTest
@@ -91,7 +96,9 @@ class GetTypeTest {
         var context = new StandardELContext(factory);
         context.getImportHandler().importPackage("java.util");
         var valueExpression = factory.createValueExpression(context, "${Collections.EMPTY_LIST}", List.class);
-        assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
+        // StaticFieldELResolver is read-only, so it always returns null if found
+        assertNull(valueExpression.getType(context));
+        assertTrue(context.isPropertyResolved());
     }
 
     @Test
@@ -123,7 +130,9 @@ class GetTypeTest {
         var factory = ExpressionFactory.newInstance();
         var context = new StandardELContext(factory);
         var valueExpression = factory.createValueExpression(context, "${true ? Integer.MAX_VALUE : 3.0}", int.class);
-        assertEquals(valueExpression.getExpectedType(), valueExpression.getType(context));
+        // StaticFieldELResolver is read-only, so it always returns null if found
+        assertNull(valueExpression.getType(context));
+        assertTrue(context.isPropertyResolved());
     }
 
     @Test
