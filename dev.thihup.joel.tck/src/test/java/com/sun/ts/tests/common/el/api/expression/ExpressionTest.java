@@ -106,7 +106,7 @@ public class ExpressionTest {
         // setValue()
         try {
             vexp.setValue(context, "blue");
-            String newValue = (String) vexp.getValue(context);
+            String newValue = vexp.getValue(context);
             if (expectedReadOnly) {
                 pass = false;
                 buf.append("setValue() succeeded on a read-only value" + NLINE);

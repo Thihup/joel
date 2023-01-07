@@ -5,7 +5,7 @@ import jakarta.el.ELContext;
 public record OrNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
-        if ((boolean) context.convertToType(left.getValue(context), boolean.class))
+        if (context.convertToType(left.getValue(context), boolean.class))
             return true;
         return context.convertToType(right.getValue(context), boolean.class);
     }

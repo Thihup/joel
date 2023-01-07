@@ -8,9 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ELProcessorTest {
 
@@ -65,7 +64,7 @@ class ELProcessorTest {
     void nullTest(String expression) {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.setValue("b", null);
-        assertEquals(0L, elProcessor.eval(expression));
+        assertEquals(0L, (Long) elProcessor.eval(expression));
     }
 
     @Test

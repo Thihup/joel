@@ -20,10 +20,10 @@ public sealed interface Operation {
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
                 case ZERO -> 0L;
-                case BIG_DECIMAL -> ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).add((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
-                case BIG_INTEGER -> ((BigInteger) context.convertToType(leftValue, BigInteger.class)).add((BigInteger) context.convertToType(rightValue, BigInteger.class));
-                case DOUBLE -> ((Double) context.convertToType(leftValue, Double.class)) + ((Double) context.convertToType(rightValue, Double.class));
-                case LONG -> ((Long) context.convertToType(leftValue, Long.class)) + ((Long) context.convertToType(rightValue, Long.class));
+                case BIG_DECIMAL -> context.convertToType(leftValue, BigDecimal.class).add(context.convertToType(rightValue, BigDecimal.class));
+                case BIG_INTEGER -> context.convertToType(leftValue, BigInteger.class).add(context.convertToType(rightValue, BigInteger.class));
+                case DOUBLE -> context.convertToType(leftValue, Double.class) + context.convertToType(rightValue, Double.class);
+                case LONG -> context.convertToType(leftValue, Long.class) + context.convertToType(rightValue, Long.class);
             };
         }
     }
@@ -33,10 +33,10 @@ public sealed interface Operation {
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
                 case ZERO -> 0L;
-                case BIG_DECIMAL -> ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).subtract((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
-                case BIG_INTEGER -> ((BigInteger) context.convertToType(leftValue, BigInteger.class)).subtract((BigInteger) context.convertToType(rightValue, BigInteger.class));
-                case DOUBLE -> ((Double) context.convertToType(leftValue, Double.class)) - ((Double) context.convertToType(rightValue, Double.class));
-                case LONG -> ((Long) context.convertToType(leftValue, Long.class)) - ((Long) context.convertToType(rightValue, Long.class));
+                case BIG_DECIMAL -> context.convertToType(leftValue, BigDecimal.class).subtract(context.convertToType(rightValue, BigDecimal.class));
+                case BIG_INTEGER -> context.convertToType(leftValue, BigInteger.class).subtract(context.convertToType(rightValue, BigInteger.class));
+                case DOUBLE -> context.convertToType(leftValue, Double.class) - context.convertToType(rightValue, Double.class);
+                case LONG -> context.convertToType(leftValue, Long.class) - context.convertToType(rightValue, Long.class);
             };
         }
     }
@@ -46,10 +46,10 @@ public sealed interface Operation {
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
                 case ZERO -> 0L;
-                case BIG_DECIMAL -> ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).multiply((BigDecimal) context.convertToType(rightValue, BigDecimal.class));
-                case BIG_INTEGER -> ((BigInteger) context.convertToType(leftValue, BigInteger.class)).multiply((BigInteger) context.convertToType(rightValue, BigInteger.class));
-                case DOUBLE -> ((Double) context.convertToType(leftValue, Double.class)) * ((Double) context.convertToType(rightValue, Double.class));
-                case LONG -> ((Long) context.convertToType(leftValue, Long.class)) * ((Long) context.convertToType(rightValue, Long.class));
+                case BIG_DECIMAL -> context.convertToType(leftValue, BigDecimal.class).multiply(context.convertToType(rightValue, BigDecimal.class));
+                case BIG_INTEGER -> context.convertToType(leftValue, BigInteger.class).multiply(context.convertToType(rightValue, BigInteger.class));
+                case DOUBLE -> context.convertToType(leftValue, Double.class) * context.convertToType(rightValue, Double.class);
+                case LONG -> context.convertToType(leftValue, Long.class) * context.convertToType(rightValue, Long.class);
             };
         }
     }
@@ -59,8 +59,8 @@ public sealed interface Operation {
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
                 case ZERO -> 0L;
-                case BIG_DECIMAL, BIG_INTEGER -> ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).divide((BigDecimal) context.convertToType(rightValue, BigDecimal.class), RoundingMode.HALF_UP);
-                case DOUBLE, LONG -> ((Double) context.convertToType(leftValue, Double.class)) / ((Double) context.convertToType(rightValue, Double.class));
+                case BIG_DECIMAL, BIG_INTEGER -> context.convertToType(leftValue, BigDecimal.class).divide(context.convertToType(rightValue, BigDecimal.class), RoundingMode.HALF_UP);
+                case DOUBLE, LONG -> context.convertToType(leftValue, Double.class) / context.convertToType(rightValue, Double.class);
             };
         }
     }
@@ -70,9 +70,9 @@ public sealed interface Operation {
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
                 case ZERO -> 0L;
-                case DOUBLE, BIG_DECIMAL -> ((Double) context.convertToType(leftValue, Double.class)) % ((Double) context.convertToType(rightValue, Double.class));
-                case BIG_INTEGER -> ((BigInteger) context.convertToType(leftValue, BigInteger.class)).remainder((BigInteger) context.convertToType(rightValue, BigInteger.class));
-                case LONG -> ((Long) context.convertToType(leftValue, Long.class)) % ((Long) context.convertToType(rightValue, Long.class));
+                case DOUBLE, BIG_DECIMAL -> context.convertToType(leftValue, Double.class) % context.convertToType(rightValue, Double.class);
+                case BIG_INTEGER -> context.convertToType(leftValue, BigInteger.class).remainder(context.convertToType(rightValue, BigInteger.class));
+                case LONG -> context.convertToType(leftValue, Long.class) % context.convertToType(rightValue, Long.class);
             };
         }
     }

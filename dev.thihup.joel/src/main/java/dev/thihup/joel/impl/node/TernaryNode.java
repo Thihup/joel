@@ -6,7 +6,7 @@ public record TernaryNode(Node condition, Node trueExpression,
                           Node falseExpression) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
-        if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {
+        if (context.convertToType(condition.getValue(context), boolean.class)) {
             return trueExpression.getType(context);
         }
         return falseExpression.getType(context);
@@ -14,7 +14,7 @@ public record TernaryNode(Node condition, Node trueExpression,
 
     @Override
     public Object getValue(ELContext context) {
-        if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {
+        if (context.convertToType(condition.getValue(context), boolean.class)) {
             return trueExpression.getValue(context);
         }
         return falseExpression.getValue(context);

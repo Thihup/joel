@@ -16,19 +16,19 @@ public record LessThanNode(Node left, Node right) implements RelationalNode {
             return false;
         }
         if (leftValue instanceof BigDecimal || rightValue instanceof BigDecimal) {
-            return ((BigDecimal) context.convertToType(leftValue, BigDecimal.class)).compareTo((BigDecimal) context.convertToType(rightValue, BigDecimal.class)) < 0;
+            return context.convertToType(leftValue, BigDecimal.class).compareTo(context.convertToType(rightValue, BigDecimal.class)) < 0;
         }
         if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
-            return ((BigInteger) context.convertToType(leftValue, BigInteger.class)).compareTo((BigInteger) context.convertToType(rightValue, BigInteger.class)) < 0;
+            return context.convertToType(leftValue, BigInteger.class).compareTo(context.convertToType(rightValue, BigInteger.class)) < 0;
         }
         if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
-            return ((Double) context.convertToType(leftValue, Double.class)).compareTo((Double) context.convertToType(rightValue, Double.class)) < 0;
+            return context.convertToType(leftValue, Double.class).compareTo(context.convertToType(rightValue, Double.class)) < 0;
         }
         if (leftValue instanceof Number || rightValue instanceof Number) {
-            return (Long) context.convertToType(leftValue, Long.class) < (Long) context.convertToType(rightValue, Long.class);
+            return context.convertToType(leftValue, Long.class) < context.convertToType(rightValue, Long.class);
         }
         if (leftValue instanceof String || rightValue instanceof String) {
-            return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) < 0;
+            return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) < 0;
         }
         if (leftValue instanceof Comparable comparable) {
             return comparable.compareTo(rightValue) < 0;

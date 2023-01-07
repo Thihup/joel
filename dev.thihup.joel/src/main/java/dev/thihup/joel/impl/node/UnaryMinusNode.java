@@ -26,9 +26,9 @@ public record UnaryMinusNode(Node node) implements Node {
         }
         if (value instanceof String asString) {
             if (Utils.isFloatingPointNumber(asString)) {
-                return -(Double) context.convertToType(asString, Double.class);
+                return -context.convertToType(asString, Double.class);
             }
-            return -(Long) context.convertToType(asString, Long.class);
+            return -context.convertToType(asString, Long.class);
         }
         if (value instanceof Long asLong) {
             return -asLong;

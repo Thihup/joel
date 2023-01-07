@@ -25,7 +25,7 @@ public final class JoelExpressionFactory extends ExpressionFactory {
     }
 
     @Override
-    public Object coerceToType(Object object, Class<?> targetType) {
+    public <T> T coerceToType(Object object, Class<T> targetType) {
         try {
             return TypeConverter.coerce(object, targetType);
         } catch (Exception rootCause) {

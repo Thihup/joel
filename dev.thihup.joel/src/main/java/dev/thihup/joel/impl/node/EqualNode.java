@@ -40,7 +40,7 @@ public record EqualNode(Node left, Node right) implements RelationalNode {
             return equalsFunction.test(context.convertToType(leftValue, rightValue.getClass()), context.convertToType(rightValue, rightValue.getClass()));
         }
         if (leftValue instanceof String || rightValue instanceof String) {
-            return ((String) context.convertToType(leftValue, String.class)).compareTo((String) context.convertToType(rightValue, String.class)) == 0;
+            return context.convertToType(leftValue, String.class).compareTo(context.convertToType(rightValue, String.class)) == 0;
         }
         return leftValue.equals(rightValue);
     }

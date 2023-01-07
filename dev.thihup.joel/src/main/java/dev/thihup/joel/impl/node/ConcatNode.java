@@ -10,7 +10,7 @@ public record ConcatNode(Node left, Node right) implements InfixExpressionNode {
 
     @Override
     public Object getValue(ELContext context) {
-        return (String) context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
+        return context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
     }
 
     @Override
