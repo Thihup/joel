@@ -41,9 +41,9 @@
                     <includes>
                         <include>**/ELClient.java</include>
                     </includes>
-                    <systemProperties>
+                    <systemPropertyVariables>
                         <variable.mapper>dev.thihup.joel.impl.mapper.JoelVariableMapper</variable.mapper>
-                    </systemProperties>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
