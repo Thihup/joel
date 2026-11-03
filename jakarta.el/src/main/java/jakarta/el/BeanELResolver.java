@@ -292,17 +292,19 @@ public class BeanELResolver extends ELResolver {
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         Objects.requireNonNull(context);
-        Objects.requireNonNull(context);
         if (base == null || property == null)
             return false;
-        if (readyOnly)
-            throw new PropertyNotWritableException();
         Class<?> aClass = base.getClass();
         addReads(aClass);
-        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(property.toString()))
+        var propertyName = property.toString();
+        boolean readable = BeansLinker.getReadableInstancePropertyNames(aClass).contains(propertyName);
+        boolean writable = BeansLinker.getWritableInstancePropertyNames(aClass).contains(propertyName);
+        if (!readable && !writable)
             throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, base.getClass()));
         context.setPropertyResolved(base, property);
-        return !BeansLinker.getWritableInstancePropertyNames(aClass).contains(property.toString());
+        if (readyOnly)
+            return true;
+        return !writable;
     }
 
     /**
@@ -435,8 +437,12 @@ public class BeanELResolver extends ELResolver {
         Class<?> aClass = base.getClass();
         addReads(aClass);
         var propertyName = property.toString();
-        if (!BeansLinker.getReadableInstancePropertyNames(aClass).contains(propertyName))
+        boolean readable = BeansLinker.getReadableInstancePropertyNames(aClass).contains(propertyName);
+        boolean writable = BeansLinker.getWritableInstancePropertyNames(aClass).contains(propertyName);
+        if (!readable && !writable)
             throw new PropertyNotFoundException("Property %s not found in %s".formatted(property, base.getClass()));
+        if (!writable)
+            throw new PropertyNotWritableException("Property %s is not writable in %s".formatted(property, base.getClass()));
 
         context.setPropertyResolved(base, property);
         try {
