@@ -101,7 +101,7 @@ public abstract class ELResolver {
      * @return object converted to <code>targetType</code>
      * @throws ELException thrown if errors occur.
      */
-    public Object convertToType(ELContext context, Object object, Class<?> targetType) {
+    public <T> T convertToType(ELContext context, Object object, Class<T> targetType) {
         return null;
     }
 
@@ -206,7 +206,10 @@ public abstract class ELResolver {
      * are too complex to represent with this method
      * @see java.beans.FeatureDescriptor
      */
-    public abstract Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base);
+    @Deprecated(forRemoval = true, since = "5.0")
+    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
+        return null;
+    }
 
     /**
      * For a given <code>base</code> and <code>property</code>, attempts to identify the most general type that is

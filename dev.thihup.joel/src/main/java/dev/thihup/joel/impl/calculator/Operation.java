@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
+@SuppressWarnings("cast")
 public sealed interface Operation {
     Operation ADDITION = new Addition();
     Operation SUBTRACTION = new Subtraction();

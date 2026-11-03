@@ -2,6 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
+@SuppressWarnings("cast")
 public record ConcatNode(Node left, Node right) implements InfixExpressionNode {
     @Override
     public Class<?> getType(ELContext context) {

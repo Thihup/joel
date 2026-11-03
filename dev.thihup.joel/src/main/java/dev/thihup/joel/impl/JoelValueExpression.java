@@ -59,13 +59,14 @@ public final class JoelValueExpression extends ValueExpression {
     }
 
     @Override
-    public Object getValue(ELContext context) {
+    @SuppressWarnings("unchecked")
+    public <T> T getValue(ELContext context) {
         try {
             context.notifyBeforeEvaluation(expression);
             if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                return context.convertToType(lambdaNode.expression().getValue(context), expectedType);
+                return (T) context.convertToType(lambdaNode.expression().getValue(context), expectedType);
             }
-            return context.convertToType(node.getValue(context), expectedType);
+            return (T) context.convertToType(node.getValue(context), expectedType);
         } finally {
             context.notifyAfterEvaluation(expression);
         }

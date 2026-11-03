@@ -107,6 +107,8 @@ public class ELClient {
             buf.append("getType() did not resolve" + TestUtil.NEW_LINE);
             pass = false;
 
+        } else if (type == null) {
+            buf.append("getType() returned null as expected." + TestUtil.NEW_LINE);
         } else if (type.isInstance(String.class)) {
             buf.append("getType() returns " + type.getName() + TestUtil.NEW_LINE
                     + "as expected." + TestUtil.NEW_LINE);

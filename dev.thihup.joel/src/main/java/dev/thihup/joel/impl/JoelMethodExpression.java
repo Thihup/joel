@@ -3,17 +3,20 @@ package dev.thihup.joel.impl;
 import dev.thihup.joel.impl.node.MemberNode;
 import dev.thihup.joel.impl.node.Node;
 import dev.thihup.joel.impl.node.StringNode;
+import dev.thihup.joel.impl.node.CallExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.MethodNotFoundException;
+import jakarta.el.MethodReference;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +30,7 @@ public final class JoelMethodExpression extends MethodExpression {
     private final Class<?> expectedReturnType;
     private final Class<?>[] expectedParameterTypes;
     private final String expression;
+    private transient MethodInfo resolvedMethodInfo;
 
     private JoelMethodExpression(String expression, Node node, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
         this.expression = expression;
@@ -53,18 +57,46 @@ public final class JoelMethodExpression extends MethodExpression {
     public MethodInfo getMethodInfo(ELContext context) {
         if (node instanceof StringNode stringLiteral)
             return new MethodInfo(stringLiteral.value(), expectedReturnType, expectedParameterTypes);
+        if (node instanceof CallExpressionNode) {
+            MethodTarget target = resolveMethodReference(context);
+            if (resolvedMethodInfo == null) {
+                resolvedMethodInfo = new MethodInfo(target.method().getName(), target.method().getReturnType(),
+                        target.method().getParameterTypes());
+            }
+            return resolvedMethodInfo;
+        }
         if (node instanceof MemberNode memberNode) {
             var valueReference = memberNode.valueReference(context);
+            Object base = valueReference.getBase();
+            var property = valueReference.getProperty().toString();
             try {
-                Object base = valueReference.getBase();
-                var property = valueReference.getProperty().toString();
                 var method = base.getClass().getMethod(property, expectedParameterTypes);
-                return new MethodInfo(property, method.getReturnType(), method.getParameterTypes());
+                if (resolvedMethodInfo == null) {
+                    resolvedMethodInfo = new MethodInfo(property, method.getReturnType(), method.getParameterTypes());
+                }
+                return resolvedMethodInfo;
             } catch (NoSuchMethodException noSuchMethodException) {
                 throw new MethodNotFoundException(noSuchMethodException);
             }
         }
-        return null;
+        throw new MethodNotFoundException(expression);
+    }
+
+    @Override
+    public MethodReference getMethodReference(ELContext context) {
+        Objects.requireNonNull(context);
+        if (node instanceof StringNode) {
+            return super.getMethodReference(context);
+        }
+        MethodTarget target = resolveMethodReference(context);
+        if (target == null) {
+            return null;
+        }
+        Object[] parameters = target.evaluatedArguments();
+        Method method = target.method();
+        return new MethodReference(target.base(),
+                getMethodInfo(context),
+                method.getAnnotations(), parameters);
     }
 
     @Override
@@ -73,6 +105,14 @@ public final class JoelMethodExpression extends MethodExpression {
             context.notifyBeforeEvaluation(expression);
             if (node instanceof StringNode stringLiteral) {
                 return context.convertToType(stringLiteral.value(), expectedReturnType);
+            }
+            if (node instanceof CallExpressionNode) {
+                MethodTarget target = resolveMethodReference(context);
+                try {
+                    return target.method().invoke(target.base(), target.arguments());
+                } catch (IllegalAccessException | InvocationTargetException exception) {
+                    throw new ELException(exception);
+                }
             }
             if (node instanceof MemberNode memberNode) {
                 var valueReference = memberNode.valueReference(context);
@@ -93,15 +133,107 @@ public final class JoelMethodExpression extends MethodExpression {
         }
     }
 
+    private MethodTarget resolveMethodReference(ELContext context) {
+        if (!(node instanceof CallExpressionNode call)
+                || !(call.callee() instanceof MemberNode memberNode)) {
+            throw new MethodNotFoundException(expression);
+        }
+
+        var valueReference = memberNode.valueReference(context);
+        Object base = valueReference.getBase();
+        if (base == null) {
+            throw new jakarta.el.PropertyNotFoundException("Base object is null");
+        }
+        String property = valueReference.getProperty().toString();
+        Object[] originalArguments = call.arguments().stream()
+                .map(argument -> argument.getValue(context)).toArray();
+        MethodTarget best = null;
+        for (Method method : base.getClass().getMethods()) {
+            if (!method.getName().equals(property)) {
+                continue;
+            }
+            MethodTarget candidate = match(base, method, originalArguments, context);
+            if (candidate != null && (best == null || candidate.score() < best.score())) {
+                best = candidate;
+            } else if (candidate != null && candidate.score() == best.score()) {
+                throw new MethodNotFoundException("Ambiguous method: " + property);
+            }
+        }
+        if (best == null) {
+            throw new MethodNotFoundException(property);
+        }
+        return best;
+    }
+
+    private MethodTarget match(Object base, Method method, Object[] arguments, ELContext context) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        boolean varargs = method.isVarArgs();
+        if ((!varargs && parameterTypes.length != arguments.length)
+                || (varargs && arguments.length < parameterTypes.length - 1)) {
+            return null;
+        }
+        Object[] converted = new Object[arguments.length];
+        int score = varargs ? 100 : 0;
+        for (int i = 0; i < arguments.length; i++) {
+            Class<?> targetType = varargs && i >= parameterTypes.length - 1
+                    ? parameterTypes[parameterTypes.length - 1].getComponentType()
+                    : parameterTypes[i];
+            Object argument = arguments[i];
+            if (argument == null) {
+                if (targetType.isPrimitive()) {
+                    return null;
+                }
+                converted[i] = null;
+                continue;
+            }
+            Class<?> argumentType = argument.getClass();
+            if (wrap(targetType).equals(argumentType)) {
+                converted[i] = argument;
+            } else if (wrap(targetType).isAssignableFrom(argumentType)) {
+                converted[i] = argument;
+                score++;
+            } else {
+                try {
+                    converted[i] = context.convertToType(argument, targetType);
+                    score += 10;
+                } catch (RuntimeException exception) {
+                    return null;
+                }
+            }
+        }
+        if (varargs) {
+            Object array = java.lang.reflect.Array.newInstance(
+                    parameterTypes[parameterTypes.length - 1].getComponentType(),
+                    arguments.length - parameterTypes.length + 1);
+            for (int i = parameterTypes.length - 1; i < arguments.length; i++) {
+                java.lang.reflect.Array.set(array, i - parameterTypes.length + 1, converted[i]);
+            }
+            Object[] invocationArguments = Arrays.copyOf(converted, parameterTypes.length);
+            invocationArguments[parameterTypes.length - 1] = array;
+            converted = invocationArguments;
+        }
+        return new MethodTarget(base, method, converted, score, arguments);
+    }
+
+        private static Class<?> wrap(Class<?> type) {
+            if (!type.isPrimitive()) return type;
+            if (type == boolean.class) return Boolean.class;
+            if (type == byte.class) return Byte.class;
+            if (type == short.class) return Short.class;
+            if (type == int.class) return Integer.class;
+            if (type == long.class) return Long.class;
+            if (type == float.class) return Float.class;
+            if (type == double.class) return Double.class;
+            if (type == char.class) return Character.class;
+            return type;
+        }
+
+        private record MethodTarget(Object base, Method method, Object[] arguments, int score, Object[] evaluatedArguments) {
+        }
+
     @Override
     public boolean isParametersProvided() {
         return super.isParametersProvided();
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean isParmetersProvided() {
-        return isParametersProvided();
     }
 
     @Override

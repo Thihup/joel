@@ -83,6 +83,19 @@ public abstract class MethodExpression extends Expression {
     public abstract Object invoke(ELContext context, Object[] params);
 
     /**
+     * Resolves this expression and returns information about the referenced method.
+     *
+     * @param context The context of this evaluation
+     * @return information about the referenced method, or {@code null} if unavailable
+     * @since Jakarta Expression Language 5.0
+     */
+    public MethodReference getMethodReference(ELContext context) {
+        context.notifyBeforeEvaluation(getExpressionString());
+        context.notifyAfterEvaluation(getExpressionString());
+        return null;
+    }
+
+    /**
      * Return whether this MethodExpression was created with parameters.
      *
      * <p>
@@ -94,16 +107,6 @@ public abstract class MethodExpression extends Expression {
      */
     public boolean isParametersProvided() {
         return false;
-    }
-
-    /**
-     * Use isParametersProvided instead.
-     *
-     * @return <code>true</code> if the MethodExpression was created with parameters, <code>false</code> otherwise.
-     */
-    @Deprecated
-    public boolean isParmetersProvided() {
-        return isParametersProvided();
     }
 
 }

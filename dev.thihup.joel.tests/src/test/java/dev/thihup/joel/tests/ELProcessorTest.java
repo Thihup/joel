@@ -65,7 +65,7 @@ class ELProcessorTest {
     void nullTest(String expression) {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.setValue("b", null);
-        assertEquals(0L, elProcessor.eval(expression));
+        assertEquals(0L, elProcessor.<Object>eval(expression));
     }
 
     @Test

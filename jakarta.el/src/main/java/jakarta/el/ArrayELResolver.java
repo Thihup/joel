@@ -27,6 +27,7 @@ import java.util.Objects;
  * @see ELResolver
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class ArrayELResolver extends ELResolver {
     private final boolean readyOnly;
 
@@ -80,6 +81,7 @@ public class ArrayELResolver extends ELResolver {
      * @return <code>null</code>.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
     }

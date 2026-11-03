@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+@SuppressWarnings({"cast", "removal"})
 public final class StreamELResolver extends ELResolver {
     private static final MethodHandle LAMBDA_IMPL_WITH_RETURN;
     private static final MethodHandle LAMBDA_IMPL_WITHOUT_RETURN;

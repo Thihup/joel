@@ -13,6 +13,7 @@ public sealed interface Node extends Serializable
         IdentifierNode,
         LambdaNode,
         ListNode,
+        MapNode,
         MemberNode,
         NullNode,
         NumberNode,

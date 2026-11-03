@@ -12,6 +12,7 @@ import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
@@ -54,6 +55,7 @@ import java.util.Objects;
  * @see ELResolver
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class BeanELResolver extends ELResolver {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     private static final Module THIS_MODULE = BeanELResolver.class.getModule();
@@ -154,6 +156,7 @@ public class BeanELResolver extends ELResolver {
      * property on this bean, or <code>null</code> if the <code>base</code> object is <code>null</code>.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         if (base == null)
             return null;
@@ -199,6 +202,9 @@ public class BeanELResolver extends ELResolver {
         try {
             var result = INVOKE_GETTER.invokeExact(base, property.toString());
             context.setPropertyResolved(base, property);
+            if (!BeansLinker.getWritableInstancePropertyNames(aClass).contains(property.toString())) {
+                return null;
+            }
             if (result != null)
                 return result.getClass();
             return null;
@@ -358,6 +364,23 @@ public class BeanELResolver extends ELResolver {
             var paramsLength = (params == null) ? 0 : params.length;
             if (paramsLength == 0) {
                 return INVOKE_CALL_NO_ARGS.invokeExact(o, base);
+            }
+            if (parameterTypes == null) {
+                for (Method method : aClass.getMethods()) {
+                    if (!method.getName().equals(methodName.toString())
+                            || method.getParameterCount() != paramsLength) {
+                        continue;
+                    }
+                    Object[] converted = new Object[paramsLength];
+                    try {
+                        for (int i = 0; i < paramsLength; i++) {
+                            converted[i] = context.convertToType(params[i], method.getParameterTypes()[i]);
+                        }
+                        return method.invoke(base, converted);
+                    } catch (IllegalArgumentException | ReflectiveOperationException ignored) {
+                        // Try the next overload.
+                    }
+                }
             }
             var callSiteDescriptor = new CallSiteDescriptor(LOOKUP, StandardOperation.CALL, MethodType.genericMethodType(2 + paramsLength));
             return LINKER.link(new ChainedCallSite(callSiteDescriptor))

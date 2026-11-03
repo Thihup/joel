@@ -2,6 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
+@SuppressWarnings("cast")
 public record AndNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {

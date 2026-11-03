@@ -29,6 +29,7 @@ import dev.thihup.joel.impl.node.LambdaNode;
 import dev.thihup.joel.impl.node.LessEqualNode;
 import dev.thihup.joel.impl.node.LessThanNode;
 import dev.thihup.joel.impl.node.ListNode;
+import dev.thihup.joel.impl.node.MapNode;
 import dev.thihup.joel.impl.node.MemberNode;
 import dev.thihup.joel.impl.node.ModExpressionNode;
 import dev.thihup.joel.impl.node.MulExpressionNode;
@@ -45,6 +46,8 @@ import dev.thihup.joel.impl.node.UnaryMinusNode;
 import jakarta.el.ELException;
 
 import java.util.Collections;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Objects;
 
@@ -234,6 +237,25 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
                 .stream()
                 .map(this::visit)
                 .toList());
+    }
+
+    @Override
+    public Node visitMapExpression(ExpressionLanguageParser.MapExpressionContext ctx) {
+        if (ctx.mapEntries() == null) {
+            return new MapNode(Collections.emptyList());
+        }
+        List<Map.Entry<Node, Node>> entries = ctx.mapEntries().mapEntry().stream()
+                .<Map.Entry<Node, Node>>map(entry -> {
+                    if (entry.QUALIFIED_FUNCTION() != null) {
+                        String[] parts = entry.QUALIFIED_FUNCTION().getText().split(":", 2);
+                        return new AbstractMap.SimpleImmutableEntry<Node, Node>(
+                                new IdentifierNode(parts[0]), new IdentifierNode(parts[1]));
+                    }
+                    return new AbstractMap.SimpleImmutableEntry<Node, Node>(
+                            visit(entry.mapKey()), visit(entry.expression()));
+                })
+                .toList();
+        return new MapNode(entries);
     }
 
     @Override

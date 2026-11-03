@@ -27,6 +27,7 @@ import java.util.Objects;
  *
  * @since Jakarta Expression Language 3.0
  */
+@SuppressWarnings("removal")
 public class BeanNameELResolver extends ELResolver {
 
     private final BeanNameResolver beanNameResolver;
@@ -60,6 +61,7 @@ public class BeanNameELResolver extends ELResolver {
      * @return <code>null</code>.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
     }

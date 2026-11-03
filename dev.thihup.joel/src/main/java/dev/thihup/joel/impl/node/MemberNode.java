@@ -11,9 +11,22 @@ public record MemberNode(Node object, Node property) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         if (property instanceof IdentifierNode node)
-            return context.getELResolver().getType(context, new ELClass(object.getType(context)), node.value());
+            return resolveType(context, node.value());
 
-        return context.getELResolver().getType(context, new ELClass(object.getType(context)), property.getValue(context));
+        return resolveType(context, property.getValue(context));
+    }
+
+    private Class<?> resolveType(ELContext context, Object property) {
+        Class<?> type = context.getELResolver().getType(context, new ELClass(object.getType(context)), property);
+        if (type == null && object instanceof IdentifierNode identifier && property instanceof String name) {
+            try {
+                Class<?> baseClass = context.getImportHandler().resolveClass(identifier.value());
+                return baseClass.getDeclaredField(name).getType();
+            } catch (NoSuchFieldException ignored) {
+                return null;
+            }
+        }
+        return type;
     }
 
     @Override

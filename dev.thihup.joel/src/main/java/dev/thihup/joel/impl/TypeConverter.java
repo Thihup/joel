@@ -3,6 +3,7 @@ package dev.thihup.joel.impl;
 import jakarta.el.ELException;
 
 import java.beans.PropertyEditorManager;
+import java.lang.reflect.Array;
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,6 +36,17 @@ public final class TypeConverter {
     private static Object coerceImplementation(Object object, Class<?> targetType) {
         if (object == null)
             return null;
+        if (targetType.isArray()) {
+            if (!object.getClass().isArray()) {
+                throw new ELException(CANNOT_CONVERT_TO.formatted(object, targetType));
+            }
+            int length = Array.getLength(object);
+            Object result = Array.newInstance(targetType.getComponentType(), length);
+            for (int i = 0; i < length; i++) {
+                Array.set(result, i, coerce(Array.get(object, i), targetType.getComponentType()));
+            }
+            return result;
+        }
         return switch (targetType.getName()) {
             case "java.lang.String" -> coerceToString(object);
             case "java.lang.Boolean" -> coerceToBoolean(object);
