@@ -72,7 +72,7 @@
                                 </path>
                                 <pathconvert property="el.classes.value"
                                     refid="el.classes.path"
-                                    pathsep=";"
+                                    pathsep="${pathsep}"
                                     dirsep="/"/>
 
                                 <!-- setup ts.jte -->
