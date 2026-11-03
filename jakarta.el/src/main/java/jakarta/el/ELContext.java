@@ -95,11 +95,11 @@ public abstract class ELContext {
      * @throws ELException thrown if errors occur.
      * @since Jakarta Expression Language 3.0
      */
-    public Object convertToType(Object object, Class<?> targetType) {
+    public <T> T convertToType(Object object, Class<T> targetType) {
         boolean isCurrentResolved = isPropertyResolved();
         setPropertyResolved(false);
         try {
-            Object t = getELResolver().convertToType(this, object, targetType);
+            T t = getELResolver().convertToType(this, object, targetType);
             if (isPropertyResolved())
                 return t;
         } finally {

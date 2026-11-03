@@ -166,7 +166,7 @@ public abstract class ExpressionFactory {
      * @return an object coerced to <code>targetType</code>
      * @throws ELException thrown if an error results from applying the conversion rules.
      */
-    public abstract Object coerceToType(Object object, Class<?> targetType);
+    public abstract <T> T coerceToType(Object object, Class<T> targetType);
 
     /**
      * Parses an expression into a {@link MethodExpression} for later evaluation. Use this method for expressions that refer

@@ -53,8 +53,13 @@ lambdaParameters
     | (LPAREN (IDENTIFIER ((COMMA IDENTIFIER)*))? RPAREN)
     ;
 
+mapKey
+    : IDENTIFIER
+    | literal
+    ;
 mapEntry
-    : expression COLON expression
+    : mapKey COLON expression
+    | QUALIFIED_FUNCTION
     ;
 mapEntries
     : mapEntry (COMMA mapEntry)*
@@ -85,7 +90,7 @@ expression
     | IDENTIFIER #identifierExpression
     | literal #literalExpr
     | LBRACK expressionList? RBRACK  #listExpression
-    | LCURL expressionList? RCURL #setExpression
     | LCURL mapEntries? RCURL #mapExpression
+    | LCURL expressionList? RCURL #setExpression
     | LPAREN expression RPAREN #parenExpression
     ;

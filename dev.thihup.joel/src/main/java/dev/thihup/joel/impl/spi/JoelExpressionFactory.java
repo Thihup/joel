@@ -25,7 +25,7 @@ public final class JoelExpressionFactory extends ExpressionFactory {
     }
 
     @Override
-    public Object coerceToType(Object object, Class<?> targetType) {
+    public <T> T coerceToType(Object object, Class<T> targetType) {
         try {
             return TypeConverter.coerce(object, targetType);
         } catch (Exception rootCause) {
@@ -35,11 +35,15 @@ public final class JoelExpressionFactory extends ExpressionFactory {
 
     @Override
     public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes) {
-        Objects.requireNonNull(expectedParamTypes);
         var parse = JoelExpressionParser.parse(expression);
+        if (expectedParamTypes == null
+                && !(parse instanceof CallExpressionNode)) {
+            throw new NullPointerException("expectedParamTypes");
+        }
         if (!(parse instanceof StringNode) && !(parse instanceof MemberNode) && !(parse instanceof IdentifierNode) && !(parse instanceof CallExpressionNode))
             throw new ELException("Invalid method expression: " + expression);
-        return JoelMethodExpression.newInstance(expression, parse, expectedReturnType, expectedParamTypes);
+        return JoelMethodExpression.newInstance(expression, parse, expectedReturnType,
+                expectedParamTypes == null ? new Class<?>[0] : expectedParamTypes);
     }
 
     @Override

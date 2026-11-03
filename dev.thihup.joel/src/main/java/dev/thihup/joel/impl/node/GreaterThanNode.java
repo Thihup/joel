@@ -6,6 +6,7 @@ import jakarta.el.ELException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@SuppressWarnings("cast")
 public record GreaterThanNode(Node left, Node right) implements RelationalNode {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})

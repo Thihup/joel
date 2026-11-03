@@ -7,6 +7,7 @@ import jakarta.el.ELException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@SuppressWarnings("cast")
 public record UnaryMinusNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {

@@ -26,6 +26,7 @@ import java.util.Iterator;
  *
  * @since Jakarta Expression Language 3.0
  */
+@SuppressWarnings("removal")
 public abstract class TypeConverter extends ELResolver {
 
     public TypeConverter() {
@@ -44,7 +45,7 @@ public abstract class TypeConverter extends ELResolver {
      * @throws ELException thrown if errors occur.
      */
     @Override
-    public abstract Object convertToType(ELContext context, Object object, Class<?> targetType);
+    public abstract <T> T convertToType(ELContext context, Object object, Class<T> targetType);
 
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
@@ -52,6 +53,7 @@ public abstract class TypeConverter extends ELResolver {
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
     }

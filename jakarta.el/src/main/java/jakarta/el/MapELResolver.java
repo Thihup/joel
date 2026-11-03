@@ -29,6 +29,7 @@ import java.util.Objects;
  * @see java.util.Map
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class MapELResolver extends ELResolver {
     private final boolean readyOnly;
 
@@ -99,6 +100,7 @@ public class MapELResolver extends ELResolver {
      * objects, each representing a key in this map, or <code>null</code> if the base object is not a map.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         if (!(base instanceof Map<?, ?>))
             return null;

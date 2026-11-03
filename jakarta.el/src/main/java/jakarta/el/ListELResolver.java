@@ -28,6 +28,7 @@ import java.util.Objects;
  * @see java.util.List
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class ListELResolver extends ELResolver {
     private final boolean readyOnly;
 
@@ -79,6 +80,7 @@ public class ListELResolver extends ELResolver {
      * @return <code>null</code>.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
     }

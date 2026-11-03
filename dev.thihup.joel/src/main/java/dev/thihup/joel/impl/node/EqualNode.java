@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.BiPredicate;
 
+@SuppressWarnings("cast")
 public record EqualNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {

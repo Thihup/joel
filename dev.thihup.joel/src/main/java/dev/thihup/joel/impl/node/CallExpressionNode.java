@@ -8,6 +8,8 @@ import jakarta.el.MethodNotFoundException;
 import java.io.Serial;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,10 @@ public final class CallExpressionNode implements Node {
                     .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
         }
         if (callee instanceof IdentifierNode identifierNode) {
+            if (context.getFunctionMapper() != null
+                    && context.getFunctionMapper().resolveFunction("", identifierNode.value()) != null) {
+                return resolveQualifiedFunction(context, identifierNode);
+            }
             if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
                 return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
             }
@@ -62,12 +68,14 @@ public final class CallExpressionNode implements Node {
 
     private Object resolveQualifiedFunction(ELContext context, IdentifierNode identifierNode) {
         var functionMapper = context.getFunctionMapper();
-        if (functionMapper == null || !identifierNode.value().contains(":")) {
+        if (functionMapper == null) {
             throw new UnsupportedOperationException();
         }
         var methodHandle = resolvedFunction.computeIfAbsent(identifierNode.value(), key -> {
-            String[] split = identifierNode.value().split(":");
-            var method = functionMapper.resolveFunction(split[0], split[1]);
+            String[] split = identifierNode.value().split(":", 2);
+            var method = split.length == 1
+                    ? functionMapper.resolveFunction("", split[0])
+                    : functionMapper.resolveFunction(split[0], split[1]);
             if (method == null) {
                 throw new UnsupportedOperationException();
             }
@@ -77,7 +85,7 @@ public final class CallExpressionNode implements Node {
                         "but it was supplied " + Arrays.toString(arguments.stream().map(x -> x.getValue(context)).toArray()));
 
             Object[] objects = IntStream.range(0, arguments.size())
-                    .mapToObj(x -> context.convertToType(arguments.get(x).getValue(context), method.getParameterTypes()[x]))
+                    .mapToObj(x -> convertArgument(context, arguments.get(x).getValue(context), method.getParameterTypes()[x]))
                     .toArray();
             try {
                 return MethodHandles.lookup().unreflect(method).asSpreader(0, Object[].class, 1).bindTo(objects);
@@ -92,6 +100,26 @@ public final class CallExpressionNode implements Node {
             sneakyThrow(exception);
         }
         throw new UnsupportedOperationException();
+    }
+
+    private static Object convertArgument(ELContext context, Object value, Class<?> targetType) {
+        if (value instanceof LambdaExpression lambda && targetType.isInterface()) {
+            Method abstractMethod = Arrays.stream(targetType.getMethods())
+                    .filter(candidate -> !candidate.isDefault() && candidate.getDeclaringClass() != Object.class)
+                    .findFirst()
+                    .orElseThrow(() -> new MethodNotFoundException("No functional method in " + targetType));
+            return Proxy.newProxyInstance(targetType.getClassLoader(), new Class<?>[]{targetType}, (proxy, method, args) -> {
+                if (method.equals(abstractMethod)) {
+                    Object result = lambda.invoke(context, args == null ? new Object[0] : args);
+                    return method.getReturnType() == void.class ? null : context.convertToType(result, method.getReturnType());
+                }
+                if (method.getDeclaringClass() == Object.class) {
+                    return method.invoke(lambda, args);
+                }
+                return method.isDefault() ? method.invoke(proxy, args) : null;
+            });
+        }
+        return context.convertToType(value, targetType);
     }
 
     @SuppressWarnings("unchecked")

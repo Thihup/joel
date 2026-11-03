@@ -19,6 +19,7 @@ import java.util.Objects;
  * @see ELClass
  * @since Jakarta Expression Language 3.0
  */
+@SuppressWarnings("removal")
 public class StaticFieldELResolver extends ELResolver {
 
     public StaticFieldELResolver() {
@@ -45,6 +46,7 @@ public class StaticFieldELResolver extends ELResolver {
      * @return <code>null</code>.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return null;
     }
@@ -78,7 +80,7 @@ public class StaticFieldELResolver extends ELResolver {
         try {
             Field declaredField = ((ELClass) base).getKlass().getDeclaredField((String) property);
             context.setPropertyResolved(base, property);
-            return declaredField.getType();
+            return null;
         } catch (NoSuchFieldException e) {
             return null;
         }

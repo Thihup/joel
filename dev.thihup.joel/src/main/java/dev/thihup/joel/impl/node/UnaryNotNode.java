@@ -2,6 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
+@SuppressWarnings("cast")
 public record UnaryNotNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {

@@ -11,6 +11,7 @@ import java.util.Map;
  *
  * @since Jakarta Expression Language 3.0
  */
+@SuppressWarnings("this-escape")
 public class StandardELContext extends ELContext {
 
     final BeanNameResolver localBeanRepository = new LocalBeanRepository();

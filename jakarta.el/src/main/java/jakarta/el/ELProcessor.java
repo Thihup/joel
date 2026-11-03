@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 /**
@@ -108,11 +109,19 @@ public class ELProcessor {
         Objects.requireNonNull(function);
         Objects.requireNonNull(className);
         Objects.requireNonNull(method);
-        Class<?> aClass = manager.getELContext().getImportHandler().resolveClass(className);
-        if (aClass == null)
-            throw new ClassNotFoundException("Class %s not found".formatted(className));
+        Class<?> aClass = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
         try {
-            manager.mapFunction(prefix, function, aClass.getMethod(method));
+            Method selected = null;
+            for (Method candidate : aClass.getMethods()) {
+                if (candidate.getName().equals(method) && Modifier.isStatic(candidate.getModifiers())) {
+                    selected = candidate;
+                    break;
+                }
+            }
+            if (selected == null) {
+                selected = aClass.getMethod(method);
+            }
+            manager.mapFunction(prefix, function.isEmpty() ? selected.getName() : function, selected);
         } catch (NoSuchMethodException e) {
             throw new ELException(e);
         }
@@ -124,8 +133,9 @@ public class ELProcessor {
      * @param expression The Jakarta Expression Language expression to be evaluated.
      * @return The result of the expression evaluation.
      */
-    public Object eval(String expression) {
-        return getValue(expression, Object.class);
+    @SuppressWarnings("unchecked")
+    public <T> T eval(String expression) {
+        return this.<T>getValue(expression, (Class<T>) Object.class);
     }
 
     /**
@@ -144,7 +154,7 @@ public class ELProcessor {
      * @param expectedType Specifies the type that the resultant evaluation will be coerced to.
      * @return The result of the expression evaluation.
      */
-    public Object getValue(String expression, Class<?> expectedType) {
+    public <T> T getValue(String expression, Class<T> expectedType) {
         ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
         if (factory == null) {
             factory = ExpressionFactory.newInstance();
@@ -186,6 +196,9 @@ public class ELProcessor {
      */
     public void setVariable(String variable, String expression) {
         ExpressionFactory factory = (ExpressionFactory) manager.getELContext().getContext(ExpressionFactory.class);
-        manager.setVariable(variable, factory.createValueExpression(manager.getELContext(), expression, Object.class));
+        String valueExpression = expression.startsWith("${") || expression.startsWith("#{")
+                ? expression
+                : "${" + expression + "}";
+        manager.setVariable(variable, factory.createValueExpression(manager.getELContext(), valueExpression, Object.class));
     }
 }

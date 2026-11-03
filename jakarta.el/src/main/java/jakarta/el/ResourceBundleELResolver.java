@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
  * @see java.util.ResourceBundle
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class ResourceBundleELResolver extends ELResolver {
 
     public ResourceBundleELResolver() {
@@ -77,6 +78,7 @@ public class ResourceBundleELResolver extends ELResolver {
      * objects, each representing a key in this bundle, or <code>null</code> if the base object is not a ResourceBundle.
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         if (!(base instanceof ResourceBundle))
             return null;

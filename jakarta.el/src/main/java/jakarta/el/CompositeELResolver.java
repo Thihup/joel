@@ -43,6 +43,7 @@ import java.util.stream.StreamSupport;
  * @see ELResolver
  * @since Jakarta Server Pages 2.1
  */
+@SuppressWarnings("removal")
 public class CompositeELResolver extends ELResolver {
 
     private final List<ELResolver> resolvers = new ArrayList<>();
@@ -114,6 +115,7 @@ public class CompositeELResolver extends ELResolver {
      * are too complex to represent with this method
      */
     @Override
+    @Deprecated(forRemoval = true, since = "5.0")
     public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
         return resolvers.stream()
                 .map(x -> x.getFeatureDescriptors(context, base))
@@ -421,10 +423,10 @@ public class CompositeELResolver extends ELResolver {
      * @since Jakarta Expression Language 3.0
      */
     @Override
-    public Object convertToType(ELContext context, Object object, Class<?> targetType) {
+    public <T> T convertToType(ELContext context, Object object, Class<T> targetType) {
         context.setPropertyResolved(false);
         for (ELResolver resolver : resolvers) {
-            Object o = resolver.convertToType(context, object, targetType);
+            T o = resolver.convertToType(context, object, targetType);
             if (context.isPropertyResolved()) {
                 return o;
             }
