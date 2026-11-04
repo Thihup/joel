@@ -14,9 +14,12 @@ public record ListNode(List<Node> values) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
-        return values.stream()
-                .map(x -> x.getValue(context))
-                .collect(Collectors.toCollection(ArrayList::new));
+        int size = values.size();
+        ArrayList<Object> result = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            result.add(values.get(i).getValue(context));
+        }
+        return result;
     }
 
     @Override

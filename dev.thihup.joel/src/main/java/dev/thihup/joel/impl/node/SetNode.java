@@ -15,9 +15,12 @@ public record SetNode(List<Node> values) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
-        return values.stream()
-                .map(x -> x.getValue(context))
-                .collect(Collectors.toCollection(HashSet::new));
+        int size = values.size();
+        HashSet<Object> result = new HashSet<>(size);
+        for (int i = 0; i < size; i++) {
+            result.add(values.get(i).getValue(context));
+        }
+        return result;
     }
 
     @Override

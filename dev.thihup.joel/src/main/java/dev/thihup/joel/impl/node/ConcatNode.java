@@ -9,9 +9,15 @@ public record ConcatNode(Node left, Node right) implements InfixExpressionNode {
         throw new UnsupportedOperationException();
     }
 
+    private static String toString(Object val, ELContext context) {
+        if (val instanceof String s) return s;
+        if (val == null) return "";
+        return (String) context.convertToType(val, String.class);
+    }
+
     @Override
     public Object getValue(ELContext context) {
-        return (String) context.convertToType(left.getValue(context), String.class) + context.convertToType(right.getValue(context), String.class);
+        return toString(left.getValue(context), context) + toString(right.getValue(context), context);
     }
 
     @Override

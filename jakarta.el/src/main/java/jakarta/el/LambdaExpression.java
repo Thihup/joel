@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 /**
  * Encapsulates a parameterized {@link ValueExpression}.
@@ -76,10 +75,16 @@ public class LambdaExpression {
         if (arguments.length < formalParameters.size())
             throw new ELException("Not enough arguments provided");
 
-        Map<String, Object> collect = IntStream.range(0, formalParameters.size())
-                .collect(() -> new HashMap<>(outerLambdaArguments),
-                        (map, value) -> map.put(formalParameters.get(value), arguments[value]),
-                        HashMap::putAll);
+        int paramCount = formalParameters.size();
+        Map<String, Object> collect;
+        if (outerLambdaArguments.isEmpty()) {
+            collect = new HashMap<>(paramCount);
+        } else {
+            collect = new HashMap<>(outerLambdaArguments);
+        }
+        for (int i = 0; i < paramCount; i++) {
+            collect.put(formalParameters.get(i), arguments[i]);
+        }
 
         try {
             elContext.enterLambdaScope(collect);

@@ -14,18 +14,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @SuppressWarnings("cast")
 public final class StreamELResolver extends ELResolver {
     private static final MethodHandle LAMBDA_IMPL_WITH_RETURN;
     private static final MethodHandle LAMBDA_IMPL_WITHOUT_RETURN;
-    private static final List<String> IGNORED_METHODS = List.of("equals", "hashCode", "toString");
     private static final Method[] STREAM_METHODS = Stream.class.getMethods();
 
     static {
@@ -115,9 +111,18 @@ public final class StreamELResolver extends ELResolver {
             }
 
             // sorted() / min() / max()
-            if (params != null && params.length != 0 && Arrays.stream(params).noneMatch(LambdaExpression.class::isInstance)) {
-                context.setPropertyResolved(base, method);
-                return method1.invoke(base, params);
+            if (params != null && params.length != 0) {
+                boolean hasLambda = false;
+                for (Object param : params) {
+                    if (param instanceof LambdaExpression) {
+                        hasLambda = true;
+                        break;
+                    }
+                }
+                if (!hasLambda) {
+                    context.setPropertyResolved(base, method);
+                    return method1.invoke(base, params);
+                }
             }
 
             // parameters of stream method
@@ -133,25 +138,18 @@ public final class StreamELResolver extends ELResolver {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Object executeOptionalOrElseGet(ELContext context, Object base, Object method, LambdaExpression lambda) {
-        try {
-            var orElseGet = Optional.class.getMethod("orElseGet", Supplier.class);
-            Supplier<?> lambdaFromLambdaExpression = (Supplier<?>) createLambdaFromLambdaExpression(context, lambda, Supplier.class, Supplier.class.getMethod("get"));
-            context.setPropertyResolved(base, method);
-            return orElseGet.invoke(base, lambdaFromLambdaExpression);
-        } catch (NoSuchMethodException noSuchMethodException) {
-            throw new MethodNotFoundException(noSuchMethodException);
-        } catch (Exception exception) {
-            throw new ELException(exception);
-        }
+        context.setPropertyResolved(base, method);
+        return ((Optional<Object>) base).orElseGet(() -> lambda.invoke(context));
     }
 
     private Object[] getArguments(ELContext context, Object[] currentParams, Class<?>[] parameterTypes1) {
         Object[] array = new Object[parameterTypes1.length];
         for (int x = 0; x < parameterTypes1.length; x++) {
             try {
-                array[x] = parameterTypes1[x].isInterface() ?
-                        createLambdaFromLambdaExpression(context, (LambdaExpression) currentParams[x], parameterTypes1[x], findMethodFromClass(parameterTypes1[x]))
+                array[x] = parameterTypes1[x].isInterface() && currentParams[x] instanceof LambdaExpression lambda ?
+                        createLambdaFromLambdaExpression(context, lambda, parameterTypes1[x], findMethodFromClass(parameterTypes1[x]))
                         : currentParams[x];
             } catch (NoSuchMethodException noSuchMethodException) {
                 throw new ELException(noSuchMethodException);
@@ -161,48 +159,89 @@ public final class StreamELResolver extends ELResolver {
     }
 
     private Method findMethod(Class<?>[] parameterTypes, String methodName, Object[] currentParams) throws NoSuchMethodException {
-        return Arrays.stream(STREAM_METHODS)
-                .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                .filter(x -> x.getName().equals(methodName))
-                .filter(x -> parameterTypes == null || Arrays.equals(parameterTypes, x.getParameterTypes()))
-                .filter(x -> currentParams == null || currentParams.length == x.getParameterCount())
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
+        int paramCount = currentParams == null ? 0 : currentParams.length;
+        for (Method m : STREAM_METHODS) {
+            if (!Modifier.isStatic(m.getModifiers())
+                    && m.getName().equals(methodName)
+                    && m.getParameterCount() == paramCount) {
+                if (parameterTypes == null || Arrays.equals(parameterTypes, m.getParameterTypes())) {
+                    return m;
+                }
+            }
+        }
+        throw new NoSuchMethodException(methodName);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Object createLambdaFromLambdaExpression(ELContext context, LambdaExpression lambdaExpression, Class<?> aClass, Method method) {
+        if (aClass == java.util.function.Predicate.class) {
+            return (java.util.function.Predicate<Object>) t -> {
+                Object res = lambdaExpression.invoke(context, t);
+                if (res instanceof Boolean b) return b;
+                return context.convertToType(res, Boolean.class);
+            };
+        }
+        if (aClass == java.util.function.Function.class) {
+            return (java.util.function.Function<Object, Object>) t -> lambdaExpression.invoke(context, t);
+        }
+        if (aClass == java.util.function.Consumer.class) {
+            return (java.util.function.Consumer<Object>) t -> lambdaExpression.invoke(context, t);
+        }
+        if (aClass == java.util.function.Supplier.class) {
+            return (java.util.function.Supplier<Object>) () -> lambdaExpression.invoke(context);
+        }
+        if (aClass == java.util.function.BinaryOperator.class || aClass == java.util.function.BiFunction.class) {
+            return (java.util.function.BinaryOperator<Object>) (t, u) -> lambdaExpression.invoke(context, t, u);
+        }
+        if (aClass == java.util.Comparator.class) {
+            return (java.util.Comparator<Object>) (t, u) -> {
+                Object res = lambdaExpression.invoke(context, t, u);
+                if (res instanceof Number n) return n.intValue();
+                return context.convertToType(res, Integer.class);
+            };
+        }
         if (method.getReturnType() == void.class)
             return MethodHandleProxies.asInterfaceInstance(aClass, LAMBDA_IMPL_WITHOUT_RETURN.bindTo(context).bindTo(lambdaExpression).asVarargsCollector(Object[].class));
         return MethodHandleProxies.asInterfaceInstance(aClass, LAMBDA_IMPL_WITH_RETURN.bindTo(method.getReturnType()).bindTo(context).bindTo(lambdaExpression).asVarargsCollector(Object[].class));
     }
 
     private Method findMethodFromClass(Class<?> klass) throws NoSuchMethodException {
-        return Arrays.stream(klass.getMethods())
-                .filter(x -> !x.isDefault())
-                .filter(x -> !Modifier.isStatic(x.getModifiers()))
-                .filter(x -> IGNORED_METHODS.stream().noneMatch(x.getName()::equals))
-                .findFirst()
-                .orElseThrow(NoSuchMethodException::new);
+        for (Method m : klass.getMethods()) {
+            if (!m.isDefault() && !Modifier.isStatic(m.getModifiers())) {
+                String name = m.getName();
+                if (!name.equals("equals") && !name.equals("hashCode") && !name.equals("toString")) {
+                    return m;
+                }
+            }
+        }
+        throw new NoSuchMethodException(klass.getName());
     }
 
     private Object executeSum(ELContext context, Stream<?> base) {
-        return base.mapToLong(x -> (Long) context.convertToType(x, Long.class)).sum();
+        return base.mapToLong(x -> {
+            if (x instanceof Long l) return l;
+            if (x instanceof Number n) return n.longValue();
+            return (Long) context.convertToType(x, Long.class);
+        }).sum();
     }
 
     private Object executeAverage(ELContext context, Stream<?> base) {
         // We need to return Optional instead of OptionalDouble because
         // the spec requires the method "get", but the OptionalDouble has
         // "getAsDouble"
-        long[] avg = base.mapToLong(x -> (Long) context.convertToType(x, Long.class))
-                .collect(() -> new long[2],
-                        (ll, i) -> {
-                            ll[0]++;
-                            ll[1] += i;
-                        },
-                        (ll, rr) -> {
-                            ll[0] += rr[0];
-                            ll[1] += rr[1];
-                        });
+        long[] avg = base.mapToLong(x -> {
+            if (x instanceof Long l) return l;
+            if (x instanceof Number n) return n.longValue();
+            return (Long) context.convertToType(x, Long.class);
+        }).collect(() -> new long[2],
+                (ll, i) -> {
+                    ll[0]++;
+                    ll[1] += i;
+                },
+                (ll, rr) -> {
+                    ll[0] += rr[0];
+                    ll[1] += rr[1];
+                });
         return avg[0] > 0
                 ? Optional.of((double) avg[1] / avg[0])
                 : Optional.empty();

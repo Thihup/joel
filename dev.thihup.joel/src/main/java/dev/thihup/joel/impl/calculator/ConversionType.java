@@ -19,19 +19,17 @@ enum ConversionType {
             return ConversionType.BIG_DECIMAL;
         }
 
-        if (leftValue instanceof String asString && Utils.isFloatingPointNumber(asString)) {
-            if (rightValue instanceof BigInteger) {
-                return ConversionType.BIG_DECIMAL;
-            }
-            return ConversionType.DOUBLE;
-        }
-        if (rightValue instanceof String asString && Utils.isFloatingPointNumber(asString)) {
-            if (leftValue instanceof BigInteger) {
-                return ConversionType.BIG_DECIMAL;
-            }
-            return ConversionType.DOUBLE;
-        }
         if (leftValue instanceof Float || leftValue instanceof Double || rightValue instanceof Float || rightValue instanceof Double) {
+            if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
+                return ConversionType.BIG_DECIMAL;
+            }
+            return ConversionType.DOUBLE;
+        }
+
+        boolean leftFloatString = leftValue instanceof String asString && Utils.isFloatingPointNumber(asString);
+        boolean rightFloatString = rightValue instanceof String asString && Utils.isFloatingPointNumber(asString);
+
+        if (leftFloatString || rightFloatString) {
             if (leftValue instanceof BigInteger || rightValue instanceof BigInteger) {
                 return ConversionType.BIG_DECIMAL;
             }

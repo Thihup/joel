@@ -14,11 +14,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class CallExpressionNode implements Node {
     @Serial
     private static final long serialVersionUID = 0L;
+    private static final Object[] EMPTY_ARGS = new Object[0];
+
     @SuppressWarnings("serial")
     private final Node callee;
     @SuppressWarnings("serial")
@@ -29,6 +30,16 @@ public final class CallExpressionNode implements Node {
         this.arguments = arguments;
     }
 
+    private Object[] evaluateArguments(ELContext context) {
+        int size = arguments.size();
+        if (size == 0) return EMPTY_ARGS;
+        Object[] args = new Object[size];
+        for (int i = 0; i < size; i++) {
+            args[i] = arguments.get(i).getValue(context);
+        }
+        return args;
+    }
+
     @Override
     public Object getValue(ELContext context) {
         if (callee instanceof CallExpressionNode callNode) {
@@ -37,16 +48,16 @@ public final class CallExpressionNode implements Node {
                 return node.getValue(context);
             }
             if (value instanceof LambdaExpression lambdaExpression) {
-                return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                return lambdaExpression.invoke(context, evaluateArguments(context));
             }
             return value;
         }
         if (callee instanceof LambdaNode lambdaNode) {
-            return ((LambdaExpression) lambdaNode.getValue(context)).invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+            return ((LambdaExpression) lambdaNode.getValue(context)).invoke(context, evaluateArguments(context));
         }
         if ((callee instanceof MemberNode memberNode)) {
             var valueReference = memberNode.valueReference(context);
-            var objects = arguments.stream().map(x -> x.getValue(context)).toArray();
+            var objects = evaluateArguments(context);
             return context.getELResolver()
                     .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
         }
@@ -61,7 +72,7 @@ public final class CallExpressionNode implements Node {
             }
             try {
                 if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
-                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                    return lambdaExpression.invoke(context, evaluateArguments(context));
                 }
             } catch (PropertyNotFoundException ignored) {
             }
@@ -98,9 +109,12 @@ public final class CallExpressionNode implements Node {
             throw new MethodNotFoundException("Method " + method.getName() + " requires " + method.getParameterCount() + " parameters, but " + arguments.size() + " were supplied");
         }
 
-        Object[] objects = IntStream.range(0, arguments.size())
-                .mapToObj(x -> convertArgument(context, arguments.get(x).getValue(context), method.getParameterTypes()[x]))
-                .toArray();
+        int size = arguments.size();
+        Class<?>[] paramTypes = method.getParameterTypes();
+        Object[] objects = new Object[size];
+        for (int i = 0; i < size; i++) {
+            objects[i] = convertArgument(context, arguments.get(i).getValue(context), paramTypes[i]);
+        }
 
         try {
             return method.invoke(null, objects);
@@ -131,6 +145,9 @@ public final class CallExpressionNode implements Node {
     }
 
     private static Object convertArgument(ELContext context, Object value, Class<?> targetType) {
+        if (value != null && targetType.isInstance(value)) {
+            return value;
+        }
         if (value instanceof LambdaExpression lambda && targetType.isInterface()) {
             Method abstractMethod = Arrays.stream(targetType.getMethods())
                     .filter(candidate -> !candidate.isDefault() && candidate.getDeclaringClass() != Object.class)
@@ -138,7 +155,7 @@ public final class CallExpressionNode implements Node {
                     .orElseThrow(() -> new MethodNotFoundException("No functional method in " + targetType));
             return Proxy.newProxyInstance(targetType.getClassLoader(), new Class<?>[]{targetType}, (proxy, method, args) -> {
                 if (method.equals(abstractMethod)) {
-                    Object result = lambda.invoke(context, args == null ? new Object[0] : args);
+                    Object result = lambda.invoke(context, args == null ? EMPTY_ARGS : args);
                     return method.getReturnType() == void.class ? null : context.convertToType(result, method.getReturnType());
                 }
                 if (method.getDeclaringClass() == Object.class) {

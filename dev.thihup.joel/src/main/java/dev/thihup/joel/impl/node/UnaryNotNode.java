@@ -11,7 +11,11 @@ public record UnaryNotNode(Node node) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
-        return !(boolean) context.convertToType(node.getValue(context), boolean.class);
+        Object val = node.getValue(context);
+        if (val instanceof Boolean b) {
+            return !b;
+        }
+        return !(boolean) context.convertToType(val, boolean.class);
     }
 
     @Override

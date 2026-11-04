@@ -10,39 +10,42 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class JoelExpressionParser {
     private static final int MAX_CACHE_SIZE = 5000;
-    private static final Map<String, Node> EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
-    private static final Map<String, Node> LONG_TERM = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
+    private static volatile ConcurrentHashMap<String, Node> EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
+    private static volatile ConcurrentHashMap<String, Node> LONG_TERM = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
+    private static final AtomicBoolean PROMOTING = new AtomicBoolean(false);
     private static final ELErrorListener ERROR_LISTENER = new ELErrorListener();
 
     private JoelExpressionParser() {
     }
 
     public static Node parse(String expression) {
-        Node node = EDEN.get(expression);
+        ConcurrentHashMap<String, Node> eden = EDEN;
+        Node node = eden.get(expression);
         if (node != null) {
             return node;
         }
-        node = LONG_TERM.get(expression);
+        ConcurrentHashMap<String, Node> longTerm = LONG_TERM;
+        node = longTerm.get(expression);
         if (node != null) {
-            EDEN.put(expression, node);
+            eden.put(expression, node);
             return node;
         }
         node = parseInternal(expression);
-        if (EDEN.size() >= MAX_CACHE_SIZE) {
-            synchronized (JoelExpressionParser.class) {
-                if (EDEN.size() >= MAX_CACHE_SIZE) {
-                    LONG_TERM.clear();
-                    LONG_TERM.putAll(EDEN);
-                    EDEN.clear();
-                }
+        if (eden.mappingCount() >= MAX_CACHE_SIZE && PROMOTING.compareAndSet(false, true)) {
+            try {
+                LONG_TERM = eden;
+                EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
+                eden = EDEN;
+            } finally {
+                PROMOTING.set(false);
             }
         }
-        EDEN.put(expression, node);
+        eden.put(expression, node);
         return node;
     }
 

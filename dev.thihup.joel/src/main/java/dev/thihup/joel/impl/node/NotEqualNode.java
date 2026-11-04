@@ -5,7 +5,7 @@ import jakarta.el.ELContext;
 public record NotEqualNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
-        return !(Boolean) new EqualNode(left, right).getValue(context);
+        return !EqualNode.equals(left.getValue(context), right.getValue(context), context);
     }
 
     @Override

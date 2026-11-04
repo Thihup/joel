@@ -90,10 +90,16 @@ public final class JoelValueExpression extends ValueExpression {
         ELContext evalContext = wrapContext(context);
         try {
             evalContext.notifyBeforeEvaluation(expression);
+            Object val;
             if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                return (T) evalContext.convertToType(lambdaNode.expression().getValue(evalContext), expectedType);
+                val = lambdaNode.expression().getValue(evalContext);
+            } else {
+                val = node.getValue(evalContext);
             }
-            return (T) evalContext.convertToType(node.getValue(evalContext), expectedType);
+            if (expectedType == Object.class || (val != null && expectedType.isInstance(val))) {
+                return (T) val;
+            }
+            return (T) evalContext.convertToType(val, expectedType);
         } finally {
             evalContext.notifyAfterEvaluation(expression);
         }

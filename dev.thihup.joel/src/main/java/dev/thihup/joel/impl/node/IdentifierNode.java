@@ -2,6 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELClass;
 import jakarta.el.ELContext;
+import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 
 public record IdentifierNode(String value) implements Node {
@@ -41,9 +42,16 @@ public record IdentifierNode(String value) implements Node {
         if (context.isPropertyResolved()) {
             return result;
         }
-        Class<?> aClass = context.getImportHandler().resolveStatic(value);
-        if (aClass != null) {
-            context.getELResolver().getValue(context, new ELClass(aClass), value);
+        ImportHandler importHandler = context.getImportHandler();
+        if (importHandler != null) {
+            Class<?> aClass = importHandler.resolveClass(value);
+            if (aClass != null) {
+                return new ELClass(aClass);
+            }
+            aClass = importHandler.resolveStatic(value);
+            if (aClass != null) {
+                return context.getELResolver().getValue(context, new ELClass(aClass), value);
+            }
         }
 
         throw new PropertyNotFoundException("Property %s not found".formatted(value));

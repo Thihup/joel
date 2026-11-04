@@ -6,9 +6,16 @@ import jakarta.el.ELContext;
 public record AndNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
-        if (!(boolean) context.convertToType(left.getValue(context), boolean.class))
+        Object leftVal = left.getValue(context);
+        if (!toBoolean(leftVal, context))
             return false;
-        return context.convertToType(right.getValue(context), boolean.class);
+        Object rightVal = right.getValue(context);
+        return toBoolean(rightVal, context);
+    }
+
+    private static boolean toBoolean(Object val, ELContext context) {
+        if (val instanceof Boolean b) return b;
+        return (boolean) context.convertToType(val, boolean.class);
     }
 
     @Override

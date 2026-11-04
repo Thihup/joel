@@ -46,15 +46,21 @@ public record MemberNode(Node object, Node property) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
+        Object base = object.getValue(context);
+        if (base == null) {
+            return null;
+        }
+        Object prop = property instanceof IdentifierNode node ? node.value() : property.getValue(context);
+        context.setPropertyResolved(false);
         try {
-            return context.getELResolver().getValue(context, object.getValue(context), property instanceof IdentifierNode node ? node.value() : property.getValue(context));
+            return context.getELResolver().getValue(context, base, prop);
         } catch (ELException rootCause) {
             if (object instanceof IdentifierNode node) {
                 ImportHandler importHandler = context.getImportHandler();
                 if (importHandler != null) {
                     Class<?> aClass = importHandler.resolveClass(node.value());
                     if (aClass != null)
-                        return context.getELResolver().getValue(context, new ELClass(aClass), property instanceof IdentifierNode identifier ? identifier.value() : property.getValue(context));
+                        return context.getELResolver().getValue(context, new ELClass(aClass), prop);
                 }
             }
             throw new PropertyNotFoundException(prettyPrint(), rootCause);

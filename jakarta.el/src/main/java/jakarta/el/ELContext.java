@@ -183,11 +183,16 @@ public abstract class ELContext {
      * @since Jakarta Expression Language 3.0
      */
     public Object getLambdaArgument(String argument) {
-        return lambdaArguments.stream()
-                .map(x -> x.get(argument))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        if (lambdaArguments.isEmpty()) {
+            return null;
+        }
+        for (Map<String, Object> map : lambdaArguments) {
+            Object val = map.get(argument);
+            if (val != null) {
+                return val;
+            }
+        }
+        return null;
     }
 
     /**
@@ -222,7 +227,15 @@ public abstract class ELContext {
      * @return true if arg is a LambdaArgument, false otherwise.
      */
     public boolean isLambdaArgument(String argument) {
-        return lambdaArguments.stream().anyMatch(x -> x.containsKey(argument));
+        if (lambdaArguments.isEmpty()) {
+            return false;
+        }
+        for (Map<String, Object> map : lambdaArguments) {
+            if (map.containsKey(argument)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -261,7 +274,12 @@ public abstract class ELContext {
      * @param expression The Jakarta Expression Language expression string that has been evaluated
      */
     public void notifyAfterEvaluation(String expression) {
-        listeners.forEach(e -> e.afterEvaluation(this, expression));
+        if (listeners.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).afterEvaluation(this, expression);
+        }
     }
 
     /**
@@ -270,7 +288,12 @@ public abstract class ELContext {
      * @param expression The Jakarta Expression Language expression string to be evaluated
      */
     public void notifyBeforeEvaluation(String expression) {
-        listeners.forEach(e -> e.beforeEvaluation(this, expression));
+        if (listeners.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).beforeEvaluation(this, expression);
+        }
     }
 
     /**
@@ -280,7 +303,12 @@ public abstract class ELContext {
      * @param property The property Object
      */
     public void notifyPropertyResolved(Object base, Object property) {
-        listeners.forEach(e -> e.propertyResolved(this, base, property));
+        if (listeners.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).propertyResolved(this, base, property);
+        }
     }
 
     /**
