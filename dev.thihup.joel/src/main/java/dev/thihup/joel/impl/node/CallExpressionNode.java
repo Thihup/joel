@@ -1,39 +1,22 @@
 package dev.thihup.joel.impl.node;
 
+import dev.thihup.joel.impl.FunctionResolutionCache;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
-import jakarta.el.FunctionMapper;
 import jakarta.el.LambdaExpression;
 import jakarta.el.MethodNotFoundException;
 import jakarta.el.PropertyNotFoundException;
 
-import java.io.Serial;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class CallExpressionNode implements Node {
-    @Serial
-    private static final long serialVersionUID = 0L;
+public record CallExpressionNode(Node callee, List<? extends Node> arguments) implements Node {
+
     private static final Object[] EMPTY_ARGS = new Object[0];
-
-    @SuppressWarnings("serial")
-    private final Node callee;
-    @SuppressWarnings("serial")
-    private final List<? extends Node> arguments;
-
-    private transient volatile Method cachedMethod;
-    private transient volatile Class<?>[] cachedParamTypes;
-    private transient volatile FunctionMapper cachedFunctionMapper;
-
-    public CallExpressionNode(Node callee, List<? extends Node> arguments) {
-        this.callee = callee;
-        this.arguments = arguments;
-    }
 
     private Object[] evaluateArguments(ELContext context) {
         int size = arguments.size();
@@ -97,24 +80,12 @@ public final class CallExpressionNode implements Node {
             throw new MethodNotFoundException("Function '%s' not found: no FunctionMapper available".formatted(identifierNode.value()));
         }
 
-        Method method = this.cachedMethod;
-        Class<?>[] paramTypes = this.cachedParamTypes;
-        if (method == null || this.cachedFunctionMapper != functionMapper) {
-            method = functionMapper.resolveFunction(prefix, localName);
-            if (method == null) {
-                throw new MethodNotFoundException("Function '%s' not found".formatted(identifierNode.value()));
-            }
-            try {
-                method.trySetAccessible();
-            } catch (Exception ignored) {
-            }
-            paramTypes = method.getParameterTypes();
-            this.cachedMethod = method;
-            this.cachedParamTypes = paramTypes;
-            this.cachedFunctionMapper = functionMapper;
+        var resolved = FunctionResolutionCache.resolve(functionMapper, prefix, localName);
+        if (resolved == null) {
+            throw new MethodNotFoundException("Function '%s' not found".formatted(identifierNode.value()));
         }
 
-        return invokeResolvedMethod(context, method, paramTypes);
+        return invokeResolvedMethod(context, resolved.method(), resolved.parameterTypes());
     }
 
     private Object invokeResolvedMethod(ELContext context, Method method, Class<?>[] paramTypes) {
@@ -154,9 +125,9 @@ public final class CallExpressionNode implements Node {
             int colon = funcName.indexOf(':');
             String prefix = colon < 0 ? "" : funcName.substring(0, colon);
             String localName = colon < 0 ? funcName : funcName.substring(colon + 1);
-            Method method = context.getFunctionMapper().resolveFunction(prefix, localName);
-            if (method != null) {
-                return method.getReturnType();
+            var resolved = FunctionResolutionCache.resolve(context.getFunctionMapper(), prefix, localName);
+            if (resolved != null) {
+                return resolved.method().getReturnType();
             }
         }
         return null;
@@ -188,34 +159,5 @@ public final class CallExpressionNode implements Node {
     @Override
     public String prettyPrint() {
         return "%s(%s)".formatted(callee.prettyPrint(), arguments.stream().map(Node::prettyPrint).collect(Collectors.joining(",")));
-    }
-
-    public Node callee() {
-        return callee;
-    }
-
-    public List<? extends Node> arguments() {
-        return arguments;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (CallExpressionNode) obj;
-        return Objects.equals(this.callee, that.callee) &&
-                Objects.equals(this.arguments, that.arguments);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(callee, arguments);
-    }
-
-    @Override
-    public String toString() {
-        return "CallExpressionNode[" +
-                "callee=" + callee + ", " +
-                "arguments=" + arguments + ']';
     }
 }
