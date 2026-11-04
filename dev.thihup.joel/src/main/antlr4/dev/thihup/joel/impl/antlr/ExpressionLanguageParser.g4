@@ -78,7 +78,6 @@ expression
     | expression bop=(MULT | DIV | MOD ) expression #infixExpression
     | expression bop=(PLUS | MINUS) expression #infixExpression
     | expression bop=(LE | GE | LT | GT) expression #relationalExpression
-    | expression bop=INSTANCEOF IDENTIFIER #infixExpression
     | expression bop=(EQ | NE) expression #relationalExpression
     | expression bop=AND expression #logicalExpression
     | expression bop=OR expression #logicalExpression
