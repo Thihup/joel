@@ -10,6 +10,11 @@ import java.util.Optional;
 
 public record UnaryEmptyNode(Node node) implements Node {
     @Override
+    public void bind(ELContext context) {
+        if (node != null) node.bind(context);
+    }
+
+    @Override
     public Class<?> getType(ELContext context) {
         return Boolean.class;
     }

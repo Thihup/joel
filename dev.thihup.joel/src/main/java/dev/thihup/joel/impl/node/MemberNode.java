@@ -9,6 +9,12 @@ import jakarta.el.ValueReference;
 
 public record MemberNode(Node object, Node property) implements Node {
     @Override
+    public void bind(ELContext context) {
+        if (object != null) object.bind(context);
+        if (property != null) property.bind(context);
+    }
+
+    @Override
     public Class<?> getType(ELContext context) {
         if (property instanceof IdentifierNode node)
             return resolveType(context, node.value());

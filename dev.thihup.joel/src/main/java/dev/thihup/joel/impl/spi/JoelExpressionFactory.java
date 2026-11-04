@@ -42,6 +42,9 @@ public final class JoelExpressionFactory extends ExpressionFactory {
         }
         if (!(parse instanceof StringNode) && !(parse instanceof MemberNode) && !(parse instanceof IdentifierNode) && !(parse instanceof CallExpressionNode))
             throw new ELException("Invalid method expression: " + expression);
+        if (context != null) {
+            parse.bind(context);
+        }
         return JoelMethodExpression.newInstance(expression, parse, expectedReturnType,
                 expectedParamTypes == null ? new Class<?>[0] : expectedParamTypes);
     }
@@ -50,6 +53,9 @@ public final class JoelExpressionFactory extends ExpressionFactory {
     public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
         Objects.requireNonNull(expectedType);
         var parseResult = JoelExpressionParser.parse(expression);
+        if (context != null) {
+            parseResult.bind(context);
+        }
         return JoelValueExpression.newInstance(expression, parseResult, expectedType);
     }
 

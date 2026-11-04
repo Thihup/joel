@@ -4,16 +4,14 @@ import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.LambdaExpression;
 import jakarta.el.MethodNotFoundException;
+import jakarta.el.PropertyNotFoundException;
 
 import java.io.Serial;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,11 +23,39 @@ public final class CallExpressionNode implements Node {
     private final Node callee;
     @SuppressWarnings("serial")
     private final List<? extends Node> arguments;
-    private final transient Map<String, MethodHandle> resolvedFunction = new HashMap<>();
+    private transient volatile Method resolvedMethod;
 
     public CallExpressionNode(Node callee, List<? extends Node> arguments) {
         this.callee = callee;
         this.arguments = arguments;
+    }
+
+    @Override
+    public void bind(ELContext context) {
+        if (callee != null) {
+            callee.bind(context);
+        }
+        if (arguments != null) {
+            for (Node arg : arguments) {
+                if (arg != null) {
+                    arg.bind(context);
+                }
+            }
+        }
+        if (this.resolvedMethod == null && callee instanceof IdentifierNode identifierNode && context != null && context.getFunctionMapper() != null) {
+            String funcName = identifierNode.value();
+            String[] split = funcName.split(":", 2);
+            String prefix = split.length == 1 ? "" : split[0];
+            String localName = split.length == 1 ? split[0] : split[1];
+            Method method = context.getFunctionMapper().resolveFunction(prefix, localName);
+            if (method != null) {
+                try {
+                    method.trySetAccessible();
+                } catch (Exception ignored) {
+                }
+                this.resolvedMethod = method;
+            }
+        }
     }
 
     @Override
@@ -54,12 +80,22 @@ public final class CallExpressionNode implements Node {
                     .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
         }
         if (callee instanceof IdentifierNode identifierNode) {
-            if (context.getFunctionMapper() != null
-                    && context.getFunctionMapper().resolveFunction("", identifierNode.value()) != null) {
+            if (this.resolvedMethod != null) {
+                return invokeResolvedMethod(context, this.resolvedMethod);
+            }
+            String idValue = identifierNode.value();
+            if (idValue.contains(":")) {
                 return resolveQualifiedFunction(context, identifierNode);
             }
-            if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
-                return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+            if (context.getFunctionMapper() != null
+                    && context.getFunctionMapper().resolveFunction("", idValue) != null) {
+                return resolveQualifiedFunction(context, identifierNode);
+            }
+            try {
+                if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
+                    return lambdaExpression.invoke(context, arguments.stream().map(x -> x.getValue(context)).toArray());
+                }
+            } catch (PropertyNotFoundException ignored) {
             }
             return resolveQualifiedFunction(context, identifierNode);
         }
@@ -67,39 +103,70 @@ public final class CallExpressionNode implements Node {
     }
 
     private Object resolveQualifiedFunction(ELContext context, IdentifierNode identifierNode) {
-        var functionMapper = context.getFunctionMapper();
-        if (functionMapper == null) {
-            throw new UnsupportedOperationException();
-        }
-        var methodHandle = resolvedFunction.computeIfAbsent(identifierNode.value(), key -> {
-            String[] split = identifierNode.value().split(":", 2);
-            var method = split.length == 1
-                    ? functionMapper.resolveFunction("", split[0])
-                    : functionMapper.resolveFunction(split[0], split[1]);
+        Method method = this.resolvedMethod;
+        if (method == null) {
+            var functionMapper = context.getFunctionMapper();
+            if (functionMapper == null) {
+                throw new MethodNotFoundException("Function '%s' not found: no FunctionMapper available".formatted(identifierNode.value()));
+            }
+            String funcName = identifierNode.value();
+            String[] split = funcName.split(":", 2);
+            String prefix = split.length == 1 ? "" : split[0];
+            String localName = split.length == 1 ? split[0] : split[1];
+
+            method = functionMapper.resolveFunction(prefix, localName);
             if (method == null) {
-                throw new UnsupportedOperationException();
+                throw new MethodNotFoundException("Function '%s' not found".formatted(funcName));
             }
 
-            if (method.getParameterCount() != arguments.size())
-                throw new MethodNotFoundException("Method " + method.getName() + " requires " + method.getParameterCount() + "(" + Arrays.toString(method.getParameterTypes()) + ")," +
-                        "but it was supplied " + Arrays.toString(arguments.stream().map(x -> x.getValue(context)).toArray()));
-
-            Object[] objects = IntStream.range(0, arguments.size())
-                    .mapToObj(x -> convertArgument(context, arguments.get(x).getValue(context), method.getParameterTypes()[x]))
-                    .toArray();
             try {
-                return MethodHandles.lookup().unreflect(method).asSpreader(0, Object[].class, 1).bindTo(objects);
-            } catch (IllegalAccessException exception) {
-                throw new ELException(exception);
+                method.trySetAccessible();
+            } catch (Exception ignored) {
             }
-        });
-        try {
-            if (methodHandle != null)
-                return methodHandle.invoke();
-        } catch (Throwable exception) {
-            sneakyThrow(exception);
+            this.resolvedMethod = method;
         }
-        throw new UnsupportedOperationException();
+
+        return invokeResolvedMethod(context, method);
+    }
+
+    private Object invokeResolvedMethod(ELContext context, Method method) {
+        if (method.getParameterCount() != arguments.size()) {
+            throw new MethodNotFoundException("Method " + method.getName() + " requires " + method.getParameterCount() + " parameters, but " + arguments.size() + " were supplied");
+        }
+
+        Object[] objects = IntStream.range(0, arguments.size())
+                .mapToObj(x -> convertArgument(context, arguments.get(x).getValue(context), method.getParameterTypes()[x]))
+                .toArray();
+
+        try {
+            return method.invoke(null, objects);
+        } catch (InvocationTargetException exception) {
+            Throwable cause = exception.getCause();
+            if (cause instanceof ELException elException) {
+                throw elException;
+            }
+            throw new ELException(cause);
+        } catch (IllegalAccessException exception) {
+            throw new ELException(exception);
+        }
+    }
+
+    @Override
+    public Class<?> getType(ELContext context) {
+        if (this.resolvedMethod != null) {
+            return this.resolvedMethod.getReturnType();
+        }
+        if (callee instanceof IdentifierNode identifierNode && context != null && context.getFunctionMapper() != null) {
+            String funcName = identifierNode.value();
+            String[] split = funcName.split(":", 2);
+            String prefix = split.length == 1 ? "" : split[0];
+            String localName = split.length == 1 ? split[0] : split[1];
+            Method method = context.getFunctionMapper().resolveFunction(prefix, localName);
+            if (method != null) {
+                return method.getReturnType();
+            }
+        }
+        return null;
     }
 
     private static Object convertArgument(ELContext context, Object value, Class<?> targetType) {

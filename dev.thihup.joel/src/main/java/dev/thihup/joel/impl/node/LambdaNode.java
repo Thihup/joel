@@ -8,6 +8,11 @@ import java.util.List;
 
 public record LambdaNode(List<String> parameters, Node expression) implements Node {
     @Override
+    public void bind(ELContext context) {
+        if (expression != null) expression.bind(context);
+    }
+
+    @Override
     public Object getValue(ELContext context) {
         return new LambdaExpression(parameters, JoelValueExpression.newInstance(expression.prettyPrint(), expression, Object.class));
     }
