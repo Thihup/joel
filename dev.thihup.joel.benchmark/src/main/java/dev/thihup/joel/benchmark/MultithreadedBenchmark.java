@@ -63,4 +63,10 @@ public class MultithreadedBenchmark {
         int id = ThreadLocalRandom.current().nextInt(100);
         return factory.createValueExpression(threadContext.context, "${person.age + " + id + "}", Object.class);
     }
+
+    @Benchmark
+    public Object concurrentCacheEviction(ThreadContext threadContext) {
+        int id = ThreadLocalRandom.current().nextInt(10000);
+        return factory.createValueExpression(threadContext.context, "${person.age + " + id + "}", Object.class);
+    }
 }

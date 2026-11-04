@@ -202,6 +202,33 @@ public class BenchmarkModels {
         public double multiply(double a, double b) {
             return a * b;
         }
+
+        public String compute(long x) {
+            return "long:" + x;
+        }
+
+        public String compute(double x) {
+            return "double:" + x;
+        }
+
+        public String compute(String x) {
+            return "str:" + x;
+        }
+
+        public static int staticMax(int a, int b) {
+            return Math.max(a, b);
+        }
+
+        public int sumAll(int a, int b, int c, int d) {
+            return a + b + c + d;
+        }
+    }
+
+    public record PersonRecord(String name, int age, boolean active) {}
+
+    public static class BenchmarkFunctions {
+        public static String formatGreeting(String name) {
+            return "Hello, " + name;
+        }
     }
 }
-

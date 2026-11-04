@@ -27,6 +27,9 @@ public class LambdaStreamBenchmark {
     private ValueExpression lambdaDirectExpr;
     private ValueExpression streamFilterMapExpr;
     private ValueExpression streamReduceExpr;
+    private ValueExpression streamSumExpr;
+    private ValueExpression streamAverageExpr;
+    private ValueExpression lambdaClosureCaptureExpr;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -35,10 +38,14 @@ public class LambdaStreamBenchmark {
 
         List<Integer> numbers = IntStream.rangeClosed(1, 100).boxed().collect(Collectors.toList());
         context.getVariableMapper().setVariable("numbers", factory.createValueExpression(numbers, List.class));
+        context.getVariableMapper().setVariable("threshold", factory.createValueExpression(50, Integer.class));
 
         lambdaDirectExpr = factory.createValueExpression(context, "${((x, y) -> x * 2 + y)(10, 20)}", Object.class);
         streamFilterMapExpr = factory.createValueExpression(context, "${numbers.stream().filter(x -> x > 50).map(x -> x * 2).toList()}", Object.class);
         streamReduceExpr = factory.createValueExpression(context, "${numbers.stream().reduce(0, (a, b) -> a + b)}", Object.class);
+        streamSumExpr = factory.createValueExpression(context, "${numbers.stream().map(x -> x * 2).sum()}", Object.class);
+        streamAverageExpr = factory.createValueExpression(context, "${numbers.stream().average().get()}", Object.class);
+        lambdaClosureCaptureExpr = factory.createValueExpression(context, "${numbers.stream().filter(x -> x > threshold).toList()}", Object.class);
     }
 
     @Benchmark
@@ -54,5 +61,20 @@ public class LambdaStreamBenchmark {
     @Benchmark
     public Object streamReduce() {
         return streamReduceExpr.getValue(context);
+    }
+
+    @Benchmark
+    public Object streamSum() {
+        return streamSumExpr.getValue(context);
+    }
+
+    @Benchmark
+    public Object streamAverage() {
+        return streamAverageExpr.getValue(context);
+    }
+
+    @Benchmark
+    public Object lambdaClosureCapture() {
+        return lambdaClosureCaptureExpr.getValue(context);
     }
 }

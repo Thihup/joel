@@ -13,3 +13,7 @@ target/
 *.iml
 gen/
 *.tokens
+*.jfr
+jfr-results/
+*-benchmark-results.json
+full-benchmark-results.json

@@ -27,9 +27,11 @@ public class CompilationVsEvaluationBenchmark {
 
     private static final String SIMPLE_EXPR = "${person.name}";
     private static final String COMPLEX_EXPR = "${person.age >= 18 && person.active ? person.name : 'Unknown'}";
+    private static final String TEMPLATE_EXPR = "Hello, ${person.name}! You are ${person.age} years old.";
 
     private ValueExpression precompiledSimple;
     private ValueExpression precompiledComplex;
+    private ValueExpression precompiledTemplate;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -41,6 +43,7 @@ public class CompilationVsEvaluationBenchmark {
 
         precompiledSimple = factory.createValueExpression(context, SIMPLE_EXPR, Object.class);
         precompiledComplex = factory.createValueExpression(context, COMPLEX_EXPR, Object.class);
+        precompiledTemplate = factory.createValueExpression(context, TEMPLATE_EXPR, Object.class);
     }
 
     @Benchmark
@@ -54,6 +57,11 @@ public class CompilationVsEvaluationBenchmark {
     }
 
     @Benchmark
+    public Object compileTemplateText() {
+        return factory.createValueExpression(context, TEMPLATE_EXPR, Object.class);
+    }
+
+    @Benchmark
     public Object evaluatePrecompiledSimple() {
         return precompiledSimple.getValue(context);
     }
@@ -64,7 +72,17 @@ public class CompilationVsEvaluationBenchmark {
     }
 
     @Benchmark
+    public Object evaluatePrecompiledTemplateText() {
+        return precompiledTemplate.getValue(context);
+    }
+
+    @Benchmark
     public Object parseAndEvaluateDynamic() {
         return factory.createValueExpression(context, SIMPLE_EXPR, Object.class).getValue(context);
+    }
+
+    @Benchmark
+    public Object parseAndEvaluateDynamicTemplateText() {
+        return factory.createValueExpression(context, TEMPLATE_EXPR, Object.class).getValue(context);
     }
 }
