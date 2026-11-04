@@ -6,7 +6,6 @@ import jakarta.el.ELResolver;
 import jakarta.el.LambdaExpression;
 import jakarta.el.MethodNotFoundException;
 
-import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
@@ -22,7 +21,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"cast", "removal"})
+@SuppressWarnings("cast")
 public final class StreamELResolver extends ELResolver {
     private static final MethodHandle LAMBDA_IMPL_WITH_RETURN;
     private static final MethodHandle LAMBDA_IMPL_WITHOUT_RETURN;
@@ -50,11 +49,6 @@ public final class StreamELResolver extends ELResolver {
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
         return String.class;
-    }
-
-    @Override
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
     }
 
     @Override
