@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ELProcessorTest {
+public class ELProcessorTest {
 
     @Test
     void defineBean() {
@@ -72,5 +72,11 @@ class ELProcessorTest {
     void illegalAssignOperator() {
         ELProcessor elProcessor = new ELProcessor();
         assertThrows(PropertyNotWritableException.class, () -> elProcessor.eval("1 + 1 == 2 ? 10 : a = 5"));
+    }
+
+    @Test
+    void emptyUndefinedVariable() {
+        ELProcessor elProcessor = new ELProcessor();
+        assertEquals(Boolean.TRUE, elProcessor.eval("empty undefinedVariable"));
     }
 }
