@@ -1,10 +1,12 @@
 package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
+import jakarta.el.PropertyNotFoundException;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 public record UnaryEmptyNode(Node node) implements Node {
     @Override
@@ -14,8 +16,15 @@ public record UnaryEmptyNode(Node node) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
-        Object value = node.getValue(context);
+        Object value;
+        try {
+            value = node.getValue(context);
+        } catch (PropertyNotFoundException e) {
+            return true;
+        }
         if (value == null)
+            return true;
+        if (value instanceof Optional<?> optional && optional.isEmpty())
             return true;
         if (value instanceof String newValue && newValue.isEmpty())
             return true;
