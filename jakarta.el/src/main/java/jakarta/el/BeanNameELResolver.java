@@ -1,8 +1,21 @@
-package jakarta.el;
+/*
+ * Copyright (c) 2012, 2022 Oracle and/or its affiliates and others.
+ * All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0, which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the
+ * Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+ * version 2 with the GNU Classpath Exception, which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ */
 
-import java.beans.FeatureDescriptor;
-import java.util.Iterator;
-import java.util.Objects;
+package jakarta.el;
 
 /**
  * <p>
@@ -27,10 +40,9 @@ import java.util.Objects;
  *
  * @since Jakarta Expression Language 3.0
  */
-@SuppressWarnings("removal")
 public class BeanNameELResolver extends ELResolver {
 
-    private final BeanNameResolver beanNameResolver;
+    private BeanNameResolver beanNameResolver;
 
     /**
      * Constructor
@@ -39,69 +51,6 @@ public class BeanNameELResolver extends ELResolver {
      */
     public BeanNameELResolver(BeanNameResolver beanNameResolver) {
         this.beanNameResolver = beanNameResolver;
-    }
-
-    /**
-     * Always returns <code>String.class</code>, since a bean name is a String.
-     *
-     * @param context The context of this evaluation.
-     * @param base    <code>null</code>.
-     * @return <code>String.class</code>.
-     */
-    @Override
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return String.class;
-    }
-
-    /**
-     * Always returns <code>null</code>, since there is no reason to iterate through a list of one element: bean name.
-     *
-     * @param context The context of this evaluation.
-     * @param base    <code>null</code>.
-     * @return <code>null</code>.
-     */
-    @Override
-    @Deprecated(forRemoval = true, since = "5.0")
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    /**
-     * If the base is null and the property is a name resolvable by the BeanNameResolver, return the type of the bean.
-     *
-     * <p>
-     * If the name is resolvable by the BeanNameResolver, the <code>propertyResolved</code> property of the
-     * <code>ELContext</code> object must be set to <code>true</code> by the resolver, before returning. If this property is
-     * not <code>true</code> after this method is called, the caller can safely assume no value has been set.
-     * </p>
-     *
-     * @param context  The context of this evaluation.
-     * @param base     <code>null</code>
-     * @param property The name of the bean.
-     * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
-     * the type of the bean with the given name. Otherwise, undefined.
-     * @throws NullPointerException if context is <code>null</code>.
-     * @throws ELException          if an exception was thrown while performing the property or variable resolution. The thrown
-     *                              exception must be included as the cause property of this exception, if available.
-     */
-    @Override
-    public Class<?> getType(ELContext context, Object base, Object property) {
-        Objects.requireNonNull(context);
-        if (base != null)
-            return null;
-        if (!(property instanceof String))
-            return null;
-        String beanName = (String) property;
-        if (!beanNameResolver.isNameResolved(beanName)) {
-            return null;
-        }
-        context.setPropertyResolved(base, property);
-
-        Object bean = beanNameResolver.getBean(beanName);
-        if (bean == null) {
-            return null;
-        }
-        return bean.getClass();
     }
 
     /**
@@ -114,62 +63,29 @@ public class BeanNameELResolver extends ELResolver {
      * after this method is called, the caller should ignore the return value.
      * </p>
      *
-     * @param context  The context of this evaluation.
-     * @param base     <code>null</code>
+     * @param context The context of this evaluation.
+     * @param base <code>null</code>
      * @param property The name of the bean.
      * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
      * the value of the bean with the given name. Otherwise, undefined.
      * @throws NullPointerException if context is <code>null</code>.
-     * @throws ELException          if an exception was thrown while performing the property or variable resolution. The thrown
-     *                              exception must be included as the cause property of this exception, if available.
+     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
+     * exception must be included as the cause property of this exception, if available.
      */
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
-        Objects.requireNonNull(context);
-        if (base != null)
-            return null;
-        if (!(property instanceof String))
-            return null;
-        String beanName = (String) property;
-        if (!beanNameResolver.isNameResolved(beanName))
-            return null;
-        context.setPropertyResolved(base, property);
-        return beanNameResolver.getBean(beanName);
-    }
+        if (context == null) {
+            throw new NullPointerException();
+        }
 
-    /**
-     * If the base is null and the property is a name resolvable by the BeanNameResolver, attempts to determine if the bean
-     * is writable.
-     *
-     * <p>
-     * If the name is resolvable by the BeanNameResolver, the <code>propertyResolved</code> property of the
-     * <code>ELContext</code> object must be set to <code>true</code> by the resolver, before returning. If this property is
-     * not <code>true</code> after this method is called, the caller can safely assume no value has been set.
-     * </p>
-     *
-     * @param context  The context of this evaluation.
-     * @param base     <code>null</code>
-     * @param property The name of the bean.
-     * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
-     * <code>true</code> if the property is read-only or <code>false</code> if not; otherwise undefined.
-     * @throws NullPointerException if context is <code>null</code>.
-     * @throws ELException          if an exception was thrown while performing the property or variable resolution. The thrown
-     *                              exception must be included as the cause property of this exception, if available.
-     */
-    @Override
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
-        Objects.requireNonNull(context);
-        if (base != null) {
-            return false;
+        if (base == null && property instanceof String) {
+            if (beanNameResolver.isNameResolved((String) property)) {
+                context.setPropertyResolved(base, property);
+                return beanNameResolver.getBean((String) property);
+            }
         }
-        if (!(property instanceof String)) {
-            return false;
-        }
-        String beanName = ((String) property);
-        if (!beanNameResolver.isNameResolved(beanName) && !beanNameResolver.canCreateBean(beanName))
-            return false;
-        context.setPropertyResolved(base, property);
-        return beanNameResolver.isReadOnly(beanName);
+
+        return null;
     }
 
     /**
@@ -183,28 +99,118 @@ public class BeanNameELResolver extends ELResolver {
      * safely assume no value has been set.
      * </p>
      *
-     * @param context  The context of this evaluation.
-     * @param base     <code>null</code>
+     * @param context The context of this evaluation.
+     * @param base <code>null</code>
      * @param property The name of the bean
-     * @param value    The value to set the bean with the given name to.
-     * @throws NullPointerException         if context is <code>null</code>
+     * @param value The value to set the bean with the given name to.
+     * @throws NullPointerException if context is <code>null</code>
      * @throws PropertyNotWritableException if the BeanNameResolver does not allow the bean to be modified.
-     * @throws ELException                  if an exception was thrown while attempting to set the bean with the given name. The thrown
-     *                                      exception must be included as the cause property of this exception, if available.
+     * @throws ELException if an exception was thrown while attempting to set the bean with the given name. The thrown
+     * exception must be included as the cause property of this exception, if available.
      */
     @Override
     public void setValue(ELContext context, Object base, Object property, Object value) {
-        Objects.requireNonNull(context);
-        if (base != null) {
-            return;
+        if (context == null) {
+            throw new NullPointerException();
         }
-        if (!(property instanceof String)) {
-            return;
+
+        if (base == null && property instanceof String) {
+            String beanName = (String) property;
+            if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
+                beanNameResolver.setBeanValue(beanName, value);
+                context.setPropertyResolved(base, property);
+            }
         }
-        String beanName = ((String) property);
-        if (!beanNameResolver.isNameResolved(beanName) && !beanNameResolver.canCreateBean(beanName))
-            return;
-        context.setPropertyResolved(base, property);
-        beanNameResolver.setBeanValue((String) property, value);
+    }
+
+    /**
+     * If the base is null and the property is a name resolvable by the BeanNameResolver, return the type of the bean.
+     *
+     * <p>
+     * If the name is resolvable by the BeanNameResolver, the <code>propertyResolved</code> property of the
+     * <code>ELContext</code> object must be set to <code>true</code> by the resolver, before returning. If this property is
+     * not <code>true</code> after this method is called, the caller can safely assume no value has been set.
+     * </p>
+     *
+     * @param context The context of this evaluation.
+     * @param base <code>null</code>
+     * @param property The name of the bean.
+     * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code> and
+     * the associated BeanNameResolver is not read-only then the type of the bean with the given name. If the given
+     * bean name was resolved but the associated BeanNameResolver is read-only then {@code null}. Otherwise, undefined.
+     * @throws NullPointerException if context is <code>null</code>.
+     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
+     * exception must be included as the cause property of this exception, if available.
+     */
+    @Override
+    public Class<?> getType(ELContext context, Object base, Object property) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (base == null && property instanceof String) {
+            if (beanNameResolver.isNameResolved((String) property)) {
+                context.setPropertyResolved(true);
+                
+                /*
+                 * No resolver level isReadOnly property for this resolver
+                 */
+                if (beanNameResolver.isReadOnly((String) property)) {
+                    return null;
+                }
+                
+                return beanNameResolver.getBean((String) property).getClass();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * If the base is null and the property is a name resolvable by the BeanNameResolver, attempts to determine if the bean
+     * is writable.
+     *
+     * <p>
+     * If the name is resolvable by the BeanNameResolver, the <code>propertyResolved</code> property of the
+     * <code>ELContext</code> object must be set to <code>true</code> by the resolver, before returning. If this property is
+     * not <code>true</code> after this method is called, the caller can safely assume no value has been set.
+     * </p>
+     *
+     * @param context The context of this evaluation.
+     * @param base <code>null</code>
+     * @param property The name of the bean.
+     * @return If the <code>propertyResolved</code> property of <code>ELContext</code> was set to <code>true</code>, then
+     * <code>true</code> if the property is read-only or <code>false</code> if not; otherwise undefined.
+     * @throws NullPointerException if context is <code>null</code>.
+     * @throws ELException if an exception was thrown while performing the property or variable resolution. The thrown
+     * exception must be included as the cause property of this exception, if available.
+     */
+    @Override
+    public boolean isReadOnly(ELContext context, Object base, Object property) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        if (base == null && property instanceof String) {
+            String beanName = (String) property;
+            if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
+                context.setPropertyResolved(base, property);
+                return beanNameResolver.isReadOnly(beanName);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Always returns <code>String.class</code>, since a bean name is a String.
+     *
+     * @param context The context of this evaluation.
+     * @param base <code>null</code>.
+     * @return <code>String.class</code>.
+     */
+    @Override
+    public Class<?> getCommonPropertyType(ELContext context, Object base) {
+        return String.class;
     }
 }

@@ -95,6 +95,7 @@ public class StandardELContext extends ELContext {
         resolver.add(new ResourceBundleELResolver());
         resolver.add(new ListELResolver());
         resolver.add(new ArrayELResolver());
+        resolver.add(new RecordELResolver());
         resolver.add(new BeanELResolver());
         return resolver;
     }
