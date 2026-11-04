@@ -12,6 +12,7 @@
         <module>dev.thihup.joel</module>
         <module>dev.thihup.joel.tests</module>
         <module>dev.thihup.joel.tck</module>
+        <module>dev.thihup.joel.integration.tests</module>
     </modules>
 
     <properties>
