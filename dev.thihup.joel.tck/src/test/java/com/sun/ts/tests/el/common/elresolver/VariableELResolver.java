@@ -21,104 +21,104 @@
 
 package com.sun.ts.tests.el.common.elresolver;
 
-import jakarta.el.ELContext;
-import jakarta.el.ELException;
-import jakarta.el.ELResolver;
-
 import java.beans.FeatureDescriptor;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELException;
+import jakarta.el.ELResolver;
+
 public class VariableELResolver extends ELResolver {
 
-    private Hashtable<Object, Object> varTable;
+  private Hashtable<Object, Object> varTable;
 
-    public Object getValue(ELContext context, Object base, Object property)
-            throws ELException {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        Object result = null;
-        if (base == null) {
-            context.setPropertyResolved(true);
-            if (varTable != null) {
-                result = varTable.get(property.toString());
-            }
-        }
-
-        return result;
+  public Object getValue(ELContext context, Object base, Object property)
+      throws ELException {
+    if (context == null) {
+      throw new NullPointerException();
     }
 
-    public Class<?> getType(ELContext context, Object base, Object property)
-            throws ELException {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        if (base == null) {
-            context.setPropertyResolved(true);
-        }
-
-        return null;
+    Object result = null;
+    if (base == null) {
+      context.setPropertyResolved(true);
+      if (varTable != null) {
+        result = varTable.get(property.toString());
+      }
     }
 
-    public void setValue(ELContext context, Object base, Object property,
-                         Object value) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
+    return result;
+  }
 
-        if (varTable == null) {
-            varTable = new Hashtable<Object, Object>();
-        }
-
-        if (value == null) {
-            varTable = new Hashtable<Object, Object>();
-            varTable.clear();
-            return;
-        }
-
-        if (base == null) {
-            varTable.put(property.toString(), value);
-            context.setPropertyResolved(true);
-        } else {
-            varTable.put(base, value);
-            context.setPropertyResolved(true);
-        }
+  public Class<?> getType(ELContext context, Object base, Object property)
+      throws ELException {
+    if (context == null) {
+      throw new NullPointerException();
     }
 
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-
-        if (base == null) {
-            context.setPropertyResolved(true);
-        }
-        return false;
+    if (base == null) {
+      context.setPropertyResolved(true);
     }
 
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context,
-                                                             Object base) {
-        return null;
+    return null;
+  }
+
+  public void setValue(ELContext context, Object base, Object property,
+      Object value) {
+    if (context == null) {
+      throw new NullPointerException();
     }
 
-    public Class<Object> getCommonPropertyType(ELContext context, Object base) {
-        if (base == null) {
-            return Object.class;
-        }
-        return null;
+    if (varTable == null) {
+      varTable = new Hashtable<Object, Object>();
     }
 
-    // This method is not required by the ELResolver API. It is for
-    // removing all entries from the the VariableELResolver's
-    // static hashtable between test invocations.
-    public void cleanup() {
-
-        if (varTable != null) {
-            varTable.clear();
-        }
-
+    if (value == null) {
+      varTable = new Hashtable<Object, Object>();
+      varTable.clear();
+      return;
     }
+
+    if (base == null) {
+      varTable.put(property.toString(), value);
+      context.setPropertyResolved(true);
+    } else {
+      varTable.put(base, value);
+      context.setPropertyResolved(true);
+    }
+  }
+
+  public boolean isReadOnly(ELContext context, Object base, Object property) {
+    if (context == null) {
+      throw new NullPointerException();
+    }
+
+    if (base == null) {
+      context.setPropertyResolved(true);
+    }
+    return false;
+  }
+
+  public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context,
+      Object base) {
+    return null;
+  }
+
+  public Class<Object> getCommonPropertyType(ELContext context, Object base) {
+    if (base == null) {
+      return Object.class;
+    }
+    return null;
+  }
+
+  // This method is not required by the ELResolver API. It is for
+  // removing all entries from the the VariableELResolver's
+  // static hashtable between test invocations.
+  public void cleanup() {
+
+    if (varTable != null) {
+      varTable.clear();
+    }
+
+  }
 }
