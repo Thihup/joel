@@ -4,6 +4,11 @@ import jakarta.el.ELContext;
 
 public record DeferredExpressionNode(Node node) implements Node {
     @Override
+    public void bind(ELContext context) {
+        if (node != null) node.bind(context);
+    }
+
+    @Override
     public Class<?> getType(ELContext context) {
         return node.getType(context);
     }

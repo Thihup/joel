@@ -79,4 +79,21 @@ public class ELProcessorTest {
         ELProcessor elProcessor = new ELProcessor();
         assertEquals(Boolean.TRUE, elProcessor.eval("empty undefinedVariable"));
     }
+
+    public static int add(int a, int b) {
+        return a + b;
+    }
+
+    @Test
+    void defineFunctionWithPrefix() throws NoSuchMethodException {
+        ELProcessor elProcessor = new ELProcessor();
+        elProcessor.defineFunction("tst", "add", ELProcessorTest.class.getMethod("add", int.class, int.class));
+        assertEquals(5, ((Number) elProcessor.eval("tst:add(2, 3)")).intValue());
+    }
+
+    @Test
+    void literalMapIndexed() {
+        ELProcessor elProcessor = new ELProcessor();
+        assertEquals("v", elProcessor.eval("{'k':'v'}['k']"));
+    }
 }

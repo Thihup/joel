@@ -10,6 +10,11 @@ import java.math.BigInteger;
 @SuppressWarnings("cast")
 public record UnaryMinusNode(Node node) implements Node {
     @Override
+    public void bind(ELContext context) {
+        if (node != null) node.bind(context);
+    }
+
+    @Override
     public Class<?> getType(ELContext context) {
         return node.getType(context);
     }
