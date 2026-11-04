@@ -13,6 +13,7 @@
         <module>dev.thihup.joel.tests</module>
         <module>dev.thihup.joel.tck</module>
         <module>dev.thihup.joel.integration.tests</module>
+        <module>dev.thihup.joel.benchmark</module>
     </modules>
 
     <properties>
