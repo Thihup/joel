@@ -21,11 +21,11 @@
 
 package com.sun.ts.tests.el.common.elresolver;
 
+import java.util.Iterator;
+
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
-
-import java.util.Iterator;
 
 /* This simple EL Resolver resolves only method expressions of
  * the form ${worker.methodName}, where 'worker' is resolved to
@@ -35,80 +35,80 @@ import java.util.Iterator;
 
 public class EmployeeELResolver extends ELResolver {
 
-    private static final String FIRST_NAME = "Ricky";
+  private static final String FIRST_NAME = "Ricky";
 
-    private static final String LAST_NAME = "Bobby";
+  private static final String LAST_NAME = "Bobby";
 
-    public Object getValue(ELContext context, Object base, Object property)
-            throws ELException {
-        if (context == null)
-            throw new NullPointerException();
+  public Object getValue(ELContext context, Object base, Object property)
+      throws ELException {
+    if (context == null)
+      throw new NullPointerException();
 
-        Object result = null;
-        String propertyName = property.toString();
+    Object result = null;
+    String propertyName = property.toString();
 
-        if (base == null) {
-            // Resolving first variable (e.g. ${worker}).
-            if ("worker".equals(propertyName)) {
-                result = "worker has no name!";
-            }
+    if (base == null) {
+      // Resolving first variable (e.g. ${worker}).
+      if ("worker".equals(propertyName)) {
+        result = "worker has no name!";
+      }
 
-        } else if ((base instanceof String) && ("firstName".equals(property))) {
+    } else if ((base instanceof String) && ("firstName".equals(property))) {
 
-            result = EmployeeELResolver.FIRST_NAME;
+      result = EmployeeELResolver.FIRST_NAME;
 
-        } else if ((base instanceof String) && ("lastName".equals(property))) {
+    } else if ((base instanceof String) && ("lastName".equals(property))) {
 
-            result = EmployeeELResolver.LAST_NAME;
-        }
-
-        if (result != null)
-            context.setPropertyResolved(true);
-        return result;
+      result = EmployeeELResolver.LAST_NAME;
     }
 
-    public Class<?> getType(ELContext context, Object base, Object property)
-            throws ELException {
-        if (context == null)
-            throw new NullPointerException();
+    if (result != null)
+      context.setPropertyResolved(true);
+    return result;
+  }
 
-        String propertyName = property.toString();
-        if ((base == null && propertyName.equals("worker"))
-                || (base instanceof String && base.equals("worker")))
-            context.setPropertyResolved(true);
+  public Class<?> getType(ELContext context, Object base, Object property)
+      throws ELException {
+    if (context == null)
+      throw new NullPointerException();
 
-        // we never set a value
-        return null;
-    }
+    String propertyName = property.toString();
+    if ((base == null && propertyName.equals("worker"))
+        || (base instanceof String && base.equals("worker")))
+      context.setPropertyResolved(true);
 
-    public void setValue(ELContext context, Object base, Object property,
-                         Object value) {
-        if (context == null)
-            throw new NullPointerException();
+    // we never set a value
+    return null;
+  }
 
-        if ((base == null && "worker".equals(property))
-                || (base instanceof String && base.equals("worker")))
-            context.setPropertyResolved(true);
-    }
+  public void setValue(ELContext context, Object base, Object property,
+      Object value) {
+    if (context == null)
+      throw new NullPointerException();
 
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
-        if (context == null)
-            throw new NullPointerException();
+    if ((base == null && "worker".equals(property))
+        || (base instanceof String && base.equals("worker")))
+      context.setPropertyResolved(true);
+  }
 
-        String propertyName = property.toString();
-        if ((base == null && propertyName.equals("worker"))
-                || (base instanceof String && base.equals("worker")))
-            context.setPropertyResolved(true);
-        return true;
-    }
+  public boolean isReadOnly(ELContext context, Object base, Object property) {
+    if (context == null)
+      throw new NullPointerException();
 
-    public Iterator getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
+    String propertyName = property.toString();
+    if ((base == null && propertyName.equals("worker"))
+        || (base instanceof String && base.equals("worker")))
+      context.setPropertyResolved(true);
+    return true;
+  }
 
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        if (base == null)
-            return Object.class;
-        return null;
-    }
+  public Iterator getFeatureDescriptors(ELContext context, Object base) {
+    return null;
+  }
+
+  public Class<?> getCommonPropertyType(ELContext context, Object base) {
+    if (base == null)
+      return Object.class;
+    return null;
+  }
 }

@@ -21,6 +21,12 @@
             <artifactId>dev.thihup.joel</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.tck</groupId>
+            <artifactId>sigtest-maven-plugin</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -40,11 +46,13 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <includes>
-                        <include>**/ELClient.java</include>
+                        <include>**/*IT.java</include>
                     </includes>
-                    <systemProperties>
+                    <systemPropertyVariables>
                         <variable.mapper>dev.thihup.joel.impl.mapper.JoelVariableMapper</variable.mapper>
-                    </systemProperties>
+                        <jimage.dir>${project.build.directory}/jimage</jimage.dir>
+                        <sigTestClasspath>${project.basedir}/../jakarta.el/target/classes${path.separator}${project.build.directory}/jimage/java.base</sigTestClasspath>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

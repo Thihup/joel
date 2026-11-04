@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2007, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2021 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,44 +19,47 @@ package com.sun.ts.tests.el.common.util;
 
 import java.io.Serializable;
 
-public class SimpleBean implements Serializable {
+public class SimpleBean implements Serializable, SimpleInterface {
 
-    private String fullName = "Doug Donahue"; // Default Setting
+  private String fullName = "Doug Donahue"; // Default Setting
 
-    private String intention;
+  private String intention;
 
-    public void setIntention(String s) {
-        intention = s;
+  public void setIntention(String s) {
+    intention = s;
+  }
+
+  public String getIntention() {
+    return intention;
+  }
+
+  /**
+   * Set full name using the pattern firstName + " " + lastName.
+   * 
+   * @param firstName
+   * @param lastName
+   */
+  public void setFullName(String firstName, String lastName) {
+    this.fullName = firstName + " " + lastName;
+  }
+
+  /**
+   *
+   * @param firstName
+   *          - first name @String
+   * @param lastName
+   *          - last Name
+   * @return true is full name matches the given firstName + " " + lastName
+   *         pattern.
+   */
+  public boolean isName(String firstName, String lastName) {
+    boolean result = Boolean.FALSE;
+    String testName = firstName + " " + lastName;
+
+    if (testName.equals(fullName)) {
+      result = true;
     }
 
-    public String getIntention() {
-        return intention;
-    }
-
-    /**
-     * Set full name using the pattern firstName + " " + lastName.
-     *
-     * @param firstName
-     * @param lastName
-     */
-    public void setFullName(String firstName, String lastName) {
-        this.fullName = firstName + " " + lastName;
-    }
-
-    /**
-     * @param firstName - first name @String
-     * @param lastName  - last Name
-     * @return true is full name matches the given firstName + " " + lastName
-     * pattern.
-     */
-    public boolean isName(String firstName, String lastName) {
-        boolean result = Boolean.FALSE;
-        String testName = firstName + " " + lastName;
-
-        if (testName.equals(fullName)) {
-            result = true;
-        }
-
-        return result;
-    }
+    return result;
+  }
 }

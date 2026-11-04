@@ -23,6 +23,7 @@ package com.sun.ts.tests.el.common.elcontext;
 
 import com.sun.ts.tests.el.common.elresolver.FunctionELResolver;
 import com.sun.ts.tests.el.common.functionmapper.TCKFunctionMapper;
+
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
 import jakarta.el.FunctionMapper;
@@ -35,28 +36,28 @@ import jakarta.el.VariableMapper;
 
 public class FuncMapperELContext extends ELContext {
 
-    private final ELResolver elResolver;
+  private final ELResolver elResolver;
 
-    private final FunctionMapper funcMapper;
+  private final FunctionMapper funcMapper;
 
-    /*
-     * Constructor.
-     */
-    public FuncMapperELContext() {
-        elResolver = new FunctionELResolver();
-        funcMapper = new TCKFunctionMapper();
-    }
+  /*
+   * Constructor.
+   */
+  public FuncMapperELContext() {
+    elResolver = new FunctionELResolver();
+    funcMapper = new TCKFunctionMapper();
+  }
 
-    public ELResolver getELResolver() {
-        return elResolver;
-    }
+  public ELResolver getELResolver() {
+    return elResolver;
+  }
 
-    public VariableMapper getVariableMapper() {
-        return null;
-    }
+  public VariableMapper getVariableMapper() {
+    return null;
+  }
 
-    public FunctionMapper getFunctionMapper() {
-        return funcMapper;
-    }
+  public FunctionMapper getFunctionMapper() {
+    return funcMapper;
+  }
 
 }

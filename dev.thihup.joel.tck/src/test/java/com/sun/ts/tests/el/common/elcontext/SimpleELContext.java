@@ -20,16 +20,19 @@
  */
 package com.sun.ts.tests.el.common.elcontext;
 
-import com.sun.ts.lib.util.TestUtil;
+
 import com.sun.ts.tests.el.common.elresolver.EmployeeELResolver;
 import com.sun.ts.tests.el.common.elresolver.VariableELResolver;
 import com.sun.ts.tests.el.common.elresolver.VectELResolver;
 import com.sun.ts.tests.el.common.util.ResolverType;
+
 import jakarta.el.CompositeELResolver;
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
 import jakarta.el.FunctionMapper;
 import jakarta.el.VariableMapper;
+
+import java.lang.System.Logger;
 
 /**
  * A basic ELContext that meets the needs of most EL tests. The no-args
@@ -40,103 +43,105 @@ import jakarta.el.VariableMapper;
  */
 public class SimpleELContext extends ELContext {
 
-    private static final String NLINE = System.getProperty("line.separator");
+  private static final Logger logger = System.getLogger(SimpleELContext.class.getName());
 
-    private final CompositeELResolver compResolver;
+  private static final String NLINE = System.getProperty("line.separator");
 
-    private ELResolver myResolver;
+  private final CompositeELResolver compResolver;
 
-    private VariableELResolver varResolver;
+  private ELResolver myResolver;
 
-    // Custom ELResolvers.
-    public enum Resolver {
+  private VariableELResolver varResolver;
 
-        EmployeeELResolver, VariableELResolver, VectELResolver
+  // Custom ELResolvers.
+  public enum Resolver {
+
+    EmployeeELResolver, VariableELResolver, VectELResolver
+  };
+
+  /*
+   * Default Constructor.
+   */
+  public SimpleELContext() {
+    this.compResolver = new CompositeELResolver();
+  }
+
+  /*
+   * Constructor with an ELResolver given through an enum.
+   */
+  public SimpleELContext(ResolverType resolverType) {
+    this.myResolver = this.getMyResolver(resolverType);
+    this.compResolver = new CompositeELResolver();
+  }
+
+  public ELResolver getELResolver() {
+    ELResolver elResolver;
+
+    if (myResolver == null) {
+      varResolver = new VariableELResolver();
+      compResolver.add(varResolver);
+    } else {
+      if (myResolver instanceof VariableELResolver) {
+        varResolver = (VariableELResolver) myResolver;
+      } else {
+        varResolver = null;
+      }
+      compResolver.add(myResolver);
     }
 
-    /*
-     * Default Constructor.
-     */
-    public SimpleELContext() {
-        this.compResolver = new CompositeELResolver();
+    elResolver = (ELResolver) compResolver;
+
+    return elResolver;
+  }
+
+  public ELContext getELContext() {
+    return (ELContext) (this);
+  }
+
+  public VariableMapper getVariableMapper() {
+    return null;
+  }
+
+  public FunctionMapper getFunctionMapper() {
+    return null;
+  }
+
+  // This method is not required by the ELContext API. It is for
+  // removing all entries from the the VariableELResolver's
+  // static hashtable between test invocations.
+  public void cleanup() {
+    if (varResolver != null) {
+      varResolver.cleanup();
+    }
+  }
+
+  // ------------------------------- Private Methods
+  // ------------------------------
+  private ELResolver getMyResolver(ResolverType enumResolver) {
+
+    switch (enumResolver) {
+    case EMPLOYEE_ELRESOLVER:
+      myResolver = new EmployeeELResolver();
+      logger.log(Logger.Level.TRACE, "Setting ELResolver == EmployeeELResolver");
+      break;
+
+    case VARIABLE_ELRESOLVER:
+      myResolver = new VariableELResolver();
+      logger.log(Logger.Level.TRACE, "Setting ELResolver == VariableELResolver");
+      break;
+
+    case VECT_ELRESOLVER:
+      myResolver = new VectELResolver();
+      logger.log(Logger.Level.TRACE, "Setting ELResolver == VectELResolver");
+      break;
+
+    default:
+      logger.log(Logger.Level.TRACE, 
+          "Unknown ELResolver! " + enumResolver + " trying to use default"
+              + NLINE + "Setting" + " ELResolver == VariableELResolver");
+      break;
     }
 
-    /*
-     * Constructor with an ELResolver given through an enum.
-     */
-    public SimpleELContext(ResolverType resolverType) {
-        this.myResolver = this.getMyResolver(resolverType);
-        this.compResolver = new CompositeELResolver();
-    }
-
-    public ELResolver getELResolver() {
-        ELResolver elResolver;
-
-        if (myResolver == null) {
-            varResolver = new VariableELResolver();
-            compResolver.add(varResolver);
-        } else {
-            if (myResolver instanceof VariableELResolver) {
-                varResolver = (VariableELResolver) myResolver;
-            } else {
-                varResolver = null;
-            }
-            compResolver.add(myResolver);
-        }
-
-        elResolver = compResolver;
-
-        return elResolver;
-    }
-
-    public ELContext getELContext() {
-        return this;
-    }
-
-    public VariableMapper getVariableMapper() {
-        return null;
-    }
-
-    public FunctionMapper getFunctionMapper() {
-        return null;
-    }
-
-    // This method is not required by the ELContext API. It is for
-    // removing all entries from the the VariableELResolver's
-    // static hashtable between test invocations.
-    public void cleanup() {
-        if (varResolver != null) {
-            varResolver.cleanup();
-        }
-    }
-
-    // ------------------------------- Private Methods
-    // ------------------------------
-    private ELResolver getMyResolver(ResolverType enumResolver) {
-
-        switch (enumResolver) {
-            case EMPLOYEE_ELRESOLVER:
-                myResolver = new EmployeeELResolver();
-                TestUtil.logTrace("Setting ELResolver == EmployeeELResolver");
-                break;
-
-            case VARIABLE_ELRESOLVER:
-                myResolver = new VariableELResolver();
-                TestUtil.logTrace("Setting ELResolver == VariableELResolver");
-                break;
-
-            case VECT_ELRESOLVER:
-                myResolver = new VectELResolver();
-                TestUtil.logTrace("Setting ELResolver == VectELResolver");
-                break;
-
-            default:
-                TestUtil.logTrace(
-                        "Unknown ELResolver! " + enumResolver + " trying to use default"
-                                + NLINE + "Setting" + " ELResolver == VariableELResolver");
-                break;
-        }
-
-        return myResolver;
-    }
+    return myResolver;
+  }
 }
