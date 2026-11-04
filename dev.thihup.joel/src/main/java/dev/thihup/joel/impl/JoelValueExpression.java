@@ -1,17 +1,19 @@
 package dev.thihup.joel.impl;
 
-import dev.thihup.joel.impl.node.ObjectNode;
 import dev.thihup.joel.impl.node.AssignNode;
-import dev.thihup.joel.impl.node.Node;
 import dev.thihup.joel.impl.node.IdentifierNode;
 import dev.thihup.joel.impl.node.LambdaNode;
 import dev.thihup.joel.impl.node.MemberNode;
+import dev.thihup.joel.impl.node.Node;
+import dev.thihup.joel.impl.node.ObjectNode;
 import dev.thihup.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
+import jakarta.el.FunctionMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.PropertyNotWritableException;
 import jakarta.el.ValueExpression;
 import jakarta.el.ValueReference;
+import jakarta.el.VariableMapper;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -27,15 +29,38 @@ public final class JoelValueExpression extends ValueExpression {
     private final String expression;
     private final Node node;
     private final Class<?> expectedType;
+    @SuppressWarnings("serial")
+    private final FunctionMapper functionMapper;
+    @SuppressWarnings("serial")
+    private final VariableMapper variableMapper;
 
-    private JoelValueExpression(String expression, Node node, Class<?> expectedType) {
+    private JoelValueExpression(String expression, Node node, Class<?> expectedType,
+                                FunctionMapper functionMapper, VariableMapper variableMapper) {
         this.expression = expression;
         this.node = node;
         this.expectedType = expectedType;
+        this.functionMapper = functionMapper;
+        this.variableMapper = variableMapper;
+    }
+
+    public static JoelValueExpression newInstance(String expression, Node node, Class<?> expectedType,
+                                                  FunctionMapper functionMapper, VariableMapper variableMapper) {
+        return new JoelValueExpression(expression, node, expectedType, functionMapper, variableMapper);
     }
 
     public static JoelValueExpression newInstance(String expression, Node node, Class<?> expectedType) {
-        return new JoelValueExpression(expression, node, expectedType);
+        return new JoelValueExpression(expression, node, expectedType, null, null);
+    }
+
+    private ELContext wrapContext(ELContext context) {
+        if (context == null) {
+            return null;
+        }
+        if ((functionMapper != null && context.getFunctionMapper() != functionMapper)
+                || (variableMapper != null && context.getVariableMapper() != variableMapper)) {
+            return new JoelEvaluationContext(context, functionMapper, variableMapper);
+        }
+        return context;
     }
 
     @Override
@@ -55,35 +80,38 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Override
     public Class<?> getType(ELContext context) {
-        return node.getType(context);
+        ELContext evalContext = wrapContext(context);
+        return node.getType(evalContext);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getValue(ELContext context) {
+        ELContext evalContext = wrapContext(context);
         try {
-            context.notifyBeforeEvaluation(expression);
+            evalContext.notifyBeforeEvaluation(expression);
             if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                return (T) context.convertToType(lambdaNode.expression().getValue(context), expectedType);
+                return (T) evalContext.convertToType(lambdaNode.expression().getValue(evalContext), expectedType);
             }
-            return (T) context.convertToType(node.getValue(context), expectedType);
+            return (T) evalContext.convertToType(node.getValue(evalContext), expectedType);
         } finally {
-            context.notifyAfterEvaluation(expression);
+            evalContext.notifyAfterEvaluation(expression);
         }
     }
 
     @Override
     public boolean isReadOnly(ELContext context) {
+        ELContext evalContext = wrapContext(context);
         if (node instanceof MemberNode memberNode) {
-            var valueReference = memberNode.valueReference(context);
-            boolean readOnly = context.getELResolver().isReadOnly(context, valueReference.getBase(), valueReference.getProperty());
-            if (!context.isPropertyResolved())
+            var valueReference = memberNode.valueReference(evalContext);
+            boolean readOnly = evalContext.getELResolver().isReadOnly(evalContext, valueReference.getBase(), valueReference.getProperty());
+            if (!evalContext.isPropertyResolved())
                 throw new PropertyNotFoundException();
             return readOnly;
         }
         if (node instanceof IdentifierNode identifierNode) {
-            boolean readOnly = context.getELResolver().isReadOnly(context, null, identifierNode.value());
-            if (!context.isPropertyResolved())
+            boolean readOnly = evalContext.getELResolver().isReadOnly(evalContext, null, identifierNode.value());
+            if (!evalContext.isPropertyResolved())
                 throw new PropertyNotFoundException();
             return readOnly;
         }
@@ -92,16 +120,18 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Override
     public void setValue(ELContext context, Object value) {
-        context.setPropertyResolved(false);
-        if (isReadOnly(context))
+        ELContext evalContext = wrapContext(context);
+        evalContext.setPropertyResolved(false);
+        if (isReadOnly(evalContext))
             throw new PropertyNotWritableException();
-        new AssignNode(node, new ObjectNode(value)).getValue(context);
+        new AssignNode(node, new ObjectNode(value)).getValue(evalContext);
     }
 
     @Override
     public ValueReference getValueReference(ELContext context) {
+        ELContext evalContext = wrapContext(context);
         if (node instanceof MemberNode memberNode) {
-            return memberNode.valueReference(context);
+            return memberNode.valueReference(evalContext);
         }
         return null;
     }

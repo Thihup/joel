@@ -23,39 +23,10 @@ public final class CallExpressionNode implements Node {
     private final Node callee;
     @SuppressWarnings("serial")
     private final List<? extends Node> arguments;
-    private transient volatile Method resolvedMethod;
 
     public CallExpressionNode(Node callee, List<? extends Node> arguments) {
         this.callee = callee;
         this.arguments = arguments;
-    }
-
-    @Override
-    public void bind(ELContext context) {
-        if (callee != null) {
-            callee.bind(context);
-        }
-        if (arguments != null) {
-            for (Node arg : arguments) {
-                if (arg != null) {
-                    arg.bind(context);
-                }
-            }
-        }
-        if (this.resolvedMethod == null && callee instanceof IdentifierNode identifierNode && context != null && context.getFunctionMapper() != null) {
-            String funcName = identifierNode.value();
-            String[] split = funcName.split(":", 2);
-            String prefix = split.length == 1 ? "" : split[0];
-            String localName = split.length == 1 ? split[0] : split[1];
-            Method method = context.getFunctionMapper().resolveFunction(prefix, localName);
-            if (method != null) {
-                try {
-                    method.trySetAccessible();
-                } catch (Exception ignored) {
-                }
-                this.resolvedMethod = method;
-            }
-        }
     }
 
     @Override
@@ -80,9 +51,6 @@ public final class CallExpressionNode implements Node {
                     .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
         }
         if (callee instanceof IdentifierNode identifierNode) {
-            if (this.resolvedMethod != null) {
-                return invokeResolvedMethod(context, this.resolvedMethod);
-            }
             String idValue = identifierNode.value();
             if (idValue.contains(":")) {
                 return resolveQualifiedFunction(context, identifierNode);
@@ -103,27 +71,23 @@ public final class CallExpressionNode implements Node {
     }
 
     private Object resolveQualifiedFunction(ELContext context, IdentifierNode identifierNode) {
-        Method method = this.resolvedMethod;
+        var functionMapper = context.getFunctionMapper();
+        if (functionMapper == null) {
+            throw new MethodNotFoundException("Function '%s' not found: no FunctionMapper available".formatted(identifierNode.value()));
+        }
+        String funcName = identifierNode.value();
+        String[] split = funcName.split(":", 2);
+        String prefix = split.length == 1 ? "" : split[0];
+        String localName = split.length == 1 ? split[0] : split[1];
+
+        Method method = functionMapper.resolveFunction(prefix, localName);
         if (method == null) {
-            var functionMapper = context.getFunctionMapper();
-            if (functionMapper == null) {
-                throw new MethodNotFoundException("Function '%s' not found: no FunctionMapper available".formatted(identifierNode.value()));
-            }
-            String funcName = identifierNode.value();
-            String[] split = funcName.split(":", 2);
-            String prefix = split.length == 1 ? "" : split[0];
-            String localName = split.length == 1 ? split[0] : split[1];
+            throw new MethodNotFoundException("Function '%s' not found".formatted(funcName));
+        }
 
-            method = functionMapper.resolveFunction(prefix, localName);
-            if (method == null) {
-                throw new MethodNotFoundException("Function '%s' not found".formatted(funcName));
-            }
-
-            try {
-                method.trySetAccessible();
-            } catch (Exception ignored) {
-            }
-            this.resolvedMethod = method;
+        try {
+            method.trySetAccessible();
+        } catch (Exception ignored) {
         }
 
         return invokeResolvedMethod(context, method);
@@ -153,9 +117,6 @@ public final class CallExpressionNode implements Node {
 
     @Override
     public Class<?> getType(ELContext context) {
-        if (this.resolvedMethod != null) {
-            return this.resolvedMethod.getReturnType();
-        }
         if (callee instanceof IdentifierNode identifierNode && context != null && context.getFunctionMapper() != null) {
             String funcName = identifierNode.value();
             String[] split = funcName.split(":", 2);
@@ -187,11 +148,6 @@ public final class CallExpressionNode implements Node {
             });
         }
         return context.convertToType(value, targetType);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void sneakyThrow(Throwable e) throws E {
-        throw (E) e;
     }
 
     @Override
@@ -227,5 +183,4 @@ public final class CallExpressionNode implements Node {
                 "callee=" + callee + ", " +
                 "arguments=" + arguments + ']';
     }
-
 }

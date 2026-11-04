@@ -4,12 +4,6 @@ import jakarta.el.ELContext;
 
 public record SemicolonNode(Node left, Node right) implements Node {
     @Override
-    public void bind(ELContext context) {
-        if (left != null) left.bind(context);
-        if (right != null) right.bind(context);
-    }
-
-    @Override
     public Class<?> getType(ELContext context) {
         return right.getType(context);
     }

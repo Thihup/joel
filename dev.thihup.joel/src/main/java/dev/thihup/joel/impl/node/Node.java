@@ -34,9 +34,6 @@ public sealed interface Node extends Serializable
         throw new UnsupportedOperationException(this.toString());
     }
 
-    default void bind(ELContext context) {
-    }
-
     default String prettyPrint() {
         throw new UnsupportedOperationException();
     }

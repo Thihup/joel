@@ -1,21 +1,24 @@
 package dev.thihup.joel.impl.spi;
 
-import dev.thihup.joel.impl.JoelValueExpression;
-import dev.thihup.joel.impl.TypeConverter;
-import dev.thihup.joel.impl.node.ObjectNode;
+import dev.thihup.joel.impl.FunctionBinder;
 import dev.thihup.joel.impl.JoelMethodExpression;
+import dev.thihup.joel.impl.JoelValueExpression;
 import dev.thihup.joel.impl.StreamELResolver;
+import dev.thihup.joel.impl.TypeConverter;
 import dev.thihup.joel.impl.antlr.JoelExpressionParser;
 import dev.thihup.joel.impl.node.CallExpressionNode;
 import dev.thihup.joel.impl.node.IdentifierNode;
 import dev.thihup.joel.impl.node.MemberNode;
+import dev.thihup.joel.impl.node.ObjectNode;
 import dev.thihup.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.FunctionMapper;
 import jakarta.el.MethodExpression;
 import jakarta.el.ValueExpression;
+import jakarta.el.VariableMapper;
 
 import java.util.Objects;
 
@@ -42,21 +45,19 @@ public final class JoelExpressionFactory extends ExpressionFactory {
         }
         if (!(parse instanceof StringNode) && !(parse instanceof MemberNode) && !(parse instanceof IdentifierNode) && !(parse instanceof CallExpressionNode))
             throw new ELException("Invalid method expression: " + expression);
-        if (context != null) {
-            parse.bind(context);
-        }
+        FunctionMapper fnMapper = context != null ? FunctionBinder.bind(parse, context.getFunctionMapper()) : null;
+        VariableMapper varMapper = context != null ? context.getVariableMapper() : null;
         return JoelMethodExpression.newInstance(expression, parse, expectedReturnType,
-                expectedParamTypes == null ? new Class<?>[0] : expectedParamTypes);
+                expectedParamTypes == null ? new Class<?>[0] : expectedParamTypes, fnMapper, varMapper);
     }
 
     @Override
     public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
         Objects.requireNonNull(expectedType);
         var parseResult = JoelExpressionParser.parse(expression);
-        if (context != null) {
-            parseResult.bind(context);
-        }
-        return JoelValueExpression.newInstance(expression, parseResult, expectedType);
+        FunctionMapper fnMapper = context != null ? FunctionBinder.bind(parseResult, context.getFunctionMapper()) : null;
+        VariableMapper varMapper = context != null ? context.getVariableMapper() : null;
+        return JoelValueExpression.newInstance(expression, parseResult, expectedType, fnMapper, varMapper);
     }
 
     @Override

@@ -6,13 +6,6 @@ import jakarta.el.ELContext;
 public record TernaryNode(Node condition, Node trueExpression,
                           Node falseExpression) implements Node {
     @Override
-    public void bind(ELContext context) {
-        if (condition != null) condition.bind(context);
-        if (trueExpression != null) trueExpression.bind(context);
-        if (falseExpression != null) falseExpression.bind(context);
-    }
-
-    @Override
     public Class<?> getType(ELContext context) {
         if ((boolean) context.convertToType(condition.getValue(context), boolean.class)) {
             return trueExpression.getType(context);

@@ -9,12 +9,6 @@ import jakarta.el.ValueReference;
 
 public record MemberNode(Node object, Node property) implements Node {
     @Override
-    public void bind(ELContext context) {
-        if (object != null) object.bind(context);
-        if (property != null) property.bind(context);
-    }
-
-    @Override
     public Class<?> getType(ELContext context) {
         if (property instanceof IdentifierNode node)
             return resolveType(context, node.value());
@@ -23,7 +17,22 @@ public record MemberNode(Node object, Node property) implements Node {
     }
 
     private Class<?> resolveType(ELContext context, Object property) {
-        Class<?> type = context.getELResolver().getType(context, new ELClass(object.getType(context)), property);
+        Object base = null;
+        try {
+            base = object.getValue(context);
+        } catch (Exception ignored) {
+        }
+        if (base == null) {
+            try {
+                Class<?> objectType = object.getType(context);
+                if (objectType != null) {
+                    base = new ELClass(objectType);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        context.setPropertyResolved(false);
+        Class<?> type = context.getELResolver().getType(context, base, property);
         if (type == null && object instanceof IdentifierNode identifier && property instanceof String name) {
             try {
                 Class<?> baseClass = context.getImportHandler().resolveClass(identifier.value());

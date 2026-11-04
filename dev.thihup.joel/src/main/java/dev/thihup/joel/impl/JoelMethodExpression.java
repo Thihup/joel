@@ -6,10 +6,12 @@ import dev.thihup.joel.impl.node.StringNode;
 import dev.thihup.joel.impl.node.CallExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
+import jakarta.el.FunctionMapper;
 import jakarta.el.MethodExpression;
 import jakarta.el.MethodInfo;
 import jakarta.el.MethodNotFoundException;
 import jakarta.el.MethodReference;
+import jakarta.el.VariableMapper;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -30,17 +32,43 @@ public final class JoelMethodExpression extends MethodExpression {
     private final Class<?> expectedReturnType;
     private final Class<?>[] expectedParameterTypes;
     private final String expression;
-    private transient MethodInfo resolvedMethodInfo;
+    @SuppressWarnings("serial")
+    private final FunctionMapper functionMapper;
+    @SuppressWarnings("serial")
+    private final VariableMapper variableMapper;
+    private transient volatile MethodInfo resolvedMethodInfo;
 
-    private JoelMethodExpression(String expression, Node node, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
+    private JoelMethodExpression(String expression, Node node, Class<?> expectedReturnType,
+                                 Class<?>[] expectedParameterTypes,
+                                 FunctionMapper functionMapper, VariableMapper variableMapper) {
         this.expression = expression;
         this.node = node;
         this.expectedReturnType = expectedReturnType;
         this.expectedParameterTypes = expectedParameterTypes;
+        this.functionMapper = functionMapper;
+        this.variableMapper = variableMapper;
     }
 
-    public static JoelMethodExpression newInstance(String expression, Node node, Class<?> expectedReturnType, Class<?>[] expectedParameterTypes) {
-        return new JoelMethodExpression(expression, node, expectedReturnType, expectedParameterTypes);
+    public static JoelMethodExpression newInstance(String expression, Node node, Class<?> expectedReturnType,
+                                                   Class<?>[] expectedParameterTypes,
+                                                   FunctionMapper functionMapper, VariableMapper variableMapper) {
+        return new JoelMethodExpression(expression, node, expectedReturnType, expectedParameterTypes, functionMapper, variableMapper);
+    }
+
+    public static JoelMethodExpression newInstance(String expression, Node node, Class<?> expectedReturnType,
+                                                   Class<?>[] expectedParameterTypes) {
+        return new JoelMethodExpression(expression, node, expectedReturnType, expectedParameterTypes, null, null);
+    }
+
+    private ELContext wrapContext(ELContext context) {
+        if (context == null) {
+            return null;
+        }
+        if ((functionMapper != null && context.getFunctionMapper() != functionMapper)
+                || (variableMapper != null && context.getVariableMapper() != variableMapper)) {
+            return new JoelEvaluationContext(context, functionMapper, variableMapper);
+        }
+        return context;
     }
 
     @Override
@@ -55,10 +83,11 @@ public final class JoelMethodExpression extends MethodExpression {
 
     @Override
     public MethodInfo getMethodInfo(ELContext context) {
+        ELContext evalContext = wrapContext(context);
         if (node instanceof StringNode stringLiteral)
             return new MethodInfo(stringLiteral.value(), expectedReturnType, expectedParameterTypes);
         if (node instanceof CallExpressionNode) {
-            MethodTarget target = resolveMethodReference(context);
+            MethodTarget target = resolveMethodReference(evalContext);
             if (resolvedMethodInfo == null) {
                 resolvedMethodInfo = new MethodInfo(target.method().getName(), target.method().getReturnType(),
                         target.method().getParameterTypes());
@@ -66,7 +95,7 @@ public final class JoelMethodExpression extends MethodExpression {
             return resolvedMethodInfo;
         }
         if (node instanceof MemberNode memberNode) {
-            var valueReference = memberNode.valueReference(context);
+            var valueReference = memberNode.valueReference(evalContext);
             Object base = valueReference.getBase();
             var property = valueReference.getProperty().toString();
             try {
@@ -85,29 +114,31 @@ public final class JoelMethodExpression extends MethodExpression {
     @Override
     public MethodReference getMethodReference(ELContext context) {
         Objects.requireNonNull(context);
+        ELContext evalContext = wrapContext(context);
         if (node instanceof StringNode) {
-            return super.getMethodReference(context);
+            return super.getMethodReference(evalContext);
         }
-        MethodTarget target = resolveMethodReference(context);
+        MethodTarget target = resolveMethodReference(evalContext);
         if (target == null) {
             return null;
         }
         Object[] parameters = target.evaluatedArguments();
         Method method = target.method();
         return new MethodReference(target.base(),
-                getMethodInfo(context),
+                getMethodInfo(evalContext),
                 method.getAnnotations(), parameters);
     }
 
     @Override
     public Object invoke(ELContext context, Object[] params) {
+        ELContext evalContext = wrapContext(context);
         try {
-            context.notifyBeforeEvaluation(expression);
+            evalContext.notifyBeforeEvaluation(expression);
             if (node instanceof StringNode stringLiteral) {
-                return context.convertToType(stringLiteral.value(), expectedReturnType);
+                return evalContext.convertToType(stringLiteral.value(), expectedReturnType);
             }
             if (node instanceof CallExpressionNode) {
-                MethodTarget target = resolveMethodReference(context);
+                MethodTarget target = resolveMethodReference(evalContext);
                 try {
                     return target.method().invoke(target.base(), target.arguments());
                 } catch (IllegalAccessException | InvocationTargetException exception) {
@@ -115,7 +146,7 @@ public final class JoelMethodExpression extends MethodExpression {
                 }
             }
             if (node instanceof MemberNode memberNode) {
-                var valueReference = memberNode.valueReference(context);
+                var valueReference = memberNode.valueReference(evalContext);
                 try {
                     Object base = valueReference.getBase();
                     var property = valueReference.getProperty().toString();
@@ -129,7 +160,7 @@ public final class JoelMethodExpression extends MethodExpression {
             }
             return null;
         } finally {
-            context.notifyAfterEvaluation(expression);
+            evalContext.notifyAfterEvaluation(expression);
         }
     }
 
@@ -215,21 +246,21 @@ public final class JoelMethodExpression extends MethodExpression {
         return new MethodTarget(base, method, converted, score, arguments);
     }
 
-        private static Class<?> wrap(Class<?> type) {
-            if (!type.isPrimitive()) return type;
-            if (type == boolean.class) return Boolean.class;
-            if (type == byte.class) return Byte.class;
-            if (type == short.class) return Short.class;
-            if (type == int.class) return Integer.class;
-            if (type == long.class) return Long.class;
-            if (type == float.class) return Float.class;
-            if (type == double.class) return Double.class;
-            if (type == char.class) return Character.class;
-            return type;
-        }
+    private static Class<?> wrap(Class<?> type) {
+        if (!type.isPrimitive()) return type;
+        if (type == boolean.class) return Boolean.class;
+        if (type == byte.class) return Byte.class;
+        if (type == short.class) return Short.class;
+        if (type == int.class) return Integer.class;
+        if (type == long.class) return Long.class;
+        if (type == float.class) return Float.class;
+        if (type == double.class) return Double.class;
+        if (type == char.class) return Character.class;
+        return type;
+    }
 
-        private record MethodTarget(Object base, Method method, Object[] arguments, int score, Object[] evaluatedArguments) {
-        }
+    private record MethodTarget(Object base, Method method, Object[] arguments, int score, Object[] evaluatedArguments) {
+    }
 
     @Override
     public boolean isParametersProvided() {

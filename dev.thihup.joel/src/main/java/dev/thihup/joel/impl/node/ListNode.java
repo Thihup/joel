@@ -8,15 +8,6 @@ import java.util.stream.Collectors;
 
 public record ListNode(List<Node> values) implements Node {
     @Override
-    public void bind(ELContext context) {
-        if (values != null) {
-            for (Node v : values) {
-                if (v != null) v.bind(context);
-            }
-        }
-    }
-
-    @Override
     public Class<?> getType(ELContext context) {
         return List.class;
     }
