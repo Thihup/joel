@@ -29,24 +29,26 @@ public final class JoelExpressionParser {
         if (node != null) {
             return node;
         }
+
         ConcurrentHashMap<String, Node> longTerm = LONG_TERM;
         node = longTerm.get(expression);
         if (node != null) {
-            eden.put(expression, node);
+            EDEN.putIfAbsent(expression, node);
             return node;
         }
-        node = parseInternal(expression);
-        if (eden.mappingCount() >= MAX_CACHE_SIZE && PROMOTING.compareAndSet(false, true)) {
+
+        if (eden.size() >= MAX_CACHE_SIZE && PROMOTING.compareAndSet(false, true)) {
             try {
-                LONG_TERM = eden;
-                EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
-                eden = EDEN;
+                if (EDEN == eden) {
+                    LONG_TERM = eden;
+                    EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
+                }
             } finally {
                 PROMOTING.set(false);
             }
         }
-        eden.put(expression, node);
-        return node;
+
+        return EDEN.computeIfAbsent(expression, JoelExpressionParser::parseInternal);
     }
 
     private static Node parseInternal(String expression) {
@@ -73,5 +75,4 @@ public final class JoelExpressionParser {
             throw new ELException("line %d:%d %s".formatted(line, charPositionInLine, msg));
         }
     }
-
 }
