@@ -6,6 +6,14 @@ import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 
 public record IdentifierNode(String value) implements Node {
+
+    private static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
+        @Override
+        protected ELClass computeValue(Class<?> type) {
+            return new ELClass(type);
+        }
+    };
+
     @Override
     public Class<?> getType(ELContext context) {
         var variableMapper = context.getVariableMapper();
@@ -46,11 +54,11 @@ public record IdentifierNode(String value) implements Node {
         if (importHandler != null) {
             Class<?> aClass = importHandler.resolveClass(value);
             if (aClass != null) {
-                return new ELClass(aClass);
+                return EL_CLASS_CACHE.get(aClass);
             }
             aClass = importHandler.resolveStatic(value);
             if (aClass != null) {
-                return context.getELResolver().getValue(context, new ELClass(aClass), value);
+                return context.getELResolver().getValue(context, EL_CLASS_CACHE.get(aClass), value);
             }
         }
 

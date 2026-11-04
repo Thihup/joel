@@ -3,8 +3,8 @@ package jakarta.el;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles imports of class names and package names. An imported package name implicitly imports all the classes in the
@@ -15,6 +15,7 @@ public class ImportHandler {
 
     private final Set<String> packages = new HashSet<>();
     private final Map<String, String> staticImports = new HashMap<>();
+    private final Map<String, Class<?>> classCache = new ConcurrentHashMap<>();
 
     public ImportHandler() {
         packages.add("java.lang");
@@ -32,6 +33,7 @@ public class ImportHandler {
             throw new ELException("Not fully qualified classname: %s".formatted(className));
         }
         packages.add(className.substring(0, index));
+        classCache.clear();
     }
 
     /**
@@ -44,6 +46,7 @@ public class ImportHandler {
             throw new ELException("Package must have a dot: %s".formatted(packageName));
         }
         packages.add(packageName);
+        classCache.clear();
     }
 
     /**
@@ -69,11 +72,18 @@ public class ImportHandler {
      * @throws ELException if the class is abstract or is an interface, or not public.
      */
     public Class<?> resolveClass(String className) {
-        return packages.stream()
-                .map(x -> loadClass(x + "." + className))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        Class<?> cached = classCache.get(className);
+        if (cached != null) {
+            return cached;
+        }
+        for (String pkg : packages) {
+            Class<?> clazz = loadClass(pkg + "." + className);
+            if (clazz != null) {
+                classCache.put(className, clazz);
+                return clazz;
+            }
+        }
+        return null;
     }
 
     /**

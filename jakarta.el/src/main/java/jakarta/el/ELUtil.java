@@ -33,6 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility methods for this portion of the Jakarta Expression Language implementation
@@ -199,18 +201,57 @@ class ELUtil {
         }
     }
 
+    private record MethodKey(Class<?> clazz, String name, Class<?>[] paramTypes, boolean staticOnly) {
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MethodKey methodKey = (MethodKey) o;
+            return staticOnly == methodKey.staticOnly
+                    && clazz.equals(methodKey.clazz)
+                    && name.equals(methodKey.name)
+                    && Arrays.equals(paramTypes, methodKey.paramTypes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = clazz.hashCode();
+            result = 31 * result + name.hashCode();
+            result = 31 * result + (staticOnly ? 1 : 0);
+            result = 31 * result + Arrays.hashCode(paramTypes);
+            return result;
+        }
+    }
+
+    private static final ConcurrentHashMap<MethodKey, Method> METHOD_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Method, Class<?>[]> PARAM_TYPES_CACHE = new ConcurrentHashMap<>();
+    private static final Class<?>[] EMPTY_TYPES = new Class<?>[0];
+
     static Method findMethod(Class<?> klass, Object base, String methodName, Class<?>[] paramTypes, Object[] params, boolean staticOnly) {
-        Method method = findMethod(klass, base, methodName, paramTypes, params);
+        if (paramTypes == null) {
+            paramTypes = getTypesFromValues(params);
+        }
+        MethodKey key = new MethodKey(klass, methodName, paramTypes, staticOnly);
+        Method method = METHOD_CACHE.get(key);
+        if (method != null) {
+            return method;
+        }
+
+        method = findMethod(klass, base, methodName, paramTypes, params);
         if (staticOnly && !Modifier.isStatic(method.getModifiers())) {
             throw new MethodNotFoundException("Method " + methodName + "for class " + klass + " not found or accessible");
         }
-
+        try {
+            method.trySetAccessible();
+        } catch (Exception ignored) {
+        }
+        METHOD_CACHE.putIfAbsent(key, method);
         return method;
     }
 
     static Object invokeMethod(ELContext context, Method method, Object base, Object[] params) {
-
-        Object[] parameters = buildParameters(context, method.getParameterTypes(), method.isVarArgs(), params);
+        Class<?>[] paramTypes = PARAM_TYPES_CACHE.computeIfAbsent(method, Method::getParameterTypes);
+        Object[] parameters = buildParameters(context, paramTypes, method.isVarArgs(), params);
         try {
             return method.invoke(base, parameters);
         } catch (IllegalAccessException iae) {
@@ -537,15 +578,13 @@ class ELUtil {
     }
 
     private static Class<?>[] getTypesFromValues(Object[] values) {
-        if (values == null) {
-            return null;
+        if (values == null || values.length == 0) {
+            return EMPTY_TYPES;
         }
 
-        Class<?> result[] = new Class<?>[values.length];
+        Class<?>[] result = new Class<?>[values.length];
         for (int i = 0; i < values.length; i++) {
-            if (values[i] == null) {
-                result[i] = null;
-            } else {
+            if (values[i] != null) {
                 result[i] = values[i].getClass();
             }
         }
@@ -634,7 +673,7 @@ class ELUtil {
                 int varArgIndex = parameterTypes.length - 1;
                 // First argCount-1 parameters are standard
                 for (int i = 0; (i < varArgIndex && i < paramCount); i++) {
-                    parameters[i] = context.convertToType(params[i], parameterTypes[i]);
+                    parameters[i] = coerceParameter(context, params[i], parameterTypes[i]);
                 }
                 // Last parameter is the varargs
                 if (parameterTypes.length == paramCount && params[varArgIndex] != null &&
@@ -644,17 +683,40 @@ class ELUtil {
                     Class<?> varArgClass = parameterTypes[varArgIndex].getComponentType();
                     final Object varargs = Array.newInstance(varArgClass, (paramCount - varArgIndex));
                     for (int i = (varArgIndex); i < paramCount; i++) {
-                        Array.set(varargs, i - varArgIndex, context.convertToType(params[i], varArgClass));
+                        Array.set(varargs, i - varArgIndex, coerceParameter(context, params[i], varArgClass));
                     }
                     parameters[varArgIndex] = varargs;
                 }
             } else {
                 for (int i = 0; i < parameterTypes.length && i < paramCount; i++) {
-                    parameters[i] = context.convertToType(params[i], parameterTypes[i]);
+                    parameters[i] = coerceParameter(context, params[i], parameterTypes[i]);
                 }
             }
         }
         return parameters;
+    }
+
+    private static Object coerceParameter(ELContext context, Object val, Class<?> targetType) {
+        if (val == null) {
+            return targetType.isPrimitive() ? context.convertToType(null, targetType) : null;
+        }
+        if (targetType == Object.class || targetType.isInstance(val)) {
+            return val;
+        }
+        Class<?> valClass = val.getClass();
+        if (targetType.isPrimitive()) {
+            if ((targetType == int.class && valClass == Integer.class)
+                    || (targetType == long.class && valClass == Long.class)
+                    || (targetType == double.class && valClass == Double.class)
+                    || (targetType == boolean.class && valClass == Boolean.class)
+                    || (targetType == float.class && valClass == Float.class)
+                    || (targetType == byte.class && valClass == Byte.class)
+                    || (targetType == char.class && valClass == Character.class)
+                    || (targetType == short.class && valClass == Short.class)) {
+                return val;
+            }
+        }
+        return context.convertToType(val, targetType);
     }
 
     private abstract static class Wrapper {

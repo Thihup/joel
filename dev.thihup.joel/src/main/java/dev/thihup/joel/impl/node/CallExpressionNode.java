@@ -2,6 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
+import jakarta.el.FunctionMapper;
 import jakarta.el.LambdaExpression;
 import jakarta.el.MethodNotFoundException;
 import jakarta.el.PropertyNotFoundException;
@@ -24,6 +25,10 @@ public final class CallExpressionNode implements Node {
     private final Node callee;
     @SuppressWarnings("serial")
     private final List<? extends Node> arguments;
+
+    private transient volatile Method cachedMethod;
+    private transient volatile Class<?>[] cachedParamTypes;
+    private transient volatile FunctionMapper cachedFunctionMapper;
 
     public CallExpressionNode(Node callee, List<? extends Node> arguments) {
         this.callee = callee;
@@ -56,19 +61,24 @@ public final class CallExpressionNode implements Node {
             return ((LambdaExpression) lambdaNode.getValue(context)).invoke(context, evaluateArguments(context));
         }
         if ((callee instanceof MemberNode memberNode)) {
-            var valueReference = memberNode.valueReference(context);
+            Object base = memberNode.getBase(context);
+            Object prop = memberNode.getProperty(context);
             var objects = evaluateArguments(context);
             return context.getELResolver()
-                    .invoke(context, valueReference.getBase(), valueReference.getProperty(), null, objects);
+                    .invoke(context, base, prop, null, objects);
         }
         if (callee instanceof IdentifierNode identifierNode) {
             String idValue = identifierNode.value();
-            if (idValue.contains(":")) {
-                return resolveQualifiedFunction(context, identifierNode);
+            int colon = idValue.indexOf(':');
+            String prefix = colon < 0 ? "" : idValue.substring(0, colon);
+            String localName = colon < 0 ? idValue : idValue.substring(colon + 1);
+
+            if (colon >= 0) {
+                return resolveQualifiedFunction(context, identifierNode, prefix, localName);
             }
             if (context.getFunctionMapper() != null
                     && context.getFunctionMapper().resolveFunction("", idValue) != null) {
-                return resolveQualifiedFunction(context, identifierNode);
+                return resolveQualifiedFunction(context, identifierNode, "", idValue);
             }
             try {
                 if (identifierNode.getValue(context) instanceof LambdaExpression lambdaExpression) {
@@ -76,44 +86,52 @@ public final class CallExpressionNode implements Node {
                 }
             } catch (PropertyNotFoundException ignored) {
             }
-            return resolveQualifiedFunction(context, identifierNode);
+            return resolveQualifiedFunction(context, identifierNode, prefix, localName);
         }
         throw new UnsupportedOperationException();
     }
 
-    private Object resolveQualifiedFunction(ELContext context, IdentifierNode identifierNode) {
+    private Object resolveQualifiedFunction(ELContext context, IdentifierNode identifierNode, String prefix, String localName) {
         var functionMapper = context.getFunctionMapper();
         if (functionMapper == null) {
             throw new MethodNotFoundException("Function '%s' not found: no FunctionMapper available".formatted(identifierNode.value()));
         }
-        String funcName = identifierNode.value();
-        String[] split = funcName.split(":", 2);
-        String prefix = split.length == 1 ? "" : split[0];
-        String localName = split.length == 1 ? split[0] : split[1];
 
-        Method method = functionMapper.resolveFunction(prefix, localName);
-        if (method == null) {
-            throw new MethodNotFoundException("Function '%s' not found".formatted(funcName));
+        Method method = this.cachedMethod;
+        Class<?>[] paramTypes = this.cachedParamTypes;
+        if (method == null || this.cachedFunctionMapper != functionMapper) {
+            method = functionMapper.resolveFunction(prefix, localName);
+            if (method == null) {
+                throw new MethodNotFoundException("Function '%s' not found".formatted(identifierNode.value()));
+            }
+            try {
+                method.trySetAccessible();
+            } catch (Exception ignored) {
+            }
+            paramTypes = method.getParameterTypes();
+            this.cachedMethod = method;
+            this.cachedParamTypes = paramTypes;
+            this.cachedFunctionMapper = functionMapper;
         }
 
-        try {
-            method.trySetAccessible();
-        } catch (Exception ignored) {
-        }
-
-        return invokeResolvedMethod(context, method);
+        return invokeResolvedMethod(context, method, paramTypes);
     }
 
-    private Object invokeResolvedMethod(ELContext context, Method method) {
-        if (method.getParameterCount() != arguments.size()) {
-            throw new MethodNotFoundException("Method " + method.getName() + " requires " + method.getParameterCount() + " parameters, but " + arguments.size() + " were supplied");
+    private Object invokeResolvedMethod(ELContext context, Method method, Class<?>[] paramTypes) {
+        if (paramTypes.length != arguments.size()) {
+            throw new MethodNotFoundException("Method " + method.getName() + " requires " + paramTypes.length + " parameters, but " + arguments.size() + " were supplied");
         }
 
         int size = arguments.size();
-        Class<?>[] paramTypes = method.getParameterTypes();
         Object[] objects = new Object[size];
         for (int i = 0; i < size; i++) {
-            objects[i] = convertArgument(context, arguments.get(i).getValue(context), paramTypes[i]);
+            Object val = arguments.get(i).getValue(context);
+            Class<?> targetType = paramTypes[i];
+            if (val != null && (targetType == Object.class || targetType.isInstance(val))) {
+                objects[i] = val;
+            } else {
+                objects[i] = convertArgument(context, val, targetType);
+            }
         }
 
         try {
@@ -133,9 +151,9 @@ public final class CallExpressionNode implements Node {
     public Class<?> getType(ELContext context) {
         if (callee instanceof IdentifierNode identifierNode && context != null && context.getFunctionMapper() != null) {
             String funcName = identifierNode.value();
-            String[] split = funcName.split(":", 2);
-            String prefix = split.length == 1 ? "" : split[0];
-            String localName = split.length == 1 ? split[0] : split[1];
+            int colon = funcName.indexOf(':');
+            String prefix = colon < 0 ? "" : funcName.substring(0, colon);
+            String localName = colon < 0 ? funcName : funcName.substring(colon + 1);
             Method method = context.getFunctionMapper().resolveFunction(prefix, localName);
             if (method != null) {
                 return method.getReturnType();
@@ -145,7 +163,7 @@ public final class CallExpressionNode implements Node {
     }
 
     private static Object convertArgument(ELContext context, Object value, Class<?> targetType) {
-        if (value != null && targetType.isInstance(value)) {
+        if (value != null && (targetType == Object.class || targetType.isInstance(value))) {
             return value;
         }
         if (value instanceof LambdaExpression lambda && targetType.isInterface()) {

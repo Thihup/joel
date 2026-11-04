@@ -8,6 +8,14 @@ import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
 public record MemberNode(Node object, Node property) implements Node {
+
+    private static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
+        @Override
+        protected ELClass computeValue(Class<?> type) {
+            return new ELClass(type);
+        }
+    };
+
     @Override
     public Class<?> getType(ELContext context) {
         if (property instanceof IdentifierNode node)
@@ -26,7 +34,7 @@ public record MemberNode(Node object, Node property) implements Node {
             try {
                 Class<?> objectType = object.getType(context);
                 if (objectType != null) {
-                    base = new ELClass(objectType);
+                    base = EL_CLASS_CACHE.get(objectType);
                 }
             } catch (Exception ignored) {
             }
@@ -60,15 +68,23 @@ public record MemberNode(Node object, Node property) implements Node {
                 if (importHandler != null) {
                     Class<?> aClass = importHandler.resolveClass(node.value());
                     if (aClass != null)
-                        return context.getELResolver().getValue(context, new ELClass(aClass), prop);
+                        return context.getELResolver().getValue(context, EL_CLASS_CACHE.get(aClass), prop);
                 }
             }
             throw new PropertyNotFoundException(prettyPrint(), rootCause);
         }
     }
 
+    public Object getBase(ELContext context) {
+        return object.getValue(context);
+    }
+
+    public Object getProperty(ELContext context) {
+        return property instanceof IdentifierNode node ? node.value() : property.getValue(context);
+    }
+
     public ValueReference valueReference(ELContext context) {
-        return new ValueReference(object.getValue(context), property instanceof IdentifierNode node ? node.value() : property.getValue(context));
+        return new ValueReference(getBase(context), getProperty(context));
     }
 
     @Override
