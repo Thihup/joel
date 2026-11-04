@@ -8,13 +8,11 @@ import jdk.dynalink.StandardOperation;
 import jdk.dynalink.beans.BeansLinker;
 import jdk.dynalink.support.ChainedCallSite;
 
-import java.beans.FeatureDescriptor;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -55,7 +53,7 @@ import java.util.Objects;
  * @see ELResolver
  * @since Jakarta Server Pages 2.1
  */
-@SuppressWarnings("removal")
+
 public class BeanELResolver extends ELResolver {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     private static final Module THIS_MODULE = BeanELResolver.class.getModule();
@@ -132,35 +130,6 @@ public class BeanELResolver extends ELResolver {
         if (base == null)
             return null;
         return Object.class;
-    }
-
-    /**
-     * If the base object is not <code>null</code>, returns an <code>Iterator</code> containing the set of JavaBeans
-     * properties available on the given object. Otherwise, returns <code>null</code>.
-     *
-     * <p>
-     * The <code>Iterator</code> returned must contain zero or more instances of {@link java.beans.FeatureDescriptor}. Each
-     * info object contains information about a property in the bean, as obtained by calling the
-     * <code>BeanInfo.getPropertyDescriptors</code> method. The <code>FeatureDescriptor</code> is initialized using the same
-     * fields as are present in the <code>PropertyDescriptor</code>, with the additional required named attributes
-     * "<code>type</code>" and "<code>resolvableAtDesignTime</code>" set as follows:
-     * <ul>
-     * <li>{@link ELResolver#TYPE} - The runtime type of the property, from
-     * <code>PropertyDescriptor.getPropertyType()</code>.</li>
-     * <li>{@link ELResolver#RESOLVABLE_AT_DESIGN_TIME} - <code>true</code>.</li>
-     * </ul>
-     *
-     * @param context The context of this evaluation.
-     * @param base    The bean to analyze.
-     * @return An <code>Iterator</code> containing zero or more <code>FeatureDescriptor</code> objects, each representing a
-     * property on this bean, or <code>null</code> if the <code>base</code> object is <code>null</code>.
-     */
-    @Override
-    @Deprecated(forRemoval = true, since = "5.0")
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        if (base == null)
-            return null;
-        return Collections.emptyIterator();
     }
 
     /**
@@ -351,47 +320,25 @@ public class BeanELResolver extends ELResolver {
      * @since Jakarta Expression Language 2.2
      */
     @Override
-    public Object invoke(ELContext context, Object base, Object methodName, Class<?>[] parameterTypes, Object[]
-            params) {
+    public Object invoke(ELContext context, Object base, Object methodName, Class<?>[] parameterTypes, Object[] params) {
         Objects.requireNonNull(context);
-        if (base == null || methodName == null)
+        if (base == null || methodName == null) {
             return null;
-        Class<?> aClass = base.getClass();
-        addReads(aClass);
-        if (!BeansLinker.getInstanceMethodNames(aClass).contains(methodName.toString()))
-            throw new MethodNotFoundException("Method %s not found in %s".formatted(methodName, aClass));
-        try {
-            var o = INVOKE_METHOD.invokeExact(base, methodName.toString());
-            context.setPropertyResolved(base, methodName);
-            var paramsLength = (params == null) ? 0 : params.length;
-            if (paramsLength == 0) {
-                return INVOKE_CALL_NO_ARGS.invokeExact(o, base);
-            }
-            if (parameterTypes == null) {
-                for (Method method : aClass.getMethods()) {
-                    if (!method.getName().equals(methodName.toString())
-                            || method.getParameterCount() != paramsLength) {
-                        continue;
-                    }
-                    Object[] converted = new Object[paramsLength];
-                    try {
-                        for (int i = 0; i < paramsLength; i++) {
-                            converted[i] = context.convertToType(params[i], method.getParameterTypes()[i]);
-                        }
-                        return method.invoke(base, converted);
-                    } catch (IllegalArgumentException | ReflectiveOperationException ignored) {
-                        // Try the next overload.
-                    }
+        }
+
+        Method method = ELUtil.findMethod(base.getClass(), base, methodName.toString(), parameterTypes, params, false);
+
+        if (params != null) {
+            for (Object param : params) {
+                if (param instanceof LambdaExpression) {
+                    ((LambdaExpression) param).setELContext(context);
                 }
             }
-            var callSiteDescriptor = new CallSiteDescriptor(LOOKUP, StandardOperation.CALL, MethodType.genericMethodType(2 + paramsLength));
-            return LINKER.link(new ChainedCallSite(callSiteDescriptor))
-                    .dynamicInvoker()
-                    .asSpreader(Object[].class, paramsLength)
-                    .invokeExact(o, base, params);
-        } catch (Throwable e) {
-            throw new ELException(e);
         }
+
+        Object ret = ELUtil.invokeMethod(context, method, base, params);
+        context.setPropertyResolved(base, methodName);
+        return ret;
     }
 
     /**
