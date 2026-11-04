@@ -2,14 +2,14 @@ package dev.thihup.joel.benchmark;
 
 import dev.thihup.joel.benchmark.model.BenchmarkModels.OrderItem;
 import dev.thihup.joel.benchmark.model.BenchmarkModels.Person;
+import dev.thihup.joel.benchmark.util.ELImplementation;
 import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import jakarta.el.ValueExpression;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)
@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class ExpressionOperatorsBenchmark {
 
+    @Param({"JOEL", "GLASSFISH", "TOMCAT"})
+    public String implementation = "JOEL";
+
     private ELContext context;
     private ValueExpression arithmeticExpr;
     private ValueExpression logicalExpr;
@@ -29,17 +32,16 @@ public class ExpressionOperatorsBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-        ELProcessor processor = new ELProcessor();
-        ExpressionFactory factory = ExpressionFactory.newInstance();
-        context = processor.getELManager().getELContext();
+        ExpressionFactory factory = ELImplementation.valueOf(implementation).createFactory();
+        context = new StandardELContext(factory);
 
         OrderItem item = new OrderItem("Mechanical Keyboard", 129.99, 2);
         Person person = new Person("Carlos", 28, true, null, Collections.emptyList());
 
-        processor.defineBean("item", item);
-        processor.defineBean("person", person);
-        processor.defineBean("discount", 0.15);
-        processor.defineBean("emptyList", Collections.emptyList());
+        context.getVariableMapper().setVariable("item", factory.createValueExpression(item, OrderItem.class));
+        context.getVariableMapper().setVariable("person", factory.createValueExpression(person, Person.class));
+        context.getVariableMapper().setVariable("discount", factory.createValueExpression(0.15, Double.class));
+        context.getVariableMapper().setVariable("emptyList", factory.createValueExpression(Collections.emptyList(), Object.class));
 
         arithmeticExpr = factory.createValueExpression(context, "${item.price * item.quantity * (1.0 - discount)}", Object.class);
         logicalExpr = factory.createValueExpression(context, "${person.age >= 18 && person.active && item.quantity > 0}", Object.class);
@@ -73,4 +75,3 @@ public class ExpressionOperatorsBenchmark {
         return emptyExpr.getValue(context);
     }
 }
-

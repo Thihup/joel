@@ -1,8 +1,9 @@
 package dev.thihup.joel.benchmark;
 
+import dev.thihup.joel.benchmark.util.ELImplementation;
 import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import jakarta.el.ValueExpression;
 import org.openjdk.jmh.annotations.*;
 
@@ -18,6 +19,9 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class CollectionBenchmark {
 
+    @Param({"JOEL", "GLASSFISH", "TOMCAT"})
+    public String implementation = "JOEL";
+
     private ELContext context;
     private ValueExpression mapAccessExpr;
     private ValueExpression listAccessExpr;
@@ -25,9 +29,8 @@ public class CollectionBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-        ELProcessor processor = new ELProcessor();
-        ExpressionFactory factory = ExpressionFactory.newInstance();
-        context = processor.getELManager().getELContext();
+        ExpressionFactory factory = ELImplementation.valueOf(implementation).createFactory();
+        context = new StandardELContext(factory);
 
         Map<String, Object> map = Map.of(
                 "key1", "val1",
@@ -37,9 +40,9 @@ public class CollectionBenchmark {
         List<String> list = List.of("zero", "one", "two", "three", "four", "five");
         String[] array = new String[]{"alpha", "bravo", "charlie", "delta"};
 
-        processor.defineBean("map", map);
-        processor.defineBean("list", list);
-        processor.defineBean("array", array);
+        context.getVariableMapper().setVariable("map", factory.createValueExpression(map, Map.class));
+        context.getVariableMapper().setVariable("list", factory.createValueExpression(list, List.class));
+        context.getVariableMapper().setVariable("array", factory.createValueExpression(array, String[].class));
 
         mapAccessExpr = factory.createValueExpression(context, "${map['targetKey']}", Object.class);
         listAccessExpr = factory.createValueExpression(context, "${list[3]}", Object.class);
@@ -61,4 +64,3 @@ public class CollectionBenchmark {
         return arrayAccessExpr.getValue(context);
     }
 }
-

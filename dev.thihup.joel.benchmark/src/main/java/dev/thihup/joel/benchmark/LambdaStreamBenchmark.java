@@ -1,8 +1,9 @@
 package dev.thihup.joel.benchmark;
 
+import dev.thihup.joel.benchmark.util.ELImplementation;
 import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import jakarta.el.ValueExpression;
 import org.openjdk.jmh.annotations.*;
 
@@ -19,6 +20,9 @@ import java.util.stream.IntStream;
 @Fork(1)
 public class LambdaStreamBenchmark {
 
+    @Param({"JOEL", "GLASSFISH", "TOMCAT"})
+    public String implementation = "JOEL";
+
     private ELContext context;
     private ValueExpression lambdaDirectExpr;
     private ValueExpression streamFilterMapExpr;
@@ -26,12 +30,11 @@ public class LambdaStreamBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-        ELProcessor processor = new ELProcessor();
-        ExpressionFactory factory = ExpressionFactory.newInstance();
-        context = processor.getELManager().getELContext();
+        ExpressionFactory factory = ELImplementation.valueOf(implementation).createFactory();
+        context = new StandardELContext(factory);
 
         List<Integer> numbers = IntStream.rangeClosed(1, 100).boxed().collect(Collectors.toList());
-        processor.defineBean("numbers", numbers);
+        context.getVariableMapper().setVariable("numbers", factory.createValueExpression(numbers, List.class));
 
         lambdaDirectExpr = factory.createValueExpression(context, "${((x, y) -> x * 2 + y)(10, 20)}", Object.class);
         streamFilterMapExpr = factory.createValueExpression(context, "${numbers.stream().filter(x -> x > 50).map(x -> x * 2).toList()}", Object.class);
@@ -53,4 +56,3 @@ public class LambdaStreamBenchmark {
         return streamReduceExpr.getValue(context);
     }
 }
-

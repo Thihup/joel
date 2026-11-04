@@ -2,22 +2,39 @@ package dev.thihup.joel.benchmark;
 
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BenchmarkRunner {
 
     public static void main(String[] args) throws RunnerException {
-        String includePattern = args.length > 0 ? args[0] : ".*Benchmark.*";
+        String pattern = ".*Benchmark.*";
+        List<String> implementations = new ArrayList<>();
 
-        Options opt = new OptionsBuilder()
-                .include(includePattern)
+        for (String arg : args) {
+            if (arg.startsWith("--impl=")) {
+                String val = arg.substring("--impl=".length());
+                implementations.addAll(List.of(val.split(",")));
+            } else if (arg.equals("--compare")) {
+                implementations.addAll(List.of("JOEL", "GLASSFISH", "TOMCAT"));
+            } else if (!arg.startsWith("-")) {
+                pattern = arg;
+            }
+        }
+
+        ChainedOptionsBuilder builder = new OptionsBuilder()
+                .include(pattern)
                 .forks(1)
                 .warmupIterations(2)
-                .measurementIterations(3)
-                .build();
+                .measurementIterations(3);
 
-        new Runner(opt).run();
+        if (!implementations.isEmpty()) {
+            builder.param("implementation", implementations.toArray(new String[0]));
+        }
+
+        new Runner(builder.build()).run();
     }
 }
-

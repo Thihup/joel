@@ -3,9 +3,10 @@ package dev.thihup.joel.benchmark;
 import dev.thihup.joel.benchmark.model.BenchmarkModels.Address;
 import dev.thihup.joel.benchmark.model.BenchmarkModels.Country;
 import dev.thihup.joel.benchmark.model.BenchmarkModels.Person;
+import dev.thihup.joel.benchmark.util.ELImplementation;
 import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import jakarta.el.ValueExpression;
 import org.openjdk.jmh.annotations.*;
 
@@ -20,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class PropertyAccessBenchmark {
 
+    @Param({"JOEL", "GLASSFISH", "TOMCAT"})
+    public String implementation = "JOEL";
+
     private ELContext context;
     private ValueExpression singlePropertyExpr;
     private ValueExpression nestedPropertyExpr;
@@ -31,15 +35,14 @@ public class PropertyAccessBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-        ELProcessor processor = new ELProcessor();
-        ExpressionFactory factory = ExpressionFactory.newInstance();
-        context = processor.getELManager().getELContext();
+        ExpressionFactory factory = ELImplementation.valueOf(implementation).createFactory();
+        context = new StandardELContext(factory);
 
         Country country = new Country("Brazil", "BR");
         Address address = new Address("Av. Paulista", "Sao Paulo", "01311-000", country);
         person = new Person("Alice", 30, true, address, List.of("developer", "java"));
 
-        processor.defineBean("person", person);
+        context.getVariableMapper().setVariable("person", factory.createValueExpression(person, Person.class));
 
         singlePropertyExpr = factory.createValueExpression(context, "${person.name}", Object.class);
         nestedPropertyExpr = factory.createValueExpression(context, "${person.address.country.name}", Object.class);
@@ -73,4 +76,3 @@ public class PropertyAccessBenchmark {
         setPropertyExpr.setValue(context, "Alice Updated");
     }
 }
-

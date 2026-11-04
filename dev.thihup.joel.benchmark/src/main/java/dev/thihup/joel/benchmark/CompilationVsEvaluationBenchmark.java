@@ -1,9 +1,10 @@
 package dev.thihup.joel.benchmark;
 
 import dev.thihup.joel.benchmark.model.BenchmarkModels.Person;
+import dev.thihup.joel.benchmark.util.ELImplementation;
 import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.StandardELContext;
 import jakarta.el.ValueExpression;
 import org.openjdk.jmh.annotations.*;
 
@@ -18,7 +19,9 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class CompilationVsEvaluationBenchmark {
 
-    private ELProcessor processor;
+    @Param({"JOEL", "GLASSFISH", "TOMCAT"})
+    public String implementation = "JOEL";
+
     private ExpressionFactory factory;
     private ELContext context;
 
@@ -30,12 +33,11 @@ public class CompilationVsEvaluationBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-        processor = new ELProcessor();
-        factory = ExpressionFactory.newInstance();
-        context = processor.getELManager().getELContext();
+        factory = ELImplementation.valueOf(implementation).createFactory();
+        context = new StandardELContext(factory);
 
         Person person = new Person("Daniel", 32, true, null, Collections.emptyList());
-        processor.defineBean("person", person);
+        context.getVariableMapper().setVariable("person", factory.createValueExpression(person, Person.class));
 
         precompiledSimple = factory.createValueExpression(context, SIMPLE_EXPR, Object.class);
         precompiledComplex = factory.createValueExpression(context, COMPLEX_EXPR, Object.class);
@@ -63,7 +65,6 @@ public class CompilationVsEvaluationBenchmark {
 
     @Benchmark
     public Object parseAndEvaluateDynamic() {
-        return processor.eval("person.name");
+        return factory.createValueExpression(context, SIMPLE_EXPR, Object.class).getValue(context);
     }
 }
-
