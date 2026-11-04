@@ -30,7 +30,7 @@ public final class FunctionBinder {
     }
 
     public static FunctionMapper bind(Node node, FunctionMapper original) {
-        if (node == null || original == null) {
+        if (node == null || original == null || !hasFunctions(node)) {
             return original;
         }
         Map<String, Method> bound = new HashMap<>();
@@ -50,6 +50,70 @@ public final class FunctionBinder {
                 return original.resolveFunction(prefix, localName);
             }
         };
+    }
+
+    private static boolean hasFunctions(Node node) {
+        if (node instanceof CallExpressionNode call) {
+            if (call.callee() instanceof IdentifierNode id && id.value().contains(":")) {
+                return true;
+            }
+            if (hasFunctions(call.callee())) {
+                return true;
+            }
+            if (call.arguments() != null) {
+                for (Node arg : call.arguments()) {
+                    if (hasFunctions(arg)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (node instanceof InfixExpressionNode infix) {
+            return hasFunctions(infix.left()) || hasFunctions(infix.right());
+        } else if (node instanceof RelationalNode rel) {
+            return hasFunctions(rel.left()) || hasFunctions(rel.right());
+        } else if (node instanceof MemberNode member) {
+            return hasFunctions(member.object()) || hasFunctions(member.property());
+        } else if (node instanceof TernaryNode ternary) {
+            return hasFunctions(ternary.condition()) || hasFunctions(ternary.trueExpression()) || hasFunctions(ternary.falseExpression());
+        } else if (node instanceof LambdaNode lambda) {
+            return hasFunctions(lambda.expression());
+        } else if (node instanceof ListNode list) {
+            if (list.values() != null) {
+                for (Node n : list.values()) {
+                    if (hasFunctions(n)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (node instanceof SetNode set) {
+            if (set.values() != null) {
+                for (Node n : set.values()) {
+                    if (hasFunctions(n)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (node instanceof MapNode map) {
+            if (map.entries() != null) {
+                for (var entry : map.entries()) {
+                    if (entry.getKey() != null && hasFunctions(entry.getKey())) return true;
+                    if (entry.getValue() != null && hasFunctions(entry.getValue())) return true;
+                }
+            }
+        } else if (node instanceof SemicolonNode semi) {
+            return hasFunctions(semi.left()) || hasFunctions(semi.right());
+        } else if (node instanceof UnaryEmptyNode empty) {
+            return hasFunctions(empty.node());
+        } else if (node instanceof UnaryMinusNode minus) {
+            return hasFunctions(minus.node());
+        } else if (node instanceof UnaryNotNode not) {
+            return hasFunctions(not.node());
+        } else if (node instanceof DeferredExpressionNode def) {
+            return hasFunctions(def.node());
+        } else if (node instanceof DynamicExpressionNode dyn) {
+            return hasFunctions(dyn.node());
+        }
+        return false;
     }
 
     private static void collectFunctions(Node node, FunctionMapper mapper, Map<String, Method> result) {
@@ -125,4 +189,3 @@ public final class FunctionBinder {
         }
     }
 }
-
