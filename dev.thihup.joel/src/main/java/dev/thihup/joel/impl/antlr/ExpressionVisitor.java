@@ -10,6 +10,8 @@ import dev.thihup.joel.impl.antlr.ExpressionLanguageParser.NullLiteralExpression
 import dev.thihup.joel.impl.antlr.ExpressionLanguageParser.RelationalExpressionContext;
 import dev.thihup.joel.impl.antlr.ExpressionLanguageParser.StringLiteralExpressionContext;
 import dev.thihup.joel.impl.node.TernaryNode;
+import dev.thihup.joel.impl.node.ElvisNode;
+import dev.thihup.joel.impl.node.NullCoalescingNode;
 import dev.thihup.joel.impl.node.UnaryNotNode;
 import dev.thihup.joel.impl.node.AddExpressionNode;
 import dev.thihup.joel.impl.node.AndNode;
@@ -274,6 +276,16 @@ public final class ExpressionVisitor extends ExpressionLanguageParserBaseVisitor
     public Node visitQualifiedFunction(ExpressionLanguageParser.QualifiedFunctionContext ctx) {
         var expressionList = ctx.arguments().expressionList();
         return new CallExpressionNode(new IdentifierNode(ctx.getChild(0).getText()), getArguments(expressionList));
+    }
+
+    @Override
+    public Node visitElvisExpression(ExpressionLanguageParser.ElvisExpressionContext ctx) {
+        return new ElvisNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
+    }
+
+    @Override
+    public Node visitNullCoalescingExpression(ExpressionLanguageParser.NullCoalescingExpressionContext ctx) {
+        return new NullCoalescingNode(visit(ctx.getChild(0)), visit(ctx.getChild(2)));
     }
 
     @Override

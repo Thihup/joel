@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2024 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -27,7 +27,6 @@ import java.sql.Time;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Properties;
 import java.util.function.Predicate;
 
 
@@ -72,14 +71,14 @@ public class ELClientIT {
 
   private static enum greeting {
     hello, goodbye
-  };
+  }
 
-  private Hashtable numberTable;
+  private Hashtable<Class<?>,Object> numberTable;
 
   private enum planets {
     MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE
     /** ,PLUTO */
-  };
+  }
 
   public ELClientIT(){
     initializeNumberTable();
@@ -275,7 +274,7 @@ public class ELClientIT {
   @Test
   public void positiveElBooleanCoercionTest() throws Exception {
 
-    Class expectedClass = Boolean.class;
+    Class<?> expectedClass = Boolean.class;
     boolean pass = false;
 
     try {
@@ -320,7 +319,7 @@ public class ELClientIT {
 
     try {
       ExprEval.evaluateValueExpression("${1}", null, Boolean.class);
-      logger.log(Logger.Level.ERROR, 
+      logger.log(Logger.Level.ERROR,
           "No exception thrown when coercing invalid class " + "to Boolean");
 
     } catch (ELException ee) {
@@ -339,10 +338,10 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:38.1; EL:SPEC:38.2; EL:SPEC:38.3; EL:SPEC:38.5
    * @test_Strategy: Validate that the following types coerce to type of String
    *                 and the expected String value is returned.
-   * 
+   *
    *                 Types: String(), boolean, null, byte, char, short, int,
    *                 long, float, double, enum.
-   * 
+   *
    */
   @Test
   public void elPrimitiveToStringCoercionTest() throws Exception {
@@ -353,7 +352,7 @@ public class ELClientIT {
     Object result1, result2, result4, result5, result6, result7, result8,
         result9, result10, result11;
 
-    Class expectedClass = String.class;
+    Class<?> expectedClass = String.class;
 
     String primString = "\"STRING\""; // result1
     boolean primBoolean = false; // result2
@@ -483,10 +482,10 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:38.5
    * @test_Strategy: Validate that the following types coerce to type of String
    *                 and the expected String value is returned.
-   * 
+   *
    *                 Types: Boolean, Byte, Character, Short, Integer, Long,
    *                 Float, Double.
-   * 
+   *
    */
   @Test
   public void elWrapperToStringCoercionTest() throws Exception {
@@ -496,16 +495,16 @@ public class ELClientIT {
     Object result1, result2, result3, result4, result5, result6, result7,
         result8;
 
-    Class expectedClass = String.class;
+    Class<?> expectedClass = String.class;
 
-    Boolean boo = false; // result1
-    Byte bite = 0; // result2
-    Character funny = '1'; // result3
-    Short tee = 2; // result4
-    Integer i = 3; // result5
-    Long rope = 4L; // result6
-    Float ter = 5.5f; // result7
-    Double down = 6.5d; // result8
+    Boolean boo = Boolean.FALSE; // result1
+    Byte bite = Byte.valueOf((byte) 0); // result2
+    Character funny = Character.valueOf('1'); // result3
+    Short tee = Short.valueOf((short) 2); // result4
+    Integer i = Integer.valueOf(3); // result5
+    Long rope = Long.valueOf(4L); // result6
+    Float ter = Float.valueOf(5.5f); // result7
+    Double down = Double.valueOf(6.5d); // result8
 
     try {
       // Boolean to String
@@ -601,10 +600,10 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:40.1; EL:SPEC:40.2; EL:SPEC:40.4; EL:SPEC:40.5
    * @test_Strategy: Validate that the following types coerce to type of
    *                 Character and the expected Character value is returned.
-   * 
+   *
    *                 Types: String, Byte, Character, Short, Integer, Long,
    *                 Float, Double, null, empty String.
-   * 
+   *
    */
   @Test
   public void positiveElCharacterCoercionTest() throws Exception {
@@ -615,22 +614,22 @@ public class ELClientIT {
     Object result1, result2, result3, result4, result5, result6, result7,
         result8, result10;
 
-    Class expectedClass = Character.class;
+    Class<?> expectedClass = Character.class;
 
-    Byte bite = 7;
-    Character funny = '1';
-    Short tee = 2;
-    Integer i = 3;
-    Long rope = 4L;
-    Float ter = 5f;
-    Double down = 6.5d;
+    Byte bite = Byte.valueOf((byte) 7);
+    Character funny = Character.valueOf('1');
+    Short tee = Short.valueOf((short) 2);
+    Integer i = Integer.valueOf(3);
+    Long rope = Long.valueOf(4L);
+    Float ter = Float.valueOf(5f);
+    Double down = Double.valueOf(6.5d);
 
     try {
       // String to Character
       result1 = ExprEval.evaluateValueExpression("${'STRING'}", null,
           expectedClass);
       pass1 = (ExprEval.compareClass(result1, expectedClass)
-          && ExprEval.compareValue(result1, 'S'));
+          && ExprEval.compareValue(result1, Character.valueOf('S')));
 
       // Byte to Character
       result2 = ExprEval.evaluateValueExpression("${" + bite + "}", null,
@@ -741,7 +740,7 @@ public class ELClientIT {
     try {
       ExprEval.evaluateValueExpression("${" + pass + "}", null,
           Character.class);
-      logger.log(Logger.Level.ERROR, 
+      logger.log(Logger.Level.ERROR,
           "No exception thrown when coercing Boolean " + "to Character!");
 
     } catch (ELException ee) {
@@ -770,13 +769,13 @@ public class ELClientIT {
   public void negativeElNumberCoercionTest() throws Exception {
 
     boolean pass;
-    Enumeration keys = numberTable.keys();
+    Enumeration<Class<?>> keys = numberTable.keys();
     String name;
-    Class testClass;
+    Class<?> testClass;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       // Coercing Boolean to Number type.
@@ -821,7 +820,7 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.1
    * @test_Strategy: Validate that when null or empty String is given. That the
    *                 returned value is 0. Test this for the Following types.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
    */
@@ -830,14 +829,14 @@ public class ELClientIT {
 
     boolean pass1;
     Object result1;
-    Enumeration keys = numberTable.keys();
+    Enumeration<Class<?>> keys = numberTable.keys();
     String name;
-    Class testClass;
+    Class<?> testClass;
     Object expectedValue;
 
     while (keys.hasMoreElements()) {
       pass1 = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
@@ -882,50 +881,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.3
    * @test_Strategy: Validate that following Number types coerce to Byte and the
    *                 expected Byte value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToByteCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Byte.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Byte.class;
     Byte expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf((Float.valueOf(FLOAT)).byteValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf((Double.valueOf(DOUBLE)).byteValue());
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Byte.valueOf((Double.valueOf(BIGDEC)).byteValue());
       } else {
         // Default Values, this should never been utilized.
@@ -956,50 +955,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.4
    * @test_Strategy: Validate that following Number types coerce to Short and
    *                 the expected Short value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToShortCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Short.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Short.class;
     Short expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf((Float.valueOf(FLOAT)).shortValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf((Double.valueOf(DOUBLE)).shortValue());
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Short.valueOf((Double.valueOf(BIGDEC)).shortValue());
       } else {
         // Default Values, this should never been utilized.
@@ -1030,50 +1029,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.5
    * @test_Strategy: Validate that following Number types coerce to Integer and
    *                 the expected Integer value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToIntegerCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Integer.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Integer.class;
     Integer expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(Float.valueOf(FLOAT).intValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(Double.valueOf(DOUBLE).intValue());
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Integer.valueOf(Double.valueOf(BIGDEC).intValue());
       } else {
         // Default Values, this should never been utilized.
@@ -1103,50 +1102,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.6
    * @test_Strategy: Validate that following Number types coerce to Long and the
    *                 expected Long value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToLongCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Long.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Long.class;
     Long expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(Float.valueOf(FLOAT).longValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(Double.valueOf(DOUBLE).longValue());
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Long.valueOf(Double.valueOf(BIGDEC).longValue());
       } else {
         // Default Values, this should never been utilized.
@@ -1177,50 +1176,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.7
    * @test_Strategy: Validate that following Number types coerce to Float and
    *                 the expected Float value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToFloatCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Float.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Float.class;
     Float expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(FLOAT);
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(DOUBLE);
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Float.valueOf(BIGDEC);
       } else {
         // Default Values, this should never been utilized.
@@ -1251,50 +1250,50 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.8
    * @test_Strategy: Validate that following Number types coerce to Double and
    *                 the expected Double value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToDoubleCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = Double.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = Double.class;
     Double expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(BYTE);
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(SHORT);
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(INTEGER);
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(LONG);
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(FLOAT);
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(DOUBLE);
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(BIGINT);
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = Double.valueOf(BIGDEC);
       } else {
         // Default Values, this should never been utilized.
@@ -1325,23 +1324,23 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.6.1.2; EL:SPEC:39.7.2; EL:SPEC:39.7.4
    * @test_Strategy: Validate that String types coerce to the following types
    *                 and the expected value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elStringToNumberCoercionTest() throws Exception {
 
     boolean pass;
     Object result, expectedValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass;
     String name, testValue;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      expectedClass = (Class) keys.nextElement();
+      expectedClass = keys.nextElement();
       name = expectedClass.getSimpleName();
 
       if ("Byte".equals(name)) {
@@ -1366,10 +1365,10 @@ public class ELClientIT {
         expectedValue = Double.valueOf(DOUBLE);
       } else if ("BigInteger".equals(name)) {
         testValue = BIGINT;
-        expectedValue = BigInteger.valueOf(Long.valueOf(BIGINT));
+        expectedValue = BigInteger.valueOf(Long.parseLong(BIGINT));
       } else if ("BigDecimal".equals(name)) {
         testValue = BIGDEC;
-        expectedValue = BigDecimal.valueOf(Double.valueOf(BIGDEC));
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(BIGDEC));
       } else {
         // Default Values, this should never been utilized.
         testValue = "0";
@@ -1400,54 +1399,54 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.2
    * @test_Strategy: Validate that Character types coerce to the following types
    *                 and the expected value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elCharacterToNumberCoercionTest() throws Exception {
 
     boolean pass;
     Object result, expectedValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass;
     Character testValue;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      expectedClass = (Class) keys.nextElement();
+      expectedClass = keys.nextElement();
       name = expectedClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = '1';
+        testValue = Character.valueOf('1');
         expectedValue = Byte.valueOf("1");
       } else if ("Short".equals(name)) {
-        testValue = '2';
+        testValue = Character.valueOf('2');
         expectedValue = Short.valueOf("2");
       } else if ("Integer".equals(name)) {
-        testValue = '3';
+        testValue = Character.valueOf('3');
         expectedValue = Integer.valueOf(3);
       } else if ("Long".equals(name)) {
-        testValue = '4';
+        testValue = Character.valueOf('4');
         expectedValue = Long.valueOf(4L);
       } else if ("Float".equals(name)) {
-        testValue = '5';
+        testValue = Character.valueOf('5');
         expectedValue = Float.valueOf(5f);
       } else if ("Double".equals(name)) {
-        testValue = '6';
+        testValue = Character.valueOf('6');
         expectedValue = Double.valueOf(6d);
       } else if ("BigInteger".equals(name)) {
-        testValue = '7';
+        testValue = Character.valueOf('7');
         expectedValue = BigInteger.valueOf(7);
       } else if ("BigDecimal".equals(name)) {
-        testValue = '8';
+        testValue = Character.valueOf('8');
         expectedValue = BigDecimal.valueOf(8);
       } else {
-        // Default Values, this should never been utilized.
-        testValue = '0';
-        expectedValue = '1';
+        // Default Values, these should never be utilized.
+        testValue = Character.valueOf('0');
+        expectedValue = Character.valueOf('1');
       }
 
       try {
@@ -1474,56 +1473,56 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.1.1; EL:SPEC:39.5.1.2
    * @test_Strategy: Validate that following Number types coerce to BigInteger
    *                 and the expected value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToBigIntegerCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = BigInteger.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = BigInteger.class;
     BigInteger expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
-        expectedValue = BigInteger.valueOf(Long.valueOf(BYTE));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigInteger.valueOf(Long.parseLong(BYTE));
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
-        expectedValue = BigInteger.valueOf(Long.valueOf(SHORT));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigInteger.valueOf(Long.parseLong(SHORT));
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
-        expectedValue = BigInteger.valueOf(Long.valueOf(INTEGER));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigInteger.valueOf(Long.parseLong(INTEGER));
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
-        expectedValue = BigInteger.valueOf(Long.valueOf(LONG));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigInteger.valueOf(Long.parseLong(LONG));
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = BigInteger.valueOf(Float.valueOf(FLOAT).longValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = BigInteger.valueOf(Double.valueOf(DOUBLE).longValue());
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
-        expectedValue = BigInteger.valueOf(Long.valueOf(BIGINT));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigInteger.valueOf(Long.parseLong(BIGINT));
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(BIGDEC))
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.valueOf(BIGDEC).longValue())
             .toBigInteger();
       } else {
         // Default Values, this should never been utilized.
         testValue = "0";
-        expectedValue = BigInteger.valueOf(Long.valueOf("1"));
+        expectedValue = BigInteger.valueOf(Long.parseLong("1"));
       }
 
       try {
@@ -1549,55 +1548,55 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:39.5.2.1; EL:SPEC:39.5.2.2
    * @test_Strategy: Validate that following Number types coerce to BigDecimal
    *                 and the expected value is returned.
-   * 
+   *
    *                 Types: Byte, Short, Integer, Long, Float, Double,
    *                 BigDecimal, BigInteger.
-   * 
+   *
    */
   @Test
   public void elNumberToBigDecimalCoercionTest() throws Exception {
 
     boolean pass;
     Object result, testValue;
-    Enumeration keys = numberTable.keys();
-    Class expectedClass = BigDecimal.class;
+    Enumeration<Class<?>> keys = numberTable.keys();
+    Class<?> expectedClass = BigDecimal.class;
     BigDecimal expectedValue;
-    Class testClass;
+    Class<?> testClass;
     String name;
 
     while (keys.hasMoreElements()) {
       pass = false;
-      testClass = (Class) keys.nextElement();
+      testClass = keys.nextElement();
       name = testClass.getSimpleName();
 
       if ("Byte".equals(name)) {
-        testValue = (Byte) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(BYTE));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(BYTE));
       } else if ("Short".equals(name)) {
-        testValue = (Short) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(SHORT));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(SHORT));
       } else if ("Integer".equals(name)) {
-        testValue = (Integer) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(INTEGER));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(INTEGER));
       } else if ("Long".equals(name)) {
-        testValue = (Long) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(LONG));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(LONG));
       } else if ("Float".equals(name)) {
-        testValue = (Float) numberTable.get(testClass);
+        testValue = numberTable.get(testClass);
         expectedValue = BigDecimal.valueOf(Float.valueOf(FLOAT).doubleValue());
       } else if ("Double".equals(name)) {
-        testValue = (Double) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(DOUBLE));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(DOUBLE));
       } else if ("BigInteger".equals(name)) {
-        testValue = (BigInteger) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(BIGINT));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(BIGINT));
       } else if ("BigDecimal".equals(name)) {
-        testValue = (BigDecimal) numberTable.get(testClass);
-        expectedValue = BigDecimal.valueOf(Double.valueOf(BIGDEC));
+        testValue = numberTable.get(testClass);
+        expectedValue = BigDecimal.valueOf(Double.parseDouble(BIGDEC));
       } else {
         // Default Values, this should never been utilized.
         testValue = "0";
-        expectedValue = BigDecimal.valueOf(Double.valueOf("1"));
+        expectedValue = BigDecimal.valueOf(Double.parseDouble("1"));
       }
 
       try {
@@ -1709,7 +1708,7 @@ public class ELClientIT {
       result = elp0.eval("testPrimitiveBooleanArray(null)");
       pass[0] = ExprEval.compareClass(result, Integer.class)
           && ExprEval.compareValue(result, Integer.valueOf(-1));
-      
+
       // If A is an array of T, coerce quietly
       ELProcessor elp1 = new ELProcessor();
       elp1.defineFunction("", "", "com.sun.ts.tests.el.spec.coercion.ELClientIT", "testPrimitiveBooleanArray");
@@ -1732,7 +1731,7 @@ public class ELClientIT {
       } catch (ELException e) {
         pass[3] = true;
       }
-      
+
       // If A is not an array, error
       ELProcessor elp4 = new ELProcessor();
       elp4.defineFunction("", "", "com.sun.ts.tests.el.spec.coercion.ELClientIT", "testPrimitiveBooleanArray");
@@ -1767,11 +1766,11 @@ public class ELClientIT {
     if (input == null) {
       return -1;
     }
-    
+
     return input.length;
   }
 
-  
+
   /**
    * @testName: elCoerceLambdaExpressionToFunctionalInterfaceTest
    * @assertion_ids: EL:SPEC:79.1; EL:SPEC:79.2; EL:SPEC:79.3
@@ -1793,7 +1792,7 @@ public class ELClientIT {
       elp0.defineFunction("", "", "com.sun.ts.tests.el.spec.coercion.ELClientIT", "testPredicateString");
       result = elp0.eval("testPredicateString(x -> x.equals('data'))");
       pass[0] = ExprEval.compareClass(result, String.class) && ExprEval.compareValue(result, "PASS");
-      
+
       // Coercible lambda expression where filter does not match
       ELProcessor elp1 = new ELProcessor();
       elp1.defineFunction("", "", "com.sun.ts.tests.el.spec.coercion.ELClientIT", "testPredicateString");
@@ -1818,7 +1817,7 @@ public class ELClientIT {
        */
 
       // Coercible lambda expression with wrong type
-      ELProcessor elp3 = new ELProcessor();      
+      ELProcessor elp3 = new ELProcessor();
       elp3.defineFunction("", "", "com.sun.ts.tests.el.spec.coercion.ELClientIT", "testPredicateLong");
       try {
         result = elp3.eval("testPredicateLong(x -> x.compareTo('data') == 0)");
@@ -1866,7 +1865,7 @@ public class ELClientIT {
       throw new Exception("TEST FAILED");
   }
 
-  
+
   public static String testPredicateString(Predicate<String> filter) {
     String s = "data";
     if (filter.test(s)) {
@@ -1893,7 +1892,7 @@ public class ELClientIT {
    *                 java.sql.Time to its parent class java.util.Date. -
    *                 coercing a null value to an "other" type returns a null
    *                 value
-   * 
+   *
    */
   @Test
   public void elCoerceToOtherTypeTest() throws Exception {
@@ -1906,7 +1905,7 @@ public class ELClientIT {
       Object result = ExprEval.evaluateValueExpression("${A}", timeNV,
           Date.class);
       pass1 = ExprEval.compareClass(result, Date.class)
-          && ExprEval.compareValue(result, (Date) time);
+          && ExprEval.compareValue(result, time);
 
       result = ExprEval.evaluateValueExpression("#{null}", null, Date.class);
       pass2 = (result == null) ? true : false;
@@ -1926,11 +1925,11 @@ public class ELClientIT {
 
   /**
    * The HashTable is of this format.
-   * 
+   *
    * Key = Test Class Value = Test Value
    */
   private void initializeNumberTable() {
-    numberTable = new Hashtable();
+    numberTable = new Hashtable<>();
 
     numberTable.put(Byte.class, Byte.valueOf(BYTE));
     numberTable.put(Short.class, Short.valueOf(SHORT));
@@ -1938,8 +1937,7 @@ public class ELClientIT {
     numberTable.put(Long.class, Long.valueOf(LONG));
     numberTable.put(Float.class, Float.valueOf(FLOAT));
     numberTable.put(Double.class, Double.valueOf(DOUBLE));
-    numberTable.put(BigInteger.class, BigInteger.valueOf(Long.valueOf(BIGINT)));
-    numberTable.put(BigDecimal.class,
-        BigDecimal.valueOf(Double.valueOf(BIGDEC)));
+    numberTable.put(BigInteger.class, BigInteger.valueOf(Long.parseLong(BIGINT)));
+    numberTable.put(BigDecimal.class, BigDecimal.valueOf(Double.parseDouble(BIGDEC)));
   }
 }

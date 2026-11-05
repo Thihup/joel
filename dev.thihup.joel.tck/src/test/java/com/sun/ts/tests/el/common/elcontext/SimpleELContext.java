@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -22,10 +22,12 @@ package com.sun.ts.tests.el.common.elcontext;
 
 
 import com.sun.ts.tests.el.common.elresolver.EmployeeELResolver;
+import com.sun.ts.tests.el.common.elresolver.SingleIdentifierELResolver;
 import com.sun.ts.tests.el.common.elresolver.VariableELResolver;
 import com.sun.ts.tests.el.common.elresolver.VectELResolver;
 import com.sun.ts.tests.el.common.util.ResolverType;
 
+import jakarta.el.BeanELResolver;
 import jakarta.el.CompositeELResolver;
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
@@ -57,7 +59,7 @@ public class SimpleELContext extends ELContext {
   public enum Resolver {
 
     EmployeeELResolver, VariableELResolver, VectELResolver
-  };
+  }
 
   /*
    * Default Constructor.
@@ -74,6 +76,7 @@ public class SimpleELContext extends ELContext {
     this.compResolver = new CompositeELResolver();
   }
 
+  @Override
   public ELResolver getELResolver() {
     ELResolver elResolver;
 
@@ -89,19 +92,21 @@ public class SimpleELContext extends ELContext {
       compResolver.add(myResolver);
     }
 
-    elResolver = (ELResolver) compResolver;
+    elResolver = compResolver;
 
     return elResolver;
   }
 
   public ELContext getELContext() {
-    return (ELContext) (this);
+    return this;
   }
 
+  @Override
   public VariableMapper getVariableMapper() {
     return null;
   }
 
+  @Override
   public FunctionMapper getFunctionMapper() {
     return null;
   }
@@ -135,8 +140,15 @@ public class SimpleELContext extends ELContext {
       logger.log(Logger.Level.TRACE, "Setting ELResolver == VectELResolver");
       break;
 
+    case SINGLE_IDENTIFER_ELRESOLVER:
+      myResolver = new CompositeELResolver();
+      ((CompositeELResolver) myResolver).add(new SingleIdentifierELResolver());
+      ((CompositeELResolver) myResolver).add(new BeanELResolver());
+      logger.log(Logger.Level.TRACE, "Setting ELResolver == SingleIdentifierELResolver");
+      break;
+
     default:
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "Unknown ELResolver! " + enumResolver + " trying to use default"
               + NLINE + "Setting" + " ELResolver == VariableELResolver");
       break;

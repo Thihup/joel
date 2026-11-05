@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,8 +23,6 @@ package com.sun.ts.tests.el.spec.unaryoperator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Properties;
-
 
 import com.sun.ts.tests.el.common.util.ExprEval;
 import com.sun.ts.tests.el.common.util.NameValuePair;
@@ -58,9 +57,9 @@ public class ELClientIT {
 
   /*
    * @testName: elNullUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.1
-   * 
+   *
    * @test_Strategy: Validate that if null is passed with the unary minus
    * operator, the result is (Long) 0. Test both ${-null} & #{-null}
    */
@@ -94,9 +93,9 @@ public class ELClientIT {
 
   /*
    * @testName: elBigDecimalUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.2
-   * 
+   *
    * @test_Strategy: Validate that if a BigDecimal A is passed with the unary
    * minus operator (-), the result is A.negate(). Test both ${- value} & #{-
    * value}
@@ -133,9 +132,9 @@ public class ELClientIT {
 
   /*
    * @testName: elBigIntegerUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.2
-   * 
+   *
    * @test_Strategy: Validate that if a BigInteger A is passed with the unary
    * minus operator (-), the result is A.negate(). Test both ${- value} & #{-
    * value}
@@ -172,9 +171,9 @@ public class ELClientIT {
 
   /*
    * @testName: elDoubleStringUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.3.1
-   * 
+   *
    * @test_Strategy: Validate that if a String is passed with the unary minus
    * operator (-), the result is as follows: - If the String contains ".", "e",
    * or "E" coerce to Double, apply operator.
@@ -201,7 +200,7 @@ public class ELClientIT {
 
           logger.log(Logger.Level.TRACE, "result is " + result.toString());
           pass = (ExprEval.compareClass(result, Double.class)
-              && ExprEval.compareValue((Double) result, expectedResult));
+              && ExprEval.compareValue(result, expectedResult));
         }
       }
 
@@ -215,9 +214,9 @@ public class ELClientIT {
 
   /*
    * @testName: elLongStringUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.3.2
-   * 
+   *
    * @test_Strategy: Validate that if a String is passed with the unary minus
    * operator (-), the result is as follows: - If the String does not contain
    * ".", "e", or "E" coerce to Long, apply operator.
@@ -243,7 +242,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Long.class)
-            && ExprEval.compareValue((Long) result, expectedResult));
+            && ExprEval.compareValue(result, expectedResult));
       }
 
       if (!pass)
@@ -256,9 +255,9 @@ public class ELClientIT {
 
   /*
    * @testName: elByteUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if a Byte is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -272,7 +271,7 @@ public class ELClientIT {
     byte num = 1;
     byte expectedResult = -1;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Byte.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -283,7 +282,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Byte.class)
-            && ExprEval.compareValue((Byte) result, expectedResult));
+            && ExprEval.compareValue(result, Byte.valueOf(expectedResult)));
       }
 
       if (!pass)
@@ -296,9 +295,9 @@ public class ELClientIT {
 
   /*
    * @testName: elShortUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if a Short is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -312,7 +311,7 @@ public class ELClientIT {
     short num = 1;
     short expectedResult = -1;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Short.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -323,7 +322,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Short.class)
-            && ExprEval.compareValue((Short) result, expectedResult));
+            && ExprEval.compareValue(result, Short.valueOf(expectedResult)));
       }
 
       if (!pass)
@@ -336,9 +335,9 @@ public class ELClientIT {
 
   /*
    * @testName: elIntegerUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if an Integer is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -352,7 +351,7 @@ public class ELClientIT {
     int num = 1;
     int expectedResult = -1;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Integer.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -363,7 +362,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Integer.class)
-            && ExprEval.compareValue((Integer) result, expectedResult));
+            && ExprEval.compareValue(result, Integer.valueOf(expectedResult)));
       }
 
       if (!pass)
@@ -376,9 +375,9 @@ public class ELClientIT {
 
   /*
    * @testName: elLongUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if a Long is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -392,7 +391,7 @@ public class ELClientIT {
     long num = 10000;
     long expectedResult = -10000;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Long.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -403,7 +402,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Long.class)
-            && ExprEval.compareValue((Long) result, expectedResult));
+            && ExprEval.compareValue(result, Long.valueOf(expectedResult)));
       }
 
       if (!pass)
@@ -416,9 +415,9 @@ public class ELClientIT {
 
   /*
    * @testName: elFloatUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if a Float is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -432,7 +431,7 @@ public class ELClientIT {
     float num = 10000f;
     float expectedResult = -10000f;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Float.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -443,7 +442,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Float.class)
-            && ExprEval.compareValue((Float) result, expectedResult, 0));
+            && ExprEval.compareValue((Float) result, Float.valueOf(expectedResult), 0));
       }
 
       if (!pass)
@@ -456,9 +455,9 @@ public class ELClientIT {
 
   /*
    * @testName: elDoubleUnaryTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:20.4.1
-   * 
+   *
    * @test_Strategy: Validate that if a Double is passed with the unary minus
    * operator (-), the type is retained and the operator is applied.
    *
@@ -472,7 +471,7 @@ public class ELClientIT {
     double num = 10000.0;
     double expectedResult = -10000.0;
 
-    NameValuePair value[] = NameValuePair.buildUnaryNameValue(num);
+    NameValuePair value[] = NameValuePair.buildUnaryNameValue(Double.valueOf(num));
 
     try {
       for (boolean tf : deferred) {
@@ -483,7 +482,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Double.class)
-            && ExprEval.compareValue((Double) result, expectedResult));
+            && ExprEval.compareValue(result, Double.valueOf(expectedResult)));
       }
 
       if (!pass)
@@ -496,9 +495,9 @@ public class ELClientIT {
 
   /*
    * @testName: elBooleanUnaryFalseTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:24.1.1
-   * 
+   *
    * @test_Strategy: Validate that if a String("false") is passed with the unary
    * "not" operator, the type is coerced to Boolean and the operator is applied.
    *
@@ -513,9 +512,9 @@ public class ELClientIT {
 
   /*
    * @testName: elBooleanUnaryTrueTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:24.1.1
-   * 
+   *
    * @test_Strategy: Validate that if a String("true") is passed with the unary
    * "not" operator, the type is coerced to Boolean and the operator is applied.
    *
@@ -546,7 +545,7 @@ public class ELClientIT {
 
           logger.log(Logger.Level.TRACE, "result is " + result.toString());
           pass = (ExprEval.compareClass(result, Boolean.class)
-              && ExprEval.compareValue((Boolean) result, expectedResult));
+              && ExprEval.compareValue((Boolean) result, Boolean.valueOf(expectedResult)));
 
           if (!pass)
             throw new Exception("TEST FAILED: pass = false");

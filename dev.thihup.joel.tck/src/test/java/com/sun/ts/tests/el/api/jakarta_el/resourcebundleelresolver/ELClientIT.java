@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -22,12 +22,10 @@
 package com.sun.ts.tests.el.api.jakarta_el.resourcebundleelresolver;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.StringTokenizer;
-
-
 import com.sun.ts.tests.el.common.api.resolver.ResolverTest;
 import com.sun.ts.tests.el.common.elcontext.BareBonesELContext;
 import com.sun.ts.tests.el.common.util.ELTestUtil;
@@ -78,7 +76,6 @@ public class ELClientIT {
    * @test_Strategy: Verify that API calls work as expected:
    *                 ResourceBundleELResolver() setValue() getValue() getType()
    *                 isReadOnly() getCommonPropertyType()
-   *                 getFeatureDescriptors()
    */
   @Test
   public void resourceBundleELResolverTest() throws Exception {
@@ -170,8 +167,10 @@ public class ELClientIT {
   private static class TckResourceBundle extends ResourceBundle
       implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private static final String KEYS = "Breakfast Lunch Dinner";
 
+    @Override
     public Object handleGetObject(String key) {
       if ("Breakfast".equals(key))
         return "BREAKFAST";
@@ -183,11 +182,9 @@ public class ELClientIT {
       return null;
     }
 
-    public Enumeration getKeys() {
-      StringTokenizer keyTokenizer = new StringTokenizer(KEYS);
-
-      return keyTokenizer;
-
+    @Override
+    public Enumeration<String> getKeys() {
+      return Collections.enumeration(Arrays.asList(KEYS.split(" ")));
     }
   }
 }

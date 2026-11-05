@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -40,13 +40,13 @@ public class TCKFunctionMapper extends FunctionMapper {
 
   private static final String KEY = "Int:val";
 
-  private final Class clazz = Integer.class;
+  private final Class<?> clazz = Integer.class;
 
   private final HashMap<String, Method> fMap;
 
   public TCKFunctionMapper() {
 
-    fMap = new HashMap<String, Method>();
+    fMap = new HashMap<>();
     try {
       fMap.put(KEY, clazz.getMethod("valueOf", String.class));
     } catch (NoSuchMethodException nsme) {
@@ -55,6 +55,7 @@ public class TCKFunctionMapper extends FunctionMapper {
     }
   }
 
+  @Override
   public Method resolveFunction(String prefix, String localName) {
 
     String key = prefix + ":" + localName;

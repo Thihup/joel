@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -14,16 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -63,8 +60,6 @@ class PackageList {
   // Any line in the packageFile starting with this character is a comment
   private static final char COMMENT_CHAR = '#';
 
-  private static final String BACKUP_EXT = ".bak";
-
   // File containing the list of packages and sub-packages
   private File packageFile;
 
@@ -75,7 +70,7 @@ class PackageList {
   private String additionalPackageName;
 
   // Name of packages and sub-packages in the
-  private Set packageNames = new TreeSet();
+  private Set<String> packageNames = new TreeSet<>();
 
   /**
    * Creates an instance of the PackageList class. The PackageList instance
@@ -203,144 +198,20 @@ class PackageList {
   private void removeExistingPackage() {
     String delPackage = this.additionalPackageName;
     String packageName;
-    List delPkgs = new ArrayList();
+    List<String> delPkgs = new ArrayList<>();
     // iterate over package set and find package names to remove
-    for (Iterator i = packageNames.iterator(); i.hasNext();) {
-      packageName = (String) i.next();
+    for (Iterator<String> i = packageNames.iterator(); i.hasNext();) {
+      packageName = i.next();
       if (packageName.startsWith(delPackage)) {
         delPkgs.add(packageName);
       }
     }
     // actually remove the package names from the set
     for (int i = 0; i < delPkgs.size(); i++) {
-      packageName = (String) (delPkgs.get(i));
+      packageName = delPkgs.get(i);
       packageNames.remove(packageName);
       System.out.println(
           "PackageList.removeExistingPackage() \"" + packageName + "\"");
-    }
-  }
-
-  /**
-   * Extract the package name from the specified string. The specified string
-   * should have the form: "package jakarta.ejb;"
-   *
-   * @param packageLine
-   *          The string containing the package name.
-   *
-   * @return String The extracted package name.
-   *
-   * @throws Exception
-   *           if the specified string does not conform to the expected format.
-   */
-  private String parsePackageName(String packageLine) throws Exception {
-
-    // sig test framework doesn't have the concept of package entries
-    // as the ApiCheck signature format does.
-    // Instead, we need to parse an entry similar to this:
-    // CLSS public jakarta.some.package.SomeClass
-
-    return packageLine.substring(packageLine.lastIndexOf(' ') + 1,
-        packageLine.lastIndexOf('.'));
-  }
-
-  /**
-   * Reads the package names from the signature file. Each package name that is
-   * read is added to this classes internal tree set.
-   *
-   * @throws Exception
-   *           if there is an error opening or reading the signature file.
-   */
-  private void readPkgsFromSigFile() throws Exception {
-    BufferedReader in = new BufferedReader(new FileReader(sigFile));
-    String line;
-    String trimLine;
-    try {
-      while ((line = in.readLine()) != null) {
-        trimLine = line.trim();
-        if (trimLine.startsWith("CLSS")) {
-          packageNames.add(parsePackageName(trimLine));
-        }
-      }
-    } finally {
-      try {
-        in.close();
-      } catch (Exception e) {
-      }
-    }
-  }
-
-  /**
-   * Removes the existing package list file. The package list file is actually
-   * moved to a backup file if it exists. The old backup is lost.
-   *
-   * @throws Exception
-   *           if there is an error moving the current package list file to a
-   *           backup file.
-   */
-  private void removePkgFile() throws Exception {
-    File backupPkgFile = new File(packageFile.getPath() + BACKUP_EXT);
-    if (backupPkgFile.exists() && backupPkgFile.isFile()) {
-      backupPkgFile.delete();
-    }
-    if (packageFile.isFile() && packageFile.exists()) {
-      File copyPackageFile = new File(packageFile.getPath());
-      copyPackageFile.renameTo(backupPkgFile);
-    }
-  }
-
-  /**
-   * Write a simple header to the package list file to explain what the file is.
-   *
-   * @param out
-   *          The BufferedWriter to dump the header to.
-   *
-   * @throws Exception
-   *           if there is any errors writing the header to the specified
-   *           BufferedWriter.
-   */
-  private void writeHeader(BufferedWriter out) throws Exception {
-    out.write(COMMENT_CHAR);
-    out.write(COMMENT_CHAR);
-    out.newLine();
-    out.write(COMMENT_CHAR + " This file contains a list of all the packages");
-    out.newLine();
-    out.write(COMMENT_CHAR + " contained in the signature files for this");
-    out.newLine();
-    out.write(
-        COMMENT_CHAR + " deliverable.  This file is used to exclude valid");
-    out.newLine();
-    out.write(COMMENT_CHAR + " sub-packages from being verified when their");
-    out.newLine();
-    out.write(COMMENT_CHAR + " parent package's signature is checked.");
-    out.newLine();
-    out.write(COMMENT_CHAR);
-    out.write(COMMENT_CHAR);
-    out.newLine();
-    out.newLine();
-  }
-
-  /**
-   * Write the list of package names out to a package list file.
-   *
-   * @throws Exception
-   *           if there is an error creating and writting the package list file.
-   */
-  private void writePkgFile() throws Exception {
-    BufferedWriter out = null;
-    try {
-      out = new BufferedWriter(new FileWriter(packageFile));
-      writeHeader(out);
-      for (Iterator i = packageNames.iterator(); i.hasNext();) {
-        String packageName = (String) i.next();
-        out.write(packageName);
-        out.newLine();
-        System.out
-            .println("PackageList.writePkgFile() \"" + packageName + "\"");
-      }
-    } finally {
-      if (out != null) {
-        out.close();
-      }
     }
   }
 
@@ -354,15 +225,15 @@ class PackageList {
    *         package.
    */
   public String[] getSubPackages(String pkgName) {
-    List result = new ArrayList();
+    List<String> result = new ArrayList<>();
     String subPackageName = pkgName + ".";
-    for (Iterator i = packageNames.iterator(); i.hasNext();) {
-      String packageName = (String) i.next();
+    for (Iterator<String> i = packageNames.iterator(); i.hasNext();) {
+      String packageName = i.next();
       if (packageName.startsWith(subPackageName)) {
         result.add(packageName);
       }
     }
-    return (String[]) (result.toArray(new String[result.size()]));
+    return result.toArray(new String[result.size()]);
   }
 
   /**

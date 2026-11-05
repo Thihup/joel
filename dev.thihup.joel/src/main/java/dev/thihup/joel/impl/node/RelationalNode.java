@@ -5,6 +5,7 @@ import jakarta.el.ELException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 
 public sealed interface RelationalNode extends BooleanExpression permits
         AndNode,
@@ -18,6 +19,12 @@ public sealed interface RelationalNode extends BooleanExpression permits
     Node left();
 
     Node right();
+
+    static boolean isDateTime(Object obj) {
+        return obj instanceof java.time.temporal.TemporalAccessor
+                || obj instanceof java.time.Clock
+                || obj instanceof java.util.Date;
+    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     static int compare(Object leftValue, Object rightValue, ELContext context) {
@@ -43,6 +50,16 @@ public sealed interface RelationalNode extends BooleanExpression permits
             long l1 = leftValue instanceof Number n ? n.longValue() : context.convertToType(leftValue, Long.class);
             long l2 = rightValue instanceof Number n ? n.longValue() : context.convertToType(rightValue, Long.class);
             return Long.compare(l1, l2);
+        }
+        if (isDateTime(leftValue) || isDateTime(rightValue)) {
+            Instant i1 = leftValue instanceof Instant i ? i : context.convertToType(leftValue, Instant.class);
+            Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
+            return i1.compareTo(i2);
+        }
+        if (isDateTime(leftValue) || isDateTime(rightValue)) {
+            Instant i1 = leftValue instanceof Instant i ? i : context.convertToType(leftValue, Instant.class);
+            Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
+            return i1.compareTo(i2);
         }
         if (leftValue instanceof String || rightValue instanceof String) {
             String s1 = context.convertToType(leftValue, String.class);

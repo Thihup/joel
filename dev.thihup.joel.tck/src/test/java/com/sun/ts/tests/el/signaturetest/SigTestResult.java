@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,15 +22,17 @@ import java.util.List;
 
 public class SigTestResult implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   private static final String NL = System.getProperty("line.separator", "\n");
 
-  private List failedPkgs = new ArrayList();
+  private List<String> failedPkgs = new ArrayList<>();
 
-  private List passedPkgs = new ArrayList();
+  private List<String> passedPkgs = new ArrayList<>();
 
-  private List failedClasses = new ArrayList();
+  private List<String> failedClasses = new ArrayList<>();
 
-  private List passedClasses = new ArrayList();
+  private List<String> passedClasses = new ArrayList<>();
 
   // ---------------------------------------------------------- Public Methods
 
@@ -64,6 +66,7 @@ public class SigTestResult implements Serializable {
 
   } // END addPassedClass
 
+  @Override
   public String toString() {
 
     String delim = "******************************************************"
@@ -105,11 +108,11 @@ public class SigTestResult implements Serializable {
 
   // --------------------------------------------------------- Private Methods
 
-  private synchronized void formatList(List list, StringBuffer buf) {
+  private synchronized void formatList(List<String> list, StringBuffer buf) {
 
     synchronized (this) {
       for (int i = 0; i < list.size(); i++) {
-        String pkg = (String) (list.get(i));
+        String pkg = list.get(i);
         buf.append("\t\t").append(pkg).append(NL);
       }
     }

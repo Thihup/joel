@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -19,9 +19,6 @@
  */
 
 package com.sun.ts.tests.el.spec.conditionaloperator;
-
-import java.util.Properties;
-
 
 import com.sun.ts.tests.el.common.util.ExprEval;
 import com.sun.ts.tests.el.common.util.NameValuePair;
@@ -57,9 +54,9 @@ public class ELClientIT {
 
   /*
    * @testName: elConditionalStringTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:26.1.1; EL:SPEC:26.1.2
-   * 
+   *
    * @test_Strategy: Validate that if a String is passed with the conditional
    * operator, the type is coerced to Boolean and the operator is applied.
    *
@@ -75,9 +72,9 @@ public class ELClientIT {
 
   /*
    * @testName: elConditionalBooleanTest
-   * 
+   *
    * @assertion_ids: EL:SPEC:26.1.1; EL:SPEC:26.1.2
-   * 
+   *
    * @test_Strategy: Validate that if a Boolean is passed with the conditional
    * operator, that the operator is applied.
    *
@@ -99,7 +96,7 @@ public class ELClientIT {
     boolean pass = false;
 
     NameValuePair value[] = NameValuePair.buildConditionalNameValue(testVal,
-        true, false);
+            Boolean.TRUE, Boolean.FALSE);
 
     try {
       for (boolean tf : deferred) {
@@ -109,7 +106,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Boolean.class)
-            && ExprEval.compareValue((Boolean) result, expectedResult));
+            && ExprEval.compareValue((Boolean) result, Boolean.valueOf(expectedResult)));
 
         if (!pass)
           throw new Exception("TEST FAILED: pass = false");
@@ -124,8 +121,8 @@ public class ELClientIT {
 
     boolean pass = false;
 
-    NameValuePair value[] = NameValuePair.buildConditionalNameValue(testVal,
-        true, false);
+    NameValuePair value[] = NameValuePair.buildConditionalNameValue(Boolean.valueOf(testVal),
+            Boolean.TRUE, Boolean.FALSE);
 
     try {
       for (boolean tf : deferred) {
@@ -135,7 +132,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Boolean.class)
-            && ExprEval.compareValue((Boolean) result, expectedResult));
+            && ExprEval.compareValue((Boolean) result, Boolean.valueOf(expectedResult)));
 
         if (!pass)
           throw new Exception("TEST FAILED: pass = false");

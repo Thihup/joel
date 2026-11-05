@@ -7,6 +7,12 @@ import java.lang.reflect.Array;
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Clock;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 
 public final class TypeConverter {
     private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
@@ -61,6 +67,8 @@ public final class TypeConverter {
             case "java.lang.Byte" -> coerceToByte(object);
             case "java.lang.Double" -> coerceToDouble(object);
             case "java.lang.Float" -> coerceToFloat(object);
+            case "java.time.Instant" -> coerceToInstant(object);
+            case "java.util.Date" -> coerceToDate(object);
             default -> coerceToObject(object, targetType);
         };
     }
@@ -289,4 +297,45 @@ public final class TypeConverter {
         return Enum.valueOf(targetType.asSubclass(Enum.class), coerceToString(value));
     }
 
+
+    private static Instant coerceToInstant(Object object) {
+        if (object == null) {
+            return null;
+        }
+        if (object instanceof Instant instant) {
+            return instant;
+        }
+        if (object instanceof TemporalAccessor temporalAccessor) {
+            try {
+                return Instant.from(temporalAccessor);
+            } catch (DateTimeException e) {
+                throw new ELException(CANNOT_CONVERT_TO.formatted(object, Instant.class), e);
+            }
+        }
+        if (object instanceof Clock clock) {
+            return clock.instant();
+        }
+        if (object instanceof Date date) {
+            return date.toInstant();
+        }
+        if (object instanceof String s) {
+            try {
+                return Instant.parse(s);
+            } catch (DateTimeParseException e) {
+                throw new ELException(CANNOT_CONVERT_TO.formatted(object, Instant.class), e);
+            }
+        }
+        throw new ELException(CANNOT_CONVERT_TO.formatted(object, Instant.class));
+    }
+
+    private static Date coerceToDate(Object object) {
+        if (object == null) {
+            return null;
+        }
+        if (object instanceof Date date) {
+            return date;
+        }
+        Instant instant = coerceToInstant(object);
+        return Date.from(instant);
+    }
 }

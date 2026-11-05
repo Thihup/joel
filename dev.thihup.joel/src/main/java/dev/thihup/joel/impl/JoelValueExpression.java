@@ -8,6 +8,7 @@ import dev.thihup.joel.impl.node.Node;
 import dev.thihup.joel.impl.node.ObjectNode;
 import dev.thihup.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
 import jakarta.el.FunctionMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.PropertyNotWritableException;
@@ -81,6 +82,8 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public Class<?> getType(ELContext context) {
         ELContext evalContext = wrapContext(context);
+        boolean isStandalone = node instanceof IdentifierNode;
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
         return node.getType(evalContext);
     }
 
@@ -88,6 +91,8 @@ public final class JoelValueExpression extends ValueExpression {
     @SuppressWarnings("unchecked")
     public <T> T getValue(ELContext context) {
         ELContext evalContext = wrapContext(context);
+        boolean isStandalone = node instanceof IdentifierNode;
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
         try {
             evalContext.notifyBeforeEvaluation(expression);
             Object val;
@@ -108,6 +113,8 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public boolean isReadOnly(ELContext context) {
         ELContext evalContext = wrapContext(context);
+        boolean isStandalone = node instanceof IdentifierNode;
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
         if (node instanceof MemberNode memberNode) {
             var valueReference = memberNode.valueReference(evalContext);
             boolean readOnly = evalContext.getELResolver().isReadOnly(evalContext, valueReference.getBase(), valueReference.getProperty());
@@ -127,6 +134,8 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public void setValue(ELContext context, Object value) {
         ELContext evalContext = wrapContext(context);
+        boolean isStandalone = node instanceof IdentifierNode;
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
         evalContext.setPropertyResolved(false);
         if (isReadOnly(evalContext))
             throw new PropertyNotWritableException();
@@ -136,8 +145,13 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public ValueReference getValueReference(ELContext context) {
         ELContext evalContext = wrapContext(context);
+        boolean isStandalone = node instanceof IdentifierNode;
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
         if (node instanceof MemberNode memberNode) {
             return memberNode.valueReference(evalContext);
+        }
+        if (node instanceof IdentifierNode identifierNode) {
+            return new ValueReference(null, identifierNode.value());
         }
         return null;
     }

@@ -21,6 +21,8 @@ public sealed interface Node extends Serializable
         SetNode,
         StringNode,
         TernaryNode,
+        ElvisNode,
+        NullCoalescingNode,
         UnaryEmptyNode,
         UnaryMinusNode,
         UnaryNotNode,

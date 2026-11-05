@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -25,9 +26,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
-
 
 import com.sun.ts.tests.el.common.util.ExprEval;
 
@@ -121,11 +120,11 @@ public class ELClientIT {
     boolean pass1, pass2;
     Long expectedResult;
 
-    List ilist = this.getIntegerList();
+    List<Integer> ilist = this.getIntegerList();
 
-    for (Iterator it = ilist.iterator(); it.hasNext();) {
-      Integer tInteger = (Integer) it.next();
-      expectedResult = Long.valueOf(tInteger);
+    for (Iterator<Integer> it = ilist.iterator(); it.hasNext();) {
+      Integer tInteger = it.next();
+      expectedResult = Long.valueOf(tInteger.longValue());
 
       // test "$" symbol
       try {
@@ -136,7 +135,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass1 = (ExprEval.compareClass(result, Long.class)
-            && ExprEval.compareValue((Long) result, expectedResult));
+            && ExprEval.compareValue(result, expectedResult));
 
       } catch (Exception e) {
         throw new Exception(e);
@@ -150,7 +149,7 @@ public class ELClientIT {
             "#{" + tInteger.toString() + "}", null, Object.class);
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass2 = (ExprEval.compareClass(result, Long.class)
-            && ExprEval.compareValue((Long) result, expectedResult));
+            && ExprEval.compareValue(result, expectedResult));
 
       } catch (Exception e) {
         throw new Exception(e);
@@ -177,11 +176,11 @@ public class ELClientIT {
     boolean pass1, pass2;
     Float expectedResult;
 
-    List flist = this.getFloatList();
+    List<Float> flist = this.getFloatList();
 
-    for (Iterator it = flist.iterator(); it.hasNext();) {
-      Float tFloat = (Float) it.next();
-      expectedResult = Float.valueOf(tFloat);
+    for (Iterator<Float> it = flist.iterator(); it.hasNext();) {
+      Float tFloat = it.next();
+      expectedResult = tFloat;
 
       // test "$" symbol
       try {
@@ -233,8 +232,8 @@ public class ELClientIT {
     String expectedResult;
     String testString;
 
-    Hashtable sMap = this.getStringTable();
-    Enumeration keys = sMap.keys();
+    Hashtable<String,String> sMap = this.getStringTable();
+    Enumeration<String> keys = sMap.keys();
 
     while (keys.hasMoreElements()) {
 
@@ -250,7 +249,7 @@ public class ELClientIT {
 
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass1 = (ExprEval.compareClass(result, String.class)
-            && ExprEval.compareValue((String) result, expectedResult));
+            && ExprEval.compareValue(result, expectedResult));
 
       } catch (Exception e) {
         throw new Exception(e);
@@ -264,7 +263,7 @@ public class ELClientIT {
             "#{" + testString + "}", null, Object.class);
         logger.log(Logger.Level.TRACE, "result is " + result.toString());
         pass2 = (ExprEval.compareClass(result, String.class)
-            && ExprEval.compareValue((String) result, expectedResult));
+            && ExprEval.compareValue(result, expectedResult));
 
       } catch (Exception e) {
         throw new Exception(e);
@@ -334,7 +333,7 @@ public class ELClientIT {
     // Hashtable layout.
     // key - expected value
     // value - test expression
-    Hashtable testValues = new Hashtable();
+    Hashtable<String,String> testValues = new Hashtable<>();
     testValues.put("${foo}", "#{'${'}foo}");
     testValues.put("${foo}", "${'${'}foo}");
     testValues.put("#{foo}", "${'#{'}foo}");
@@ -348,7 +347,7 @@ public class ELClientIT {
 
     while (itr.hasNext()) {
       expected = itr.next();
-      exprStr = (String) testValues.get(expected);
+      exprStr = testValues.get(expected);
 
       try {
         Object expr = ExprEval.evaluateValueExpression(exprStr, null,
@@ -369,34 +368,34 @@ public class ELClientIT {
   // ---------------------------------------------------------- Private
   // methods
 
-  private List getFloatList() {
-    List<Float> floatList = new ArrayList<Float>();
-    floatList.add(new Float("8.1F"));
-    floatList.add(new Float("-70.2F"));
-    floatList.add(new Float("8.1e4F"));
-    floatList.add(new Float("8.1E6F"));
-    floatList.add(new Float("8.1e-9F"));
-    floatList.add(new Float("8.1E+3F"));
-    floatList.add(new Float("-.72F"));
-    floatList.add(new Float(".999F"));
-    floatList.add(new Float("-.1e1F"));
-    floatList.add(new Float(".234E22F"));
-    floatList.add(new Float("-.3444e-2F"));
-    floatList.add(new Float(".5E+7F"));
-    floatList.add(new Float("-1e1F"));
-    floatList.add(new Float("234E2F"));
-    floatList.add(new Float("-3444e-2F"));
-    floatList.add(new Float("-3444e+2F"));
+  private List<Float> getFloatList() {
+    List<Float> floatList = new ArrayList<>();
+    floatList.add(Float.valueOf("8.1F"));
+    floatList.add(Float.valueOf("-70.2F"));
+    floatList.add(Float.valueOf("8.1e4F"));
+    floatList.add(Float.valueOf("8.1E6F"));
+    floatList.add(Float.valueOf("8.1e-9F"));
+    floatList.add(Float.valueOf("8.1E+3F"));
+    floatList.add(Float.valueOf("-.72F"));
+    floatList.add(Float.valueOf(".999F"));
+    floatList.add(Float.valueOf("-.1e1F"));
+    floatList.add(Float.valueOf(".234E22F"));
+    floatList.add(Float.valueOf("-.3444e-2F"));
+    floatList.add(Float.valueOf(".5E+7F"));
+    floatList.add(Float.valueOf("-1e1F"));
+    floatList.add(Float.valueOf("234E2F"));
+    floatList.add(Float.valueOf("-3444e-2F"));
+    floatList.add(Float.valueOf("-3444e+2F"));
 
     return floatList;
   }
 
-  private List getIntegerList() {
-    List<Integer> integerList = new ArrayList<Integer>();
-    integerList.add(1);
-    integerList.add(-2);
-    integerList.add(2147483647);
-    integerList.add(-2147483647);
+  private List<Integer> getIntegerList() {
+    List<Integer> integerList = new ArrayList<>();
+    integerList.add(Integer.valueOf(1));
+    integerList.add(Integer.valueOf(-2));
+    integerList.add(Integer.valueOf(2147483647));
+    integerList.add(Integer.valueOf(-2147483647));
 
     return integerList;
   }
@@ -404,8 +403,8 @@ public class ELClientIT {
   /**
    * The returned Hashtable is in the form of: "Expected String" - "Test String"
    */
-  private Hashtable getStringTable() {
-    Hashtable testStrings = new Hashtable();
+  private Hashtable<String,String> getStringTable() {
+    Hashtable<String,String> testStrings = new Hashtable<>();
     testStrings.put("string", "'string'");
     testStrings.put("str\\ing", "'str\\\\ing'");
     testStrings.put("\"catstring\"", "'\"catstring\"'");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -21,7 +21,6 @@
 
 package com.sun.ts.tests.el.common.elresolver;
 
-import java.util.Iterator;
 import java.util.Vector;
 
 import jakarta.el.ELContext;
@@ -35,6 +34,7 @@ import jakarta.el.ELResolver;
 
 public class VectELResolver extends ELResolver {
 
+  @Override
   public Object getValue(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null)
@@ -42,12 +42,13 @@ public class VectELResolver extends ELResolver {
 
     if (base == null && "vect".equals(property)) {
       context.setPropertyResolved(true);
-      return new Vector();
+      return new Vector<>();
     }
     return null;
   }
 
-  public Class getType(ELContext context, Object base, Object property)
+  @Override
+  public Class<?> getType(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null)
       throw new NullPointerException();
@@ -59,6 +60,7 @@ public class VectELResolver extends ELResolver {
     return null;
   }
 
+  @Override
   public void setValue(ELContext context, Object base, Object property,
       Object value) {
     if (context == null)
@@ -68,6 +70,7 @@ public class VectELResolver extends ELResolver {
       context.setPropertyResolved(true);
   }
 
+  @Override
   public boolean isReadOnly(ELContext context, Object base, Object property) {
     if (context == null)
       throw new NullPointerException();
@@ -77,11 +80,8 @@ public class VectELResolver extends ELResolver {
     return true;
   }
 
-  public Iterator getFeatureDescriptors(ELContext context, Object base) {
-    return null;
-  }
-
-  public Class getCommonPropertyType(ELContext context, Object base) {
+  @Override
+  public Class<?> getCommonPropertyType(ELContext context, Object base) {
     return null;
   }
 }

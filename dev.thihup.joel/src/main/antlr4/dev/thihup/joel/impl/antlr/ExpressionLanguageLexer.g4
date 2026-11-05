@@ -41,6 +41,8 @@ INSTANCEOF: 'instanceof';
 MULT: '*';
 PLUS: '+';
 MINUS: '-';
+ELVIS: '?:';
+NULL_COALESCING: '??';
 QUESTIONMARK: '?';
 DIV: ('/' | 'div');
 MOD: ('%' | 'mod');

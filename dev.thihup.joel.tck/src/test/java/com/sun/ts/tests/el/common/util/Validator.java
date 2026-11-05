@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2012, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -33,24 +33,15 @@ public class Validator {
 
   private static final Logger logger = System.getLogger(Validator.class.getName());
 
-  private static Validator instance = null;
-
   protected Validator() {
     // Exists only to defeat instantiation.
-  }
-
-  private Validator getInstance() {
-    if (instance == null) {
-      instance = new Validator();
-    }
-    return instance;
   }
 
   /**
    * This method is used to validate an expression that have at least one
    * BigDecimal in it. We pass in one of the operands(testVal), the other
    * operand is automatically picked up from the NumberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -65,7 +56,7 @@ public class Validator {
     Class<?> returnType;
 
     for (int i = 0; TestNum.getNumberList().size() > i; i++) {
-      logger.log(Logger.Level.INFO, 
+      logger.log(Logger.Level.INFO,
           "*** Start " + "\"" + "BigDecimal" + "\"" + " Test Sequence ***");
 
       Object testNum = TestNum.getNumberList().get(i);
@@ -98,7 +89,7 @@ public class Validator {
           logger.log(Logger.Level.INFO, "Setting Expected Type: " + returnType.getName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
+              && ExprEval.compareValue(result,
                   Double.valueOf(((BigDecimal) expectedVal).doubleValue())));
         } else {
           returnType = BigDecimal.class;
@@ -118,7 +109,7 @@ public class Validator {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "*** End " + "\"" + "BigDecimal" + "\"" + " Test Sequence ***");
       }
 
@@ -132,7 +123,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one Float
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the NumberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -184,24 +175,24 @@ public class Validator {
           // If the Operator is "%" then the return type is Double.
         } else if ("%".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
+              && ExprEval.compareValue(result,
                   Double.valueOf(((Float) expectedVal).doubleValue())));
         } else {
           if (testNum instanceof BigInteger) {
             returnType = BigDecimal.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType)
-                && ExprEval.compareValue(((BigDecimal) result).floatValue(),
+                && ExprEval.compareValue(Float.valueOf(((BigDecimal) result).floatValue()),
                     (Float) expectedVal, 3));
           } else {
             returnType = Double.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType) && ExprEval
@@ -231,7 +222,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one Double
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the NumberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -248,7 +239,7 @@ public class Validator {
 
     // For each NumberType in this list.
     for (int i = 0; TestNum.getNumberList().size() > i; i++) {
-      logger.log(Logger.Level.INFO, 
+      logger.log(Logger.Level.INFO,
           "*** Start " + "\"" + "Double" + "\"" + "Test " + "Sequence ***");
 
       Object testNum = TestNum.getNumberList().get(i);
@@ -284,27 +275,27 @@ public class Validator {
           // If the Operator is "%" then the return type is Double.
         } else if ("%".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result, expectedVal));
+              && ExprEval.compareValue(result, expectedVal));
         } else {
           if (testNum instanceof BigInteger) {
             returnType = BigDecimal.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType)
-                && ExprEval.compareValue(((BigDecimal) result).doubleValue(),
+                && ExprEval.compareValue(Double.valueOf(((BigDecimal) result).doubleValue()),
                     expectedVal));
           } else {
             returnType = Double.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType)
-                && ExprEval.compareValue((Double) result, expectedVal));
+                && ExprEval.compareValue(result, expectedVal));
           }
         }
 
@@ -332,7 +323,7 @@ public class Validator {
    * NumericString in it (numeric String containing ".", "e", or "E". We pass in
    * one of the operands(testVal), the other operand is automatically picked up
    * from the NumberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -379,27 +370,27 @@ public class Validator {
 
         if ("%".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result, expectedVal));
+              && ExprEval.compareValue(result, expectedVal));
         } else {
           if (testNum instanceof BigInteger) {
             returnType = BigDecimal.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType)
-                && ExprEval.compareValue(((BigDecimal) result).doubleValue(),
+                && ExprEval.compareValue(Double.valueOf(((BigDecimal) result).doubleValue()),
                     expectedVal));
           } else {
             returnType = Double.class;
-            logger.log(Logger.Level.INFO, 
+            logger.log(Logger.Level.INFO,
                 "Setting Expected Type: " + returnType.getCanonicalName());
 
             pass = (ExprEval.compareClass(result, returnType)
-                && ExprEval.compareValue((Double) result, expectedVal));
+                && ExprEval.compareValue(result, expectedVal));
           }
         }
 
@@ -413,7 +404,7 @@ public class Validator {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "*** End " + "\"" + "NumericString" + "\"" + " Test Sequence ***");
       }
 
@@ -427,7 +418,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one
    * BigInteger in it. We pass in one of the operands(testVal), the other
    * operand is automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -444,7 +435,7 @@ public class Validator {
 
     // For each NumberType in this list.
     for (int i = 0; TestNum.getNumberList().size() > i; i++) {
-      logger.log(Logger.Level.INFO, 
+      logger.log(Logger.Level.INFO,
           "*** Start " + "\"" + "BigInteger" + "\"" + " Test Sequence ***");
 
       Object testNum = TestNum.getNumberList().get(i);
@@ -483,7 +474,7 @@ public class Validator {
           // BigDecimal.
         } else if ("/".equals(operator)) {
           returnType = BigDecimal.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
@@ -492,7 +483,7 @@ public class Validator {
                   0));
         } else {
           returnType = BigInteger.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType) && ExprEval
@@ -509,7 +500,7 @@ public class Validator {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "*** End " + "\"" + "BigInteger" + "\"" + " Test Sequence ***");
       }
 
@@ -523,7 +514,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one Long
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -578,15 +569,15 @@ public class Validator {
           // If the Operator is "/" then the return type is Double.
         } else if ("/".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
-                  ((Long) expectedVal).doubleValue()));
+              && ExprEval.compareValue(result,
+                  Double.valueOf(((Long) expectedVal).doubleValue())));
         } else {
           returnType = Long.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
@@ -616,7 +607,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one
    * Integer in it. We pass in one of the operands(testVal), the other operand
    * is automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -633,7 +624,7 @@ public class Validator {
 
     // For each NumberType in this list.
     for (int i = 0; TestNum.getNumberList().size() > i; i++) {
-      logger.log(Logger.Level.INFO, 
+      logger.log(Logger.Level.INFO,
           "*** Start " + "\"" + "Integer" + "\"" + " Test Sequence ***");
 
       Object testNum = TestNum.getNumberList().get(i);
@@ -672,20 +663,20 @@ public class Validator {
           // If the Operator is "/" then the return type is Double.
         } else if ("/".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
-                  ((Integer) expectedVal).doubleValue()));
+              && ExprEval.compareValue(result,
+                  Double.valueOf(((Integer) expectedVal).doubleValue())));
         } else {
           returnType = Long.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Long) result,
-                  ((Integer) expectedVal).longValue()));
+              && ExprEval.compareValue(result,
+                  Long.valueOf(((Integer) expectedVal).longValue())));
         }
 
       } catch (RuntimeException re) {
@@ -698,7 +689,7 @@ public class Validator {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "*** End " + "\"" + "Integer" + "\"" + " Test Sequence ***");
       }
 
@@ -712,7 +703,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one Short
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -765,19 +756,19 @@ public class Validator {
           // If the Operator is "/" then the return type is Double.
         } else if ("/".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
-                  ((Short) expectedVal).doubleValue()));
+              && ExprEval.compareValue(result,
+                  Double.valueOf(((Short) expectedVal).doubleValue())));
         } else {
           returnType = Long.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType) && ExprEval
-              .compareValue((Long) result, ((Short) expectedVal).longValue()));
+              .compareValue(result, Long.valueOf(((Short) expectedVal).longValue())));
         }
 
       } catch (RuntimeException re) {
@@ -803,7 +794,7 @@ public class Validator {
    * This method is used to validate an expression that have at least one Byte
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -856,19 +847,19 @@ public class Validator {
           // If the Operator is "/" then the return type is Double.
         } else if ("/".equals(operator)) {
           returnType = Double.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType)
-              && ExprEval.compareValue((Double) result,
-                  ((Byte) expectedVal).doubleValue()));
+              && ExprEval.compareValue(result,
+                  Double.valueOf(((Byte) expectedVal).doubleValue())));
         } else {
           returnType = Long.class;
-          logger.log(Logger.Level.INFO, 
+          logger.log(Logger.Level.INFO,
               "Setting Expected Type: " + returnType.getCanonicalName());
 
           pass = (ExprEval.compareClass(result, returnType) && ExprEval
-              .compareValue((Long) result, ((Byte) expectedVal).longValue()));
+              .compareValue(result, Long.valueOf(((Byte) expectedVal).longValue())));
         }
 
       } catch (RuntimeException re) {
@@ -893,7 +884,7 @@ public class Validator {
   /**
    * This method is used to validate an expression that has at least one boolean
    * in it.
-   * 
+   *
    * @param testValOne
    *          - The boolean operand.
    * @param testValTwo
@@ -909,11 +900,10 @@ public class Validator {
 
     boolean pass = false;
 
-    NameValuePair values[] = NameValuePair.buildNameValuePair(testValOne,
-        testValTwo);
+    NameValuePair values[] = NameValuePair.buildNameValuePair(Boolean.valueOf(testValOne), testValTwo);
 
     try {
-      logger.log(Logger.Level.INFO, 
+      logger.log(Logger.Level.INFO,
           "*** Start " + "\"" + "Boolean" + "\"" + " Test Sequence ***");
       String expr = ExprEval.buildElExpr(true, operator);
       logger.log(Logger.Level.INFO, "expression to be evaluated is " + expr);
@@ -927,12 +917,12 @@ public class Validator {
        * them. (NEW to EL 3.0)
        */
       if ("+=".equals(operator)) {
-        pass = Validator.runConcatenationTest(testValOne, result, testValTwo);
+        pass = Validator.runConcatenationTest(Boolean.valueOf(testValOne), result, testValTwo);
 
       } else {
         logger.log(Logger.Level.INFO, "result is " + result.toString());
         pass = (ExprEval.compareClass(result, Boolean.class)
-            && ExprEval.compareValue((Boolean) result, expectedVal));
+            && ExprEval.compareValue(result, expectedVal));
       }
 
     } catch (RuntimeException re) {
@@ -984,7 +974,7 @@ public class Validator {
 
   // ------------------------- private methods
 
-  private static Boolean runConcatenationTest(Object testVal, Object result,
+  private static boolean runConcatenationTest(Object testVal, Object result,
       Object testNum) {
 
     Class<String> returnType = String.class;

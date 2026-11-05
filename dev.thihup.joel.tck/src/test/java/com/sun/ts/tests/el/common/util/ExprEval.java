@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -65,6 +65,10 @@ public final class ExprEval {
       sandwich = "{empty A}";
     else if ("conditional".equals(operation))
       sandwich = "{A " + "?" + "B" + ":" + " C}";
+    else if ("null_coalescing".equals(operation))
+        sandwich = "{A " + "??" + "B" + "}";
+    else if ("elvis".equals(operation))
+        sandwich = "{A " + "?:" + "B" + "}";
     else // binary operation
       sandwich = "{A " + operation + " B}";
 
@@ -86,13 +90,13 @@ public final class ExprEval {
    *          - The type of ELResolver to use for expression resolution.
    *
    * @return - The result of the expression evaluation.
-   * 
+   *
    * @throws jakarta.el.ELException
    * @throws jakarta.el.PropertyNotFoundException
    * @throws jakarta.el.PropertyNotWritableException
    */
   public static Object evaluateValueExpression(String exprStr,
-      NameValuePair[] nameVals, Class expectedClass, ResolverType resolverType)
+      NameValuePair[] nameVals, Class<?> expectedClass, ResolverType resolverType)
       throws ELException, PropertyNotFoundException,
       PropertyNotWritableException {
 
@@ -123,7 +127,7 @@ public final class ExprEval {
     logger.log(Logger.Level.TRACE, "context is " + context.getClass().toString());
     logger.log(Logger.Level.TRACE, "exprStr is " + exprStr);
     logger.log(Logger.Level.TRACE, "expectedClass is " + expectedClass.toString());
-    logger.log(Logger.Level.TRACE, 
+    logger.log(Logger.Level.TRACE,
         "resolver is " + context.getELResolver().getClass().toString());
     ValueExpression vexp = expFactory.createValueExpression(context, exprStr,
         expectedClass);
@@ -153,7 +157,7 @@ public final class ExprEval {
    * @throws jakarta.el.PropertyNotWritableException
    */
   public static Object evaluateValueExpression(String exprStr,
-      NameValuePair[] nameVals, Class expectedClass) throws ELException,
+      NameValuePair[] nameVals, Class<?> expectedClass) throws ELException,
       PropertyNotFoundException, PropertyNotWritableException {
 
     return ExprEval.evaluateValueExpression(exprStr, nameVals, expectedClass,
@@ -162,7 +166,7 @@ public final class ExprEval {
 
   /**
    * Used to evaluate MethodExpression()
-   * 
+   *
    * @param exprStr
    *          - Expression to be parsed as a MethodExpression.
    * @param params
@@ -173,13 +177,13 @@ public final class ExprEval {
    *          - ELResolver to use for expression resolution.
    *
    * @return - the result of the method invocation.
-   * 
+   *
    * @throws jakarta.el.ELException
    * @throws jakarta.el.PropertyNotFoundException
    * @throws jakarta.el.PropertyNotWritableException
    */
-  public static Object evaluateMethodExpression(String exprStr, Class[] params,
-      Class expectedClass, ResolverType resolverType) throws ELException,
+  public static Object evaluateMethodExpression(String exprStr, Class<?>[] params,
+      Class<?> expectedClass, ResolverType resolverType) throws ELException,
       PropertyNotFoundException, PropertyNotWritableException {
 
     // get what we need to create the expression
@@ -210,7 +214,7 @@ public final class ExprEval {
    *
    */
   public static Object evaluateCoerceValueExpression(String exprStr,
-      Object exprVal, Class expectedClass) throws ELException,
+      Object exprVal, Class<?> expectedClass) throws ELException,
       PropertyNotFoundException, PropertyNotWritableException {
 
     // get what we need to create the expression
@@ -249,7 +253,7 @@ public final class ExprEval {
    * @return - status of the evaluation.
    */
   public static boolean evaluateManyValueExpression(String exprStr,
-      Object exprVal, Class expectedClass, Hashtable contextobj)
+      Object exprVal, Class<?> expectedClass, Hashtable<Class<?>,Object> contextobj)
       throws ELException, PropertyNotFoundException,
       PropertyNotWritableException, ClassNotFoundException {
 
@@ -268,9 +272,9 @@ public final class ExprEval {
     vexp.setValue(context, exprVal);
 
     // start adding objects to the Context.
-    Enumeration keys = contextobj.keys();
+    Enumeration<Class<?>> keys = contextobj.keys();
     while (keys.hasMoreElements()) {
-      Class cl = (Class) keys.nextElement();
+      Class<?> cl = keys.nextElement();
       Object value = contextobj.get(cl);
 
       // add the object
@@ -290,7 +294,7 @@ public final class ExprEval {
 
   }
 
-  public static boolean compareClass(Object obj, Class expectedClass) {
+  public static boolean compareClass(Object obj, Class<?> expectedClass) {
 
     boolean isInstance = expectedClass.isInstance(obj);
     if (!isInstance) {
@@ -327,24 +331,24 @@ public final class ExprEval {
 
   public static boolean compareValue(Double val, Float expectedVal, int eps) {
 
-    BigDecimal a = new BigDecimal(val);
-    BigDecimal b = new BigDecimal(expectedVal);
+    BigDecimal a = new BigDecimal(val.doubleValue());
+    BigDecimal b = new BigDecimal(expectedVal.doubleValue());
 
     return compareValue(a, b, eps);
   }
 
   public static boolean compareValue(Float val, Float expectedVal, int eps) {
 
-    BigDecimal a = new BigDecimal(val);
-    BigDecimal b = new BigDecimal(expectedVal);
+    BigDecimal a = new BigDecimal(val.doubleValue());
+    BigDecimal b = new BigDecimal(expectedVal.doubleValue());
 
     return compareValue(a, b, eps);
   }
 
   public static boolean compareValue(Long val, Long expectedVal, int eps) {
 
-    BigDecimal a = new BigDecimal(val);
-    BigDecimal b = new BigDecimal(expectedVal);
+    BigDecimal a = new BigDecimal(val.longValue());
+    BigDecimal b = new BigDecimal(expectedVal.longValue());
 
     return compareValue(a, b, eps);
   }

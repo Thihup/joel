@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates and others.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.util.ArrayList;
 import java.util.Properties;
 
 import java.lang.System.Logger;
@@ -95,12 +94,6 @@ public abstract class SigTest {
    * Called by the test framework to initialize this test. The method simply
    * retrieves some state information that is necessary to run the test when
    * when the test framework invokes the run method (actually the test1 method).
-   *
-   * @param args
-   *          List of arguments passed to this test.
-   * @param p
-   *          Properties specified by the test user and passed to this test via
-   *          the test framework.
    */
   public void setup() {
     try {
@@ -121,13 +114,13 @@ public abstract class SigTest {
    * @throws Exception
    *           When an error occurs executing the signature tests.
    */
-  public void signatureTest(String mapFile, String packageFile, Properties mapFileAsProps, String[] packages)
-   throws Exception {
+  public void signatureTest(String mapFile, String packageFile, @SuppressWarnings("unused") Properties mapFileAsProps,
+      String[] packages) throws Exception {
 
     SigTestResult results = null;
     String repositoryDir = System.getProperty("java.io.tmpdir");
     String[] classes = getClasses();
-    String testClasspath = testInfo.getTestClasspath(); 
+    String testClasspath = testInfo.getTestClasspath();
 
     // If testing with Java 9+, extract the JDK's modules so they can be used
     // on the testcase's classpath.
@@ -137,32 +130,27 @@ public abstract class SigTest {
     f.mkdirs();
 
     String javaHome = System.getProperty("java.home");
-    String[] contents = f.list();
-    if (contents != null && contents.length > 0) {
-      logger.log(Logger.Level.INFO, "JImage modules already extracted in " + jimageDir + ", skipping extraction.");
-    } else {
-      logger.log(Logger.Level.INFO, "Executing JImage");
+    logger.log(Logger.Level.INFO, "Executing JImage");
 
-      try {
-        ProcessBuilder pb = new ProcessBuilder(javaHome + "/bin/jimage", "extract", "--dir=" + jimageDir, javaHome + "/lib/modules");
-        logger.log(Logger.Level.INFO, javaHome + "/bin/jimage extract --dir=" + jimageDir + " " + javaHome + "/lib/modules");
-        pb.redirectErrorStream(true);
-        Process proc = pb.start();
-        BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        String line = null;
-        while ((line = out.readLine()) != null) {
-          logger.log(Logger.Level.INFO, line);
-        }
-
-        int rc = proc.waitFor();
-        logger.log(Logger.Level.INFO,"JImage RC = " + rc);
-        out.close();
-      } catch (Exception e) {
-        logger.log(Logger.Level.INFO, "Exception while executing JImage!  Some tests may fail.");
-        e.printStackTrace();
+    try {
+      ProcessBuilder pb = new ProcessBuilder(javaHome + "/bin/jimage", "extract", "--dir=" + jimageDir, javaHome + "/lib/modules");
+      logger.log(Logger.Level.INFO, javaHome + "/bin/jimage extract --dir=" + jimageDir + " " + javaHome + "/lib/modules");
+      pb.redirectErrorStream(true);
+      Process proc = pb.start();
+      BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+      String line = null;
+      while ((line = out.readLine()) != null) {
+        logger.log(Logger.Level.INFO, line);
       }
+
+      int rc = proc.waitFor();
+      logger.log(Logger.Level.INFO,"JImage RC = " + rc);
+      out.close();
+    } catch (Exception e) {
+      logger.log(Logger.Level.INFO, "Exception while executing JImage!  Some tests may fail.");
+      e.printStackTrace();
     }
-    
+
 
     try {
       results = getSigTestDriver().executeSigTest(packageFile, mapFile,

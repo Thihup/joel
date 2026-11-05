@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -21,10 +21,7 @@
 
 package com.sun.ts.tests.el.common.elresolver;
 
-import java.beans.FeatureDescriptor;
 import java.util.Hashtable;
-import java.util.Iterator;
-
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
@@ -33,6 +30,7 @@ public class VariableELResolver extends ELResolver {
 
   private Hashtable<Object, Object> varTable;
 
+  @Override
   public Object getValue(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null) {
@@ -50,6 +48,7 @@ public class VariableELResolver extends ELResolver {
     return result;
   }
 
+  @Override
   public Class<?> getType(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null) {
@@ -63,6 +62,7 @@ public class VariableELResolver extends ELResolver {
     return null;
   }
 
+  @Override
   public void setValue(ELContext context, Object base, Object property,
       Object value) {
     if (context == null) {
@@ -70,11 +70,11 @@ public class VariableELResolver extends ELResolver {
     }
 
     if (varTable == null) {
-      varTable = new Hashtable<Object, Object>();
+      varTable = new Hashtable<>();
     }
 
     if (value == null) {
-      varTable = new Hashtable<Object, Object>();
+      varTable = new Hashtable<>();
       varTable.clear();
       return;
     }
@@ -88,6 +88,7 @@ public class VariableELResolver extends ELResolver {
     }
   }
 
+  @Override
   public boolean isReadOnly(ELContext context, Object base, Object property) {
     if (context == null) {
       throw new NullPointerException();
@@ -99,11 +100,7 @@ public class VariableELResolver extends ELResolver {
     return false;
   }
 
-  public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context,
-      Object base) {
-    return null;
-  }
-
+  @Override
   public Class<Object> getCommonPropertyType(ELContext context, Object base) {
     if (base == null) {
       return Object.class;

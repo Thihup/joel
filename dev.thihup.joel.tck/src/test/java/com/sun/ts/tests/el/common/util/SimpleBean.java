@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2021 Oracle and/or its affiliates and others.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -21,6 +21,8 @@ import java.io.Serializable;
 
 public class SimpleBean implements Serializable, SimpleInterface {
 
+  private static final long serialVersionUID = 1L;
+
   private String fullName = "Doug Donahue"; // Default Setting
 
   private String intention;
@@ -35,7 +37,7 @@ public class SimpleBean implements Serializable, SimpleInterface {
 
   /**
    * Set full name using the pattern firstName + " " + lastName.
-   * 
+   *
    * @param firstName
    * @param lastName
    */
@@ -53,7 +55,7 @@ public class SimpleBean implements Serializable, SimpleInterface {
    *         pattern.
    */
   public boolean isName(String firstName, String lastName) {
-    boolean result = Boolean.FALSE;
+    boolean result = false;
     String testName = firstName + " " + lastName;
 
     if (testName.equals(fullName)) {

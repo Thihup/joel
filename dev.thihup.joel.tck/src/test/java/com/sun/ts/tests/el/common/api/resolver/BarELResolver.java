@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2018, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -17,8 +17,6 @@
 
 package com.sun.ts.tests.el.common.api.resolver;
 
-import java.util.Iterator;
-
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
 import jakarta.el.ELResolver;
@@ -26,6 +24,7 @@ import jakarta.el.PropertyNotWritableException;
 
 public class BarELResolver extends ELResolver {
 
+  @Override
   public Object getValue(ELContext context, Object base, Object property)
       throws ELException {
     Object result = null;
@@ -44,7 +43,8 @@ public class BarELResolver extends ELResolver {
     return result;
   }
 
-  public Class getType(ELContext context, Object base, Object property)
+  @Override
+  public Class<?> getType(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null)
       throw new NullPointerException();
@@ -58,6 +58,7 @@ public class BarELResolver extends ELResolver {
     return null;
   }
 
+  @Override
   public void setValue(ELContext context, Object base, Object property,
 
       Object value) throws ELException {
@@ -71,6 +72,7 @@ public class BarELResolver extends ELResolver {
     }
   }
 
+  @Override
   public boolean isReadOnly(ELContext context, Object base, Object property)
       throws ELException {
     if (context == null)
@@ -84,13 +86,8 @@ public class BarELResolver extends ELResolver {
     return true;
   }
 
-  public Iterator getFeatureDescriptors(ELContext context, Object base) {
-    if (context == null)
-      throw new NullPointerException();
-    return null;
-  }
-
-  public Class getCommonPropertyType(ELContext context, Object base) {
+  @Override
+  public Class<?> getCommonPropertyType(ELContext context, Object base) {
     if (context == null)
       throw new NullPointerException();
 

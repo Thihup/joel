@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -14,10 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,26 +39,18 @@ public class SigTestDriver extends SignatureTestDriver {
 
   private static final String PACKAGE_FLAG = "-Package";
 
-  private static final String PACKAGE_NO_SUBS_FLAG = "-PackageWithoutSubpackages";
-
   private static final String API_VERSION_FLAG = "-ApiVersion";
 
   private static final String EXCLUDE_FLAG = "-Exclude";
-  
+
   private static final String STATIC_FLAG = "-Static";
 
   private static final String CHECKVALUE_FLAG = "-CheckValue"; // only valid w/
                                                                // -static
 
-  private static final String NO_CHECKVALUE_FLAG = "-NoCheckValue";
-
   private static final String SMODE_FLAG = "-mode"; // requires arg of bin or
                                                     // src
 
-  private static final String DEBUG_FLAG = "-Debug";
-
-  private static final String FORMATPLAIN_FLAG = "-FormatPlain";
-  
   private static final String EXCLUDE_JDK_CLASS_FLAG = "-IgnoreJDKClass";
 
   @Override
@@ -73,7 +64,7 @@ public class SigTestDriver extends SignatureTestDriver {
     PackageList packageList = new PackageList(packageListFile);
     String[] subPackages = packageList.getSubPackages(packageOrClassUnderTest);
 
-    List command = new ArrayList();
+    List<String> command = new ArrayList<>();
 
     if (bStaticMode) {
       // static mode allows finer level of constants checking
@@ -112,11 +103,11 @@ public class SigTestDriver extends SignatureTestDriver {
     }
 
     command.add(EXCLUDE_JDK_CLASS_FLAG);
-            
+
     command.add(API_VERSION_FLAG);
     command.add(info.getVersion());
 
-    return ((String[]) command.toArray(new String[command.size()]));
+    return command.toArray(new String[command.size()]);
 
   } // END createTestArguments
 
@@ -124,20 +115,19 @@ public class SigTestDriver extends SignatureTestDriver {
   protected boolean runSignatureTest(String packageOrClassName,
       String[] testArguments) throws Exception {
 
-    Class sigTestClass = Class
+    Class<?> sigTestClass = Class
         .forName("com.sun.tdk.signaturetest.SignatureTest");
-    Object sigTestInstance = sigTestClass.newInstance();
+    Object sigTestInstance = sigTestClass.getConstructor().newInstance();
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     // do some logging to help with troubleshooting
-    logger.log(Logger.Level.TRACE, 
+    logger.log(Logger.Level.TRACE,
         "\nCalling:  com.sun.tdk.signaturetest.SignatureTest() with following args:");
     for (int ii = 0; ii < testArguments.length; ii++) {
       logger.log(Logger.Level.TRACE, "   testArguments[" + ii + "] = " + testArguments[ii]);
     }
 
-    @SuppressWarnings("unchecked")
     Method runMethod = sigTestClass.getDeclaredMethod("run",
         new Class[] { String[].class, PrintWriter.class, PrintWriter.class });
     runMethod.invoke(sigTestInstance,
@@ -148,7 +138,7 @@ public class SigTestDriver extends SignatureTestDriver {
     // currently, there is no way to determine if there are error msgs in
     // the rawmessages, so we will always dump this and call it a status.
     logger.log(Logger.Level.INFO, "********** Status Report '" + packageOrClassName + "' **********\n");
-    logger.log(Logger.Level.INFO, rawMessages);    
+    logger.log(Logger.Level.INFO, rawMessages);
 
     return sigTestInstance.toString().substring(7).startsWith("Passed.");
   } // END runSignatureTest

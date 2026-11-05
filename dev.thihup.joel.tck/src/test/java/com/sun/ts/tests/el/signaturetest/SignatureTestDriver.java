@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates and others.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -15,13 +15,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -43,8 +42,8 @@ public abstract class SignatureTestDriver {
 
   /**
    * <p>
-   * Execute the signature test. By default, this method passes the result of
-   * {@link #createTestArguments(String, String, String, String, String)} and
+   * Execute the signature test. By default, this method calls
+   * {@link #createTestArguments(String, String, String, String, String, boolean)} and
    * passes the result to {@link #runSignatureTest(String, String[])}.
    *
    * @param packageListFile
@@ -82,7 +81,7 @@ public abstract class SignatureTestDriver {
         logger.log(Logger.Level.INFO, "********** BEGIN VALIDATE PACKAGE '"
             + packagesUnderTest[i] + "' **********\n");
 
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "********** VALIDATE IN STATIC MODE - TO CHECK CONSANT VALUES ****");
         logger.log(Logger.Level.INFO, "Static mode supports checks of static constants values ");
 
@@ -102,7 +101,7 @@ public abstract class SignatureTestDriver {
 
         logger.log(Logger.Level.INFO, "\n\n");
         logger.log(Logger.Level.INFO, "********** VALIDATE IN REFLECTIVE MODE  ****");
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "Reflective mode supports verification within containers (ie ejb, servlet, etc)");
 
         String[] args2 = createTestArguments(packageListFile, mapFile,
@@ -139,7 +138,7 @@ public abstract class SignatureTestDriver {
         logger.log(Logger.Level.INFO, "********** BEGIN VALIDATE CLASS '"
             + classesUnderTest[i] + "' **********\n");
 
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "********** VALIDATE IN STATIC MODE - TO CHECK CONSANT VALUES ****");
         logger.log(Logger.Level.INFO, "Static mode supports checks of static constants values ");
 
@@ -159,7 +158,7 @@ public abstract class SignatureTestDriver {
 
         logger.log(Logger.Level.INFO, "\n\n");
         logger.log(Logger.Level.INFO, "********** VALIDATE IN REFLECTIVE MODE  ****");
-        logger.log(Logger.Level.INFO, 
+        logger.log(Logger.Level.INFO,
             "Reflective mode supports verification within containers (ie ejb, servlet, etc)");
 
         String[] args2 = createTestArguments(packageListFile, mapFile,

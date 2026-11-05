@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2024 Oracle and/or its affiliates and others.
+ * Copyright (c) 2007, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -15,9 +15,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package com.sun.ts.tests.signaturetest.el;
+package com.sun.ts.tests.el.signaturetest;
 
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
@@ -46,10 +45,11 @@ public class ELSigTestIT extends SigTest {
    * Returns a list of strings where each string represents a package name. Each
    * package name will have it's signature tested by the signature test
    * framework.
-   * 
+   *
    * @return String[] The names of the packages whose signatures should be
    *         verified.
    */
+  @Override
   protected String[] getPackages() {
     return new String[] { "jakarta.el" };
   }
@@ -72,10 +72,10 @@ public class ELSigTestIT extends SigTest {
 
   /*
    * @testName: signatureTest
-   * 
+   *
    * @assertion: An EL container must implement the required classes and APIs
    * specified in the EL Specification.
-   * 
+   *
    * @test_Strategy: Using reflection, gather the implementation specific
    * classes and APIs. Compare these results with the expected (required)
    * classes and APIs.
@@ -102,7 +102,7 @@ public class ELSigTestIT extends SigTest {
     File pFile = writeStreamToTempFile(inStreamPackageFile, "sig-test-pkg-list", ".txt");
     packageFile = pFile.getCanonicalPath();
     logger.log(Logger.Level.INFO, "packageFile location is :"+packageFile);
-  
+
     mapFileAsProps = getSigTestDriver().loadMapFile(mapFile);
     String packageVersion = mapFileAsProps.getProperty(apiPackage);
     logger.log(Logger.Level.INFO, "Package version from mapfile :"+packageVersion);

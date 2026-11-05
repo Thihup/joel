@@ -4,6 +4,7 @@ import jakarta.el.ELContext;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 
 @SuppressWarnings("cast")
 public record EqualNode(Node left, Node right) implements RelationalNode {
@@ -73,6 +74,12 @@ public record EqualNode(Node left, Node right) implements RelationalNode {
         if (rightValue instanceof Enum<?>) {
             Object l = context.convertToType(leftValue, rightValue.getClass());
             return rightValue.equals(l);
+        }
+
+        if (RelationalNode.isDateTime(leftValue) || RelationalNode.isDateTime(rightValue)) {
+            Instant i1 = leftValue instanceof Instant i ? i : context.convertToType(leftValue, Instant.class);
+            Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
+            return i1.equals(i2);
         }
 
         if (leftValue instanceof String || rightValue instanceof String) {

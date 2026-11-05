@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -22,8 +22,6 @@
 package com.sun.ts.tests.el.api.jakarta_el.mapelresolver;
 
 import java.util.HashMap;
-import java.util.Properties;
-
 
 import com.sun.ts.tests.el.common.api.resolver.ResolverTest;
 import com.sun.ts.tests.el.common.elcontext.BareBonesELContext;
@@ -46,13 +44,13 @@ public class ELClientIT {
   private HashMap<String, String> animals;
 
   public ELClientIT(){
-    animals = new HashMap<String, String>();
+    animals = new HashMap<>();
     animals.put("dog", "retriever");
     animals.put("fish", "bass");
     animals.put("bird", "parrot");
   }
 
-  
+
   @AfterEach
   public void cleanup() throws Exception {
     logger.log(Logger.Level.INFO, "Cleanup method called");
@@ -72,12 +70,12 @@ public class ELClientIT {
 
   /**
    * @testName: mapELResolverTest
-   * 
+   *
    * @assertion_ids: EL:JAVADOC:76; EL:JAVADOC:77; EL:JAVADOC:78; EL:JAVADOC:79;
    *                 EL:JAVADOC:80; EL:JAVADOC:81; EL:JAVADOC:83
    * @test_Strategy: Verify that API calls work as expected: MapELResolver()
    *                 getValue() getType() setValue() isReadOnly()
-   *                 getCommonPropertyType() getFeatureDescriptors()
+   *                 getCommonPropertyType()
    */
   @Test
   public void mapELResolverTest() throws Exception {
@@ -103,14 +101,14 @@ public class ELClientIT {
 
   /**
    * @testName: mapELResolverNPETest
-   * 
+   *
    * @assertion_ids: EL:JAVADOC:78; EL:JAVADOC:79; EL:JAVADOC:80; EL:JAVADOC:81;
    *                 EL:JAVADOC:83; EL:JAVADOC:293; EL:JAVADOC:295;
    *                 EL:JAVADOC:298; EL:JAVADOC:290
-   * 
+   *
    * @test_Strategy: Verify that the following methods throw a
    *                 NullPointerException, if context is null:
-   * 
+   *
    *                 getType() getValue() isReadOnly() setValue()
    */
   @Test
@@ -135,15 +133,15 @@ public class ELClientIT {
 
   /**
    * @testName: mapELResolverPNWETest
-   * 
+   *
    * @assertion_ids: EL:JAVADOC:82; EL:JAVADOC:83; EL:JAVADOC:301
-   * 
+   *
    * @test_Strategy: Verify that the single-parameter constructor for
    *                 mapELResolver can be used to construct a read-only
    *                 resolver, and that the setValue() method throws a
    *                 PropertyNotWritableException, if the resolver was
    *                 constructed in read-only mode.
-   * 
+   *
    *                 MapELResolver(boolean) setValue()
    */
   @Test

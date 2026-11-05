@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -32,6 +32,7 @@ import jakarta.el.FunctionMapper;
 import jakarta.el.VariableMapper;
 
 import java.lang.System.Logger;
+import java.lang.reflect.InvocationTargetException;
 /**
  * This ELContext provides a VariableELResolver to enable the setting and
  * resolution of variables as well as a VariableMapper implementation. The path
@@ -54,41 +55,52 @@ public class VarMapperELContext extends ELContext {
     varMapper = this.getVariableMapperImpl(testProps);
   }
 
+  @Override
   public ELResolver getELResolver() {
     ELResolver elResolver;
     this.compResolver.add(new VariableELResolver());
     this.compResolver.add(new jakarta.el.BeanELResolver());
-    elResolver = (ELResolver) compResolver;
+    elResolver = compResolver;
 
     return elResolver;
   }
 
   public ELContext getELContext() {
-    return (ELContext) (this);
+    return this;
   }
 
+  @Override
   public VariableMapper getVariableMapper() {
     return varMapper;
   }
 
+  @Override
   public FunctionMapper getFunctionMapper() {
     return null;
   }
 
   private Object getImplSpecificInstance(String classname) {
 
-    Class clazz;
+    Class<?> clazz;
     Object instance = null;
 
     try {
       clazz = Class.forName(classname);
-      instance = clazz.newInstance();
+      instance = clazz.getConstructor().newInstance();
     } catch (ClassNotFoundException cnfe) {
       logger.log(Logger.Level.ERROR, "ClassNotFoundException: " + cnfe.getMessage());
     } catch (InstantiationException ie) {
       logger.log(Logger.Level.ERROR, "InstantiationException: " + ie.getMessage());
     } catch (IllegalAccessException iae) {
       logger.log(Logger.Level.ERROR, "IllegalAccessException: " + iae.getMessage());
+    } catch (IllegalArgumentException e) {
+        logger.log(Logger.Level.ERROR, "IllegalArgumentException: " + e.getMessage());
+      } catch (InvocationTargetException e) {
+        logger.log(Logger.Level.ERROR, "InvocationTargetException: " + e.getMessage());
+      } catch (NoSuchMethodException e) {
+        logger.log(Logger.Level.ERROR, "NoSuchMethodException: " + e.getMessage());
+      } catch (SecurityException e) {
+        logger.log(Logger.Level.ERROR, "SecurityException: " + e.getMessage());
     }
     return instance;
   }

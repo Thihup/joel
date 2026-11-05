@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2025 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -26,7 +27,7 @@ import java.util.HashMap;
 
 /**
  * This is a simple bean with different type values for testing Expressions.
- * 
+ *
  */
 public class TypesBean {
   private final static String COMPARATOR = "1";
@@ -34,14 +35,14 @@ public class TypesBean {
   private static HashMap<Class<?>, String> numberMap;
 
   private BigDecimal tckBigDecimal = BigDecimal
-      .valueOf(Long.valueOf(COMPARATOR));
+      .valueOf(Long.parseLong(COMPARATOR));
 
   private Double tckDouble = Double.valueOf(COMPARATOR);
 
   private Float tckFloat = Float.valueOf(COMPARATOR);
 
   private BigInteger tckBigInteger = BigInteger
-      .valueOf(Long.valueOf(COMPARATOR));
+      .valueOf(Long.parseLong(COMPARATOR));
 
   private Long tckLong = Long.valueOf(COMPARATOR);
 
@@ -51,7 +52,7 @@ public class TypesBean {
 
   private Byte tckByte = Byte.valueOf(COMPARATOR);
 
-  private Boolean tckBoolean = true;
+  private Boolean tckBoolean = Boolean.TRUE;
 
   private Byte tckNull = null;
 
@@ -147,13 +148,13 @@ public class TypesBean {
   /**
    * This method will return an HaashMap of Key = Class, Value = String for the
    * purpose of using them in an ElProcessor expression.
-   * 
-   * 
+   *
+   *
    * @return - A common List of Number types with a constant value.
    */
   public static HashMap<Class<?>, String> getNumberMap() {
 
-    numberMap = new HashMap<Class<?>, String>();
+    numberMap = new HashMap<>();
 
     numberMap.put(BigDecimal.class, "b = types.tckBigDecimal");
     numberMap.put(Double.class, "b = types.tckDouble");

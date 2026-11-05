@@ -266,4 +266,9 @@ public abstract class ELResolver {
     public <T> T convertToType(ELContext context, Object obj, Class<T> targetType) {
         return null;
     }
+
+    public static class StandaloneIdentifierMarker {
+        private StandaloneIdentifierMarker() {
+        }
+    }
 }

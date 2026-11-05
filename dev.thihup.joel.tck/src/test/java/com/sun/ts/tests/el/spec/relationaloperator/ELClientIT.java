@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,8 +24,6 @@ package com.sun.ts.tests.el.spec.relationaloperator;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Properties;
-
 
 import com.sun.ts.tests.el.common.util.ExprEval;
 import com.sun.ts.tests.el.common.util.NameValuePair;
@@ -41,11 +40,11 @@ public class ELClientIT {
 
   private static final Logger logger = System.getLogger(ELClientIT.class.getName());
 
-  private List numberList;
+  private List<Object> numberList;
 
   private enum TestEnum {
     APPLE, PEAR
-  };
+  }
 
   // Data Type to test String Coercion.
   private static final DougType DT = new DougType();
@@ -89,7 +88,7 @@ public class ELClientIT {
       logger.log(Logger.Level.TRACE, "first expression to be evaluated is " + expr1);
 
       NameValuePair values1[] = NameValuePair
-          .buildNameValuePair(new Float(-1.0f), new Float(-1.0));
+          .buildNameValuePair(Float.valueOf(-1.0f), Float.valueOf((float) -1.0));
 
       Object result1 = ExprEval.evaluateValueExpression(expr1, values1,
           Boolean.class);
@@ -138,7 +137,7 @@ public class ELClientIT {
       logger.log(Logger.Level.TRACE, "first expression to be evaluated is " + expr1);
 
       NameValuePair values1[] = NameValuePair
-          .buildNameValuePair(new Float(-1.0f), new Float(-1.0));
+          .buildNameValuePair(Float.valueOf(-1.0f), Float.valueOf((float)-1.0));
 
       Object result1 = ExprEval.evaluateValueExpression(expr1, values1,
           Boolean.class);
@@ -314,7 +313,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal "<" & "lt" BigDecimal
    *                 BigDecimal "<" & "lt" Double BigDecimal "<" & "lt" Float
    *                 BigDecimal "<" & "lt" BigInteger BigDecimal "<" & "lt"
@@ -325,13 +324,13 @@ public class ELClientIT {
   public void elBigDecimalLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), false, "<");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), false, "lt");
+    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), Boolean.FALSE, "lt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(0.531), true, "lt");
+    this.testOperatorBoolean(BigDecimal.valueOf(0.531), Boolean.TRUE, "lt");
 
   }
 
@@ -341,7 +340,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal "<=" & "le" BigDecimal
    *                 BigDecimal "<=" & "le" Double BigDecimal "<=" & "le" Float
    *                 BigDecimal "<=" & "le" BigInteger BigDecimal "<=" & "le"
@@ -352,13 +351,13 @@ public class ELClientIT {
   public void elBigDecimalLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), false, "<=");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), true, "le");
+    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(-10.531), true, "<=");
+    this.testOperatorBoolean(BigDecimal.valueOf(-10.531), Boolean.TRUE, "<=");
   }
 
   /**
@@ -367,7 +366,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal ">" & "gt" BigDecimal
    *                 BigDecimal ">" & "gt" Double BigDecimal ">" & "gt" Float
    *                 BigDecimal ">" & "gt" BigInteger BigDecimal ">" & "gt"
@@ -378,13 +377,13 @@ public class ELClientIT {
   public void elBigDecimalGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), true, ">");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), false, ">");
+    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), Boolean.FALSE, ">");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(0.531), false, "gt");
+    this.testOperatorBoolean(BigDecimal.valueOf(0.531), Boolean.FALSE, "gt");
 
   }
 
@@ -394,7 +393,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal ">=" & "ge" BigDecimal
    *                 BigDecimal ">=" & "ge" Double BigDecimal ">=" & "ge" Float
    *                 BigDecimal ">=" & "ge" BigInteger BigDecimal ">=" & "ge"
@@ -405,13 +404,13 @@ public class ELClientIT {
   public void elBigDecimalGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), true, ">=");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), true, "ge");
+    this.testOperatorBoolean(BigDecimal.valueOf(1.0000), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(-1.0000), false, "ge");
+    this.testOperatorBoolean(BigDecimal.valueOf(-1.0000), Boolean.FALSE, "ge");
 
   }
 
@@ -421,7 +420,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal "==" & "eq" BigDecimal
    *                 BigDecimal "==" & "eq" Double BigDecimal "==" & "eq" Float
    *                 BigDecimal "==" & "eq" BigInteger BigDecimal "==" & "eq"
@@ -432,10 +431,10 @@ public class ELClientIT {
   public void elBigDecimalEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), false, "==");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1), true, "eq");
+    this.testOperatorBoolean(BigDecimal.valueOf(1), Boolean.TRUE, "eq");
 
   }
 
@@ -445,7 +444,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is a BigDecimal, the result is coerced to
    *                 BigDecimal and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigDecimal "!=" & "ne" BigDecimal
    *                 BigDecimal "!=" & "ne" Double BigDecimal "!=" & "ne" Float
    *                 BigDecimal "!=" & "ne" BigInteger BigDecimal "!=" & "ne"
@@ -456,10 +455,10 @@ public class ELClientIT {
   public void elBigDecimalNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(10.531), true, "!=");
+    this.testOperatorBoolean(BigDecimal.valueOf(10.531), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigDecimal.valueOf(1), false, "ne");
+    this.testOperatorBoolean(BigDecimal.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -469,7 +468,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float "<" & "lt" Double Float "<" & "lt"
    *                 Float Float "<" & "lt" BigInteger Float "<" & "lt" Integer
    *                 Float "<" & "lt" Long Float "<" & "lt" Short Float "<" &
@@ -479,13 +478,13 @@ public class ELClientIT {
   public void elFloatLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10f), false, "<");
+    this.testOperatorBoolean(Float.valueOf(10f), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1f), false, "<");
+    this.testOperatorBoolean(Float.valueOf(1f), Boolean.FALSE, "<");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(-10f), true, "lt");
+    this.testOperatorBoolean(Float.valueOf(-10f), Boolean.TRUE, "lt");
 
   }
 
@@ -495,7 +494,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float "<=" & "le" Double Float "<=" &
    *                 "le" Float Float "<=" & "le" BigInteger Float "<=" & "le"
    *                 Integer Float "<=" & "le" Long Float "<=" & "le" Short
@@ -505,13 +504,13 @@ public class ELClientIT {
   public void elFloatLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10f), false, "<=");
+    this.testOperatorBoolean(Float.valueOf(10f), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1f), true, "le");
+    this.testOperatorBoolean(Float.valueOf(1f), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(-10f), true, "<=");
+    this.testOperatorBoolean(Float.valueOf(-10f), Boolean.TRUE, "<=");
   }
 
   /**
@@ -520,7 +519,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float ">" & "gt" Double Float ">" & "gt"
    *                 Float Float ">" & "gt" BigInteger Float ">" & "gt" Integer
    *                 Float ">" & "gt" Long Float ">" & "gt" Short Float ">" &
@@ -530,13 +529,13 @@ public class ELClientIT {
   public void elFloatGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10531f), true, ">");
+    this.testOperatorBoolean(Float.valueOf(10531f), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1f), false, ">");
+    this.testOperatorBoolean(Float.valueOf(1f), Boolean.FALSE, ">");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(-531f), false, "gt");
+    this.testOperatorBoolean(Float.valueOf(-531f), Boolean.FALSE, "gt");
 
   }
 
@@ -546,7 +545,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float ">=" & "ge" Double Float ">=" &
    *                 "ge" Float Float ">=" & "ge" BigInteger Float ">=" & "ge"
    *                 Integer Float ">=" & "ge" Long Float ">=" & "ge" Short
@@ -556,13 +555,13 @@ public class ELClientIT {
   public void elFloatGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10531f), true, ">=");
+    this.testOperatorBoolean(Float.valueOf(10531f), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1f), true, "ge");
+    this.testOperatorBoolean(Float.valueOf(1f), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(-1f), false, "ge");
+    this.testOperatorBoolean(Float.valueOf(-1f), Boolean.FALSE, "ge");
 
   }
 
@@ -572,7 +571,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float "==" & "eq" Double Float "==" &
    *                 "eq" Float Float "==" & "eq" BigInteger Float "==" & "eq"
    *                 Integer Float "==" & "eq" Long Float "==" & "eq" Short
@@ -582,10 +581,10 @@ public class ELClientIT {
   public void elFloatEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10531), false, "==");
+    this.testOperatorBoolean(Float.valueOf(10531), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1), true, "eq");
+    this.testOperatorBoolean(Float.valueOf(1), Boolean.TRUE, "eq");
 
   }
 
@@ -595,7 +594,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is a Float, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Float "!=" & "ne" Double Float "!=" &
    *                 "ne" Float Float "!=" & "ne" BigInteger Float "!=" & "ne"
    *                 Integer Float "!=" & "ne" Long Float "!=" & "ne" Short
@@ -605,10 +604,10 @@ public class ELClientIT {
   public void elFloatNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(10531), true, "!=");
+    this.testOperatorBoolean(Float.valueOf(10531), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Float.valueOf(1), false, "ne");
+    this.testOperatorBoolean(Float.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -618,7 +617,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double "<" & "lt" Double Double "<" &
    *                 "lt" BigInteger Double "<" & "lt" Integer Double "<" & "lt"
    *                 Long Double "<" & "lt" Short Double "<" & "lt" Byte
@@ -627,13 +626,13 @@ public class ELClientIT {
   public void elDoubleLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(2.5), false, "<");
+    this.testOperatorBoolean(Double.valueOf(2.5), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1.0), false, "lt");
+    this.testOperatorBoolean(Double.valueOf(1.0), Boolean.FALSE, "lt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(-2.5), true, "lt");
+    this.testOperatorBoolean(Double.valueOf(-2.5), Boolean.TRUE, "lt");
 
   }
 
@@ -643,7 +642,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double "<=" & "le" Double Double "<=" &
    *                 "le" BigInteger Double "<=" & "le" Integer Double "<=" &
    *                 "le" Long Double "<=" & "le" Short Double "<=" & "le" Byte
@@ -652,13 +651,13 @@ public class ELClientIT {
   public void elDoubleLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(2.5), false, "<=");
+    this.testOperatorBoolean(Double.valueOf(2.5), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1.0), true, "le");
+    this.testOperatorBoolean(Double.valueOf(1.0), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(-1.5), true, "<=");
+    this.testOperatorBoolean(Double.valueOf(-1.5), Boolean.TRUE, "<=");
   }
 
   /**
@@ -667,7 +666,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double ">" & "gt" Double Double ">" &
    *                 "gt" BigInteger Double ">" & "gt" Integer Double ">" & "gt"
    *                 Long Double ">" & "gt" Short Double ">" & "gt" Byte
@@ -676,13 +675,13 @@ public class ELClientIT {
   public void elDoubleGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(10.5), true, ">");
+    this.testOperatorBoolean(Double.valueOf(10.5), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1.0), false, "gt");
+    this.testOperatorBoolean(Double.valueOf(1.0), Boolean.FALSE, "gt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(-10.5), false, "gt");
+    this.testOperatorBoolean(Double.valueOf(-10.5), Boolean.FALSE, "gt");
 
   }
 
@@ -692,7 +691,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double ">=" & "ge" Double Double ">=" &
    *                 "ge" BigInteger Double ">=" & "ge" Integer Double ">=" &
    *                 "ge" Long Double ">=" & "ge" Short Double ">=" & "ge" Byte
@@ -701,13 +700,13 @@ public class ELClientIT {
   public void elDoubleGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(10.0), true, ">=");
+    this.testOperatorBoolean(Double.valueOf(10.0), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1.0), true, "ge");
+    this.testOperatorBoolean(Double.valueOf(1.0), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(-10.0), false, "ge");
+    this.testOperatorBoolean(Double.valueOf(-10.0), Boolean.FALSE, "ge");
 
   }
 
@@ -717,7 +716,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double "==" & "eq" Double Double "==" &
    *                 "eq" BigInteger Double "==" & "eq" Integer Double "==" &
    *                 "eq" Long Double "==" & "eq" Short Double "==" & "eq" Byte
@@ -726,10 +725,10 @@ public class ELClientIT {
   public void elDoubleEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(10531), false, "==");
+    this.testOperatorBoolean(Double.valueOf(10531), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1.00), true, "eq");
+    this.testOperatorBoolean(Double.valueOf(1.00), Boolean.TRUE, "eq");
 
   }
 
@@ -739,7 +738,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is a Double, the result is coerced to Double and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Double "!=" & "ne" Double Double "!=" &
    *                 "ne" BigInteger Double "!=" & "ne" Integer Double "!=" &
    *                 "ne" Long Double "!=" & "ne" Short Double "!=" & "ne" Byte
@@ -748,10 +747,10 @@ public class ELClientIT {
   public void elDoubleNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(10531), true, "!=");
+    this.testOperatorBoolean(Double.valueOf(10531), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Double.valueOf(1), false, "ne");
+    this.testOperatorBoolean(Double.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -761,7 +760,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger "<" & "lt" BigInteger
    *                 BigInteger "<" & "lt" Integer BigInteger "<" & "lt" Long
    *                 BigInteger "<" & "lt" Short BigInteger "<" & "lt" Byte
@@ -770,13 +769,13 @@ public class ELClientIT {
   public void elBigIntegerLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), false, "<");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), false, "lt");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.FALSE, "lt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(-10531), true, "lt");
+    this.testOperatorBoolean(BigInteger.valueOf(-10531), Boolean.TRUE, "lt");
 
   }
 
@@ -786,7 +785,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger "<=" & "le" BigInteger
    *                 BigInteger "<=" & "le" Integer BigInteger "<=" & "le" Long
    *                 BigInteger "<=" & "le" Short BigInteger "<=" & "le" Byte
@@ -795,13 +794,13 @@ public class ELClientIT {
   public void elBigIntegerLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), false, "<=");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), true, "le");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(-10531), true, "<=");
+    this.testOperatorBoolean(BigInteger.valueOf(-10531), Boolean.TRUE, "<=");
   }
 
   /**
@@ -810,7 +809,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger ">" & "gt" BigInteger
    *                 BigInteger ">" & "gt" Integer BigInteger ">" & "gt" Long
    *                 BigInteger ">" & "gt" Short BigInteger ">" & "gt" Byte
@@ -819,13 +818,13 @@ public class ELClientIT {
   public void elBigIntegerGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), true, ">");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), false, "gt");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.FALSE, "gt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(-10531), false, "gt");
+    this.testOperatorBoolean(BigInteger.valueOf(-10531), Boolean.FALSE, "gt");
 
   }
 
@@ -835,7 +834,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger ">=" & "ge" BigInteger
    *                 BigInteger ">=" & "ge" Integer BigInteger ">=" & "ge" Long
    *                 BigInteger ">=" & "ge" Short BigInteger ">=" & "ge" Byte
@@ -844,13 +843,13 @@ public class ELClientIT {
   public void elBigIntegerGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), true, ">=");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), true, "ge");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(-10531), false, "ge");
+    this.testOperatorBoolean(BigInteger.valueOf(-10531), Boolean.FALSE, "ge");
 
   }
 
@@ -860,7 +859,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger "==" & "eq" BigInteger
    *                 BigInteger "==" & "eq" Integer BigInteger "==" & "eq" Long
    *                 BigInteger "==" & "eq" Short BigInteger "==" & "eq" Byte
@@ -869,10 +868,10 @@ public class ELClientIT {
   public void elBigIntegerEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), false, "==");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), true, "eq");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.TRUE, "eq");
 
   }
 
@@ -882,7 +881,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is a BigInteger, the result is coerced to
    *                 BigInteger and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: BigInteger "!=" & "ne" BigInteger
    *                 BigInteger "!=" & "ne" Integer BigInteger "!=" & "ne" Long
    *                 BigInteger "!=" & "ne" Short BigInteger "!=" & "ne" Byte
@@ -891,10 +890,10 @@ public class ELClientIT {
   public void elBigIntegerNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(10531), true, "!=");
+    this.testOperatorBoolean(BigInteger.valueOf(10531), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(BigInteger.valueOf(1), false, "ne");
+    this.testOperatorBoolean(BigInteger.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -904,7 +903,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long "<" & "lt" Integer Long "<" & "lt"
    *                 Long Long "<" & "lt" Short Long "<" & "lt" Byte
    */
@@ -912,13 +911,13 @@ public class ELClientIT {
   public void elLongLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(25000), false, "<");
+    this.testOperatorBoolean(Long.valueOf(25000), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), false, "<");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.FALSE, "<");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(-25000), true, "lt");
+    this.testOperatorBoolean(Long.valueOf(-25000), Boolean.TRUE, "lt");
 
   }
 
@@ -928,7 +927,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long "<=" & "le" Integer Long "<=" & "le"
    *                 Long Long "<=" & "le" Short Long "<=" & "le" Byte
    */
@@ -936,13 +935,13 @@ public class ELClientIT {
   public void elLongLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(25000), false, "<=");
+    this.testOperatorBoolean(Long.valueOf(25000), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), true, "le");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(-25000), true, "<=");
+    this.testOperatorBoolean(Long.valueOf(-25000), Boolean.TRUE, "<=");
   }
 
   /**
@@ -951,7 +950,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long ">" & "gt" Integer Long ">" & "gt"
    *                 Long Long ">" & "gt" Short Long ">" & "gt" Byte
    */
@@ -959,13 +958,13 @@ public class ELClientIT {
   public void elLongGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(10531), true, ">");
+    this.testOperatorBoolean(Long.valueOf(10531), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), false, ">");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.FALSE, ">");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(-10531), false, "gt");
+    this.testOperatorBoolean(Long.valueOf(-10531), Boolean.FALSE, "gt");
 
   }
 
@@ -975,7 +974,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long ">=" & "ge" Integer Long ">=" & "ge"
    *                 Long Long ">=" & "ge" Short Long ">=" & "ge" Byte
    */
@@ -983,13 +982,13 @@ public class ELClientIT {
   public void elLongGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(25000), true, ">=");
+    this.testOperatorBoolean(Long.valueOf(25000), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), true, "ge");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(-25000), false, "ge");
+    this.testOperatorBoolean(Long.valueOf(-25000), Boolean.FALSE, "ge");
 
   }
 
@@ -999,7 +998,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long "==" & "eq" Integer Long "==" & "eq"
    *                 Long Long "==" & "eq" Short Long "==" & "eq" Byte
    */
@@ -1007,10 +1006,10 @@ public class ELClientIT {
   public void elLongEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(25000), false, "==");
+    this.testOperatorBoolean(Long.valueOf(25000), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), true, "eq");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.TRUE, "eq");
 
   }
 
@@ -1020,7 +1019,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is a Long, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Long "!=" & "ne" Integer Long "!=" & "ne"
    *                 Long Long "!=" & "ne" Short Long "!=" & "ne" Byte
    */
@@ -1028,10 +1027,10 @@ public class ELClientIT {
   public void elLongNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(25000), true, "!=");
+    this.testOperatorBoolean(Long.valueOf(25000), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Long.valueOf(1), false, "ne");
+    this.testOperatorBoolean(Long.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -1041,7 +1040,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer "<" & "lt" Integer Integer "<" &
    *                 "lt" Short Integer "<" & "lt" Byte
    */
@@ -1049,13 +1048,13 @@ public class ELClientIT {
   public void elIntegerLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(25), false, "<");
+    this.testOperatorBoolean(Integer.valueOf(25), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), false, "lt");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.FALSE, "lt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(-25), true, "lt");
+    this.testOperatorBoolean(Integer.valueOf(-25), Boolean.TRUE, "lt");
 
   }
 
@@ -1065,7 +1064,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer "<=" & "le" Integer Integer "<="
    *                 & "le" Short Integer "<=" & "le" Byte
    */
@@ -1073,13 +1072,13 @@ public class ELClientIT {
   public void elIntegerLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(25), false, "<=");
+    this.testOperatorBoolean(Integer.valueOf(25), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), true, "le");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(-25), true, "<=");
+    this.testOperatorBoolean(Integer.valueOf(-25), Boolean.TRUE, "<=");
   }
 
   /**
@@ -1088,7 +1087,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer ">" & "gt" Integer Integer ">" &
    *                 "gt" Short Integer ">" & "gt" Byte
    */
@@ -1096,13 +1095,13 @@ public class ELClientIT {
   public void elIntegerGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(105), true, ">");
+    this.testOperatorBoolean(Integer.valueOf(105), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), false, "gt");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.FALSE, "gt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(-105), false, "gt");
+    this.testOperatorBoolean(Integer.valueOf(-105), Boolean.FALSE, "gt");
 
   }
 
@@ -1112,7 +1111,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer ">=" & "ge" Integer Integer ">="
    *                 & "ge" Short Integer ">=" & "ge" Byte
    */
@@ -1120,13 +1119,13 @@ public class ELClientIT {
   public void elIntegerGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(250), true, ">=");
+    this.testOperatorBoolean(Integer.valueOf(250), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), true, "ge");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(-250), false, "ge");
+    this.testOperatorBoolean(Integer.valueOf(-250), Boolean.FALSE, "ge");
 
   }
 
@@ -1136,7 +1135,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer "==" & "eq" Integer Integer "=="
    *                 & "eq" Short Integer "==" & "eq" Byte
    */
@@ -1144,10 +1143,10 @@ public class ELClientIT {
   public void elIntegerEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(25), false, "==");
+    this.testOperatorBoolean(Integer.valueOf(25), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), true, "eq");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.TRUE, "eq");
 
   }
 
@@ -1157,7 +1156,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an Integer, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Integer "!=" & "ne" Integer Integer "!="
    *                 & "ne" Short Integer "!=" & "ne" Byte
    */
@@ -1165,10 +1164,10 @@ public class ELClientIT {
   public void elIntegerNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(25), true, "!=");
+    this.testOperatorBoolean(Integer.valueOf(25), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Integer.valueOf(1), false, "ne");
+    this.testOperatorBoolean(Integer.valueOf(1), Boolean.FALSE, "ne");
 
   }
 
@@ -1178,7 +1177,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short "<" & "lt" Short Short "<" & "lt"
    *                 Byte
    */
@@ -1186,13 +1185,13 @@ public class ELClientIT {
   public void elShortLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), false, "<");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), false, "<");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.FALSE, "<");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("-2"), true, "lt");
+    this.testOperatorBoolean(Short.valueOf("-2"), Boolean.TRUE, "lt");
 
   }
 
@@ -1202,7 +1201,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short "<=" & "le" Short Short "<=" & "le"
    *                 Byte
    */
@@ -1210,13 +1209,13 @@ public class ELClientIT {
   public void elShortLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), false, "<=");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), true, "le");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("-2"), true, "<=");
+    this.testOperatorBoolean(Short.valueOf("-2"), Boolean.TRUE, "<=");
   }
 
   /**
@@ -1225,7 +1224,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short ">" & "gt" Short Short ">" & "gt"
    *                 Byte
    */
@@ -1233,13 +1232,13 @@ public class ELClientIT {
   public void elShortGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), true, ">");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), false, ">");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.FALSE, ">");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("-2"), false, "gt");
+    this.testOperatorBoolean(Short.valueOf("-2"), Boolean.FALSE, "gt");
 
   }
 
@@ -1249,7 +1248,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short ">=" & "ge" Short Short ">=" & "ge"
    *                 Byte
    */
@@ -1257,13 +1256,13 @@ public class ELClientIT {
   public void elShortGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), true, ">=");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), true, "ge");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("-2"), false, "ge");
+    this.testOperatorBoolean(Short.valueOf("-2"), Boolean.FALSE, "ge");
 
   }
 
@@ -1273,7 +1272,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short "==" & "eq" Short Short "==" & "eq"
    *                 Byte
    */
@@ -1281,10 +1280,10 @@ public class ELClientIT {
   public void elShortEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), false, "==");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), true, "eq");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.TRUE, "eq");
 
   }
 
@@ -1294,7 +1293,7 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an Short, the result is coerced to Long and
    *                 the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Short "!=" & "ne" Short Short "!=" & "ne"
    *                 Byte
    */
@@ -1302,10 +1301,10 @@ public class ELClientIT {
   public void elShortNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("2"), true, "!=");
+    this.testOperatorBoolean(Short.valueOf("2"), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Short.valueOf("1"), false, "ne");
+    this.testOperatorBoolean(Short.valueOf("1"), Boolean.FALSE, "ne");
 
   }
 
@@ -1315,20 +1314,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte "<" & "lt" Byte
    */
   @Test
   public void elByteLessThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), false, "<");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.FALSE, "<");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), false, "lt");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.FALSE, "lt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("-2"), true, "lt");
+    this.testOperatorBoolean(Byte.valueOf("-2"), Boolean.TRUE, "lt");
 
   }
 
@@ -1338,20 +1337,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte "<=" & "le" Byte
    */
   @Test
   public void elByteLessThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), false, "<=");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.FALSE, "<=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), true, "le");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.TRUE, "le");
 
     // Value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("-2"), true, "<=");
+    this.testOperatorBoolean(Byte.valueOf("-2"), Boolean.TRUE, "<=");
   }
 
   /**
@@ -1360,20 +1359,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte ">" & "gt" Byte
    */
   @Test
   public void elByteGreaterThanTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), true, ">");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.TRUE, ">");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), false, "gt");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.FALSE, "gt");
 
     // value passed in is smaller than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("-2"), false, "gt");
+    this.testOperatorBoolean(Byte.valueOf("-2"), Boolean.FALSE, "gt");
 
   }
 
@@ -1383,20 +1382,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte ">=" & "ge" Byte
    */
   @Test
   public void elByteGreaterThanEqualTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), true, ">=");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.TRUE, ">=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), true, "ge");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.TRUE, "ge");
 
     // value passed in is smaller than the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("-2"), false, "ge");
+    this.testOperatorBoolean(Byte.valueOf("-2"), Boolean.FALSE, "ge");
 
   }
 
@@ -1406,17 +1405,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte "==" & "eq" Byte
    */
   @Test
   public void elByteEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), false, "==");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.FALSE, "==");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), true, "eq");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.TRUE, "eq");
 
   }
 
@@ -1426,17 +1425,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an Byte, the result is coerced to Long and the
    *                 correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Byte "!=" & "ne" Byte
    */
   @Test
   public void elByteNotEqualToTest() throws Exception {
 
     // Value passed in is larger than COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("2"), true, "!=");
+    this.testOperatorBoolean(Byte.valueOf("2"), Boolean.TRUE, "!=");
 
     // value passed in is equal to the COMPARATOR.
-    this.testOperatorBoolean(Byte.valueOf("1"), false, "ne");
+    this.testOperatorBoolean(Byte.valueOf("1"), Boolean.FALSE, "ne");
 
   }
 
@@ -1446,20 +1445,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<" or "lt"
    *                 operation is an String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String "<" & "lt" String
    */
   @Test
   public void elStringLessThanTest() throws Exception {
 
     // Value A is less than value B. (true)
-    this.testOperatorBoolean("Alpha", DT, true, "<");
+    this.testOperatorBoolean("Alpha", DT, Boolean.TRUE, "<");
 
     // Value A is less than value B. (false)
-    this.testOperatorBoolean("Beta", DT, false, "lt");
+    this.testOperatorBoolean("Beta", DT, Boolean.FALSE, "lt");
 
-    // Value A is less than value B. (true)
-    this.testOperatorBoolean("Gamma", DT, false, "lt");
+    // Value A is less than value B. (false)
+    this.testOperatorBoolean("Gamma", DT, Boolean.FALSE, "lt");
 
   }
 
@@ -1469,20 +1468,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "<=" or "le"
    *                 operation is a String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String "<=" & "le" String
    */
   @Test
   public void elStringLessThanEqualTest() throws Exception {
 
     // Value A is less than or equal to value B. (false)
-    this.testOperatorBoolean("Gamma", DT, false, "<=");
+    this.testOperatorBoolean("Gamma", DT, Boolean.FALSE, "<=");
 
     // Value A is less than or equal to value B. (true)
-    this.testOperatorBoolean("Beta", DT, true, "le");
+    this.testOperatorBoolean("Beta", DT, Boolean.TRUE, "le");
 
     // Value A is less than or equal to value B. (true)
-    this.testOperatorBoolean("Alpha", DT, true, "<=");
+    this.testOperatorBoolean("Alpha", DT, Boolean.TRUE, "<=");
   }
 
   /**
@@ -1491,20 +1490,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">" or "gt"
    *                 operation is an String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String ">" & "gt" String
    */
   @Test
   public void elStringGreaterThanTest() throws Exception {
 
-    // Value A is greater than value B. (false)
-    this.testOperatorBoolean("Gamma", DT, true, ">");
+    // Value A is greater than value B. (true)
+    this.testOperatorBoolean("Gamma", DT, Boolean.TRUE, ">");
 
     // Value A greater than value B. (false)
-    this.testOperatorBoolean("Beta", DT, false, "gt");
+    this.testOperatorBoolean("Beta", DT, Boolean.FALSE, "gt");
 
     // Value A is greater than value B. (false)
-    this.testOperatorBoolean("Alpha", DT, false, "gt");
+    this.testOperatorBoolean("Alpha", DT, Boolean.FALSE, "gt");
 
   }
 
@@ -1514,20 +1513,20 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL ">=" or "ge"
    *                 operation is an String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String ">=" & "ge" String
    */
   @Test
   public void elStringGreaterThanEqualTest() throws Exception {
 
     // Value A is greater than or equal to value B. (true)
-    this.testOperatorBoolean("Gamma", DT, true, ">=");
+    this.testOperatorBoolean("Gamma", DT, Boolean.TRUE, ">=");
 
     // Value A is greater than or equal to value B. (true)
-    this.testOperatorBoolean("Beta", DT, true, "ge");
+    this.testOperatorBoolean("Beta", DT, Boolean.TRUE, "ge");
 
     // Value A is greater than or equal to value B. (false)
-    this.testOperatorBoolean("Alpha", DT, false, "ge");
+    this.testOperatorBoolean("Alpha", DT, Boolean.FALSE, "ge");
 
   }
 
@@ -1537,17 +1536,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String "==" & "eq" String
    */
   @Test
   public void elStringEqualToTest() throws Exception {
 
     // Value A is equal to value B. (true)
-    this.testOperatorBoolean("Beta", DT, true, "==");
+    this.testOperatorBoolean("Beta", DT, Boolean.TRUE, "==");
 
     // Value A is smaller than value B. (false)
-    this.testOperatorBoolean("Alpha", DT, false, "eq");
+    this.testOperatorBoolean("Alpha", DT, Boolean.FALSE, "eq");
 
   }
 
@@ -1557,17 +1556,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an String, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String "!=" & "ne" String
    */
   @Test
   public void elStringNotEqualToTest() throws Exception {
 
     // Value A is not equal to value B. (true)
-    this.testOperatorBoolean("Alpha", DT, true, "!=");
+    this.testOperatorBoolean("Alpha", DT, Boolean.TRUE, "!=");
 
     // Value A is not equal to value B. (false)
-    this.testOperatorBoolean("Beta", DT, false, "ne");
+    this.testOperatorBoolean("Beta", DT, Boolean.FALSE, "ne");
 
   }
 
@@ -1576,20 +1575,20 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:21.8.2
    * @test_Strategy: Validate that if operand A in an EL "<" or "lt" operation
    *                 is comparable, the result A.compareTo(B) is returned.
-   * 
+   *
    *                 Equation example: DougType "<" & "lt" NickType
    */
   @Test
   public void elOtherLessThanTest() throws Exception {
 
     // Value A is less than value B. (true)
-    this.testOperatorBoolean(DT, NT, true, "<");
+    this.testOperatorBoolean(DT, NT, Boolean.TRUE, "<");
 
     // Value A is less than value B. (false)
-    this.testOperatorBoolean(DT, DT, false, "lt");
+    this.testOperatorBoolean(DT, DT, Boolean.FALSE, "lt");
 
     // Value A is less than value B. (false)
-    this.testOperatorBoolean(NT, DT, false, "lt");
+    this.testOperatorBoolean(NT, DT, Boolean.FALSE, "lt");
 
   }
 
@@ -1598,20 +1597,20 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:21.8.2
    * @test_Strategy: Validate that if operand A in an EL "<=" or "le" operation
    *                 is comparable, the result A.compareTo(B) is returned.
-   * 
+   *
    *                 Equation example: DougType "<=" & "le" NickType
    */
   @Test
   public void elOtherLessThanEqualTest() throws Exception {
 
     // Value A is less than or equal to value B. (false)
-    this.testOperatorBoolean(NT, DT, false, "<=");
+    this.testOperatorBoolean(NT, DT, Boolean.FALSE, "<=");
 
     // Value A is less than or equal to value B. (true)
-    this.testOperatorBoolean(DT, DT, true, "le");
+    this.testOperatorBoolean(DT, DT, Boolean.TRUE, "le");
 
     // Value A is less than or equal to value B. (true)
-    this.testOperatorBoolean(DT, NT, true, "<=");
+    this.testOperatorBoolean(DT, NT, Boolean.TRUE, "<=");
   }
 
   /**
@@ -1619,20 +1618,20 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:21.8.2
    * @test_Strategy: Validate that if operand A in an EL ">" or "gt" operation
    *                 is comparable, the result A.compareTo(B) is returned.
-   * 
+   *
    *                 Equation example: DougType "<" & "gt" NickType
    */
   @Test
   public void elOtherGreaterThanTest() throws Exception {
 
     // Value A is greater than value B. (true)
-    this.testOperatorBoolean(NT, DT, true, ">");
+    this.testOperatorBoolean(NT, DT, Boolean.TRUE, ">");
 
     // Value A greater than value B. (false)
-    this.testOperatorBoolean(DT, DT, false, "gt");
+    this.testOperatorBoolean(DT, DT, Boolean.FALSE, "gt");
 
     // Value A is greater than value B. (false)
-    this.testOperatorBoolean(DT, NT, false, "gt");
+    this.testOperatorBoolean(DT, NT, Boolean.FALSE, "gt");
 
   }
 
@@ -1641,20 +1640,20 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:21.8.2
    * @test_Strategy: Validate that if operand A in an EL ">=" or "ge" operation
    *                 is comparable, the result A.compareTo(B) is returned.
-   * 
+   *
    *                 Equations tested: DougType ">=" & "ge" NickType
    */
   @Test
   public void elOtherGreaterThanEqualTest() throws Exception {
 
     // Value A is greater than or equal to value B. (true)
-    this.testOperatorBoolean(NT, DT, true, ">=");
+    this.testOperatorBoolean(NT, DT, Boolean.TRUE, ">=");
 
     // Value A is greater than or equal to value B. (true)
-    this.testOperatorBoolean(DT, DT, true, "ge");
+    this.testOperatorBoolean(DT, DT, Boolean.TRUE, "ge");
 
     // Value A is greater than or equal to value B. (false)
-    this.testOperatorBoolean(DT, NT, false, "ge");
+    this.testOperatorBoolean(DT, NT, Boolean.FALSE, "ge");
 
   }
 
@@ -1663,17 +1662,17 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:22.11
    * @test_Strategy: Validate that if operand A in an EL "==" or "eq" operation
    *                 is comparable, the result A.equals(B) is returned.
-   * 
+   *
    *                 Equations Example: DougType "==" & "eq" NickType
    */
   @Test
   public void elOtherEqualToTest() throws Exception {
 
     // Value A is equal to value B. (true)
-    this.testOperatorBoolean(DT, DT, true, "==");
+    this.testOperatorBoolean(DT, DT, Boolean.TRUE, "==");
 
     // Value A is smaller than value B. (false)
-    this.testOperatorBoolean(DT, NT, false, "eq");
+    this.testOperatorBoolean(DT, NT, Boolean.FALSE, "eq");
 
   }
 
@@ -1682,17 +1681,17 @@ public class ELClientIT {
    * @assertion_ids: EL:SPEC:22.11
    * @test_Strategy: Validate that if operand A in an EL "!=" or "ne" operation
    *                 is comparable, the result A.equals(B) is returned.
-   * 
+   *
    *                 Equation Example: DougType "!=" & "ne" NickType
    */
   @Test
   public void elOtherNotEqualToTest() throws Exception {
 
     // Value A is not equal to value B. (true)
-    this.testOperatorBoolean(DT, NT, true, "!=");
+    this.testOperatorBoolean(DT, NT, Boolean.TRUE, "!=");
 
     // Value A is not equal to value B. (false)
-    this.testOperatorBoolean(DT, DT, false, "ne");
+    this.testOperatorBoolean(DT, DT, Boolean.FALSE, "ne");
 
   }
 
@@ -1702,17 +1701,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an Boolean, that both operands are coerced to
    *                 type Boolean and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: Boolean "==" & "eq" String
    */
   @Test
   public void elBooleanEqualToTest() throws Exception {
 
     // Value A is equal to value B. (true)
-    this.testOperatorBoolean("true", true, true, "==");
+    this.testOperatorBoolean("true", Boolean.TRUE, Boolean.TRUE, "==");
 
     // Value A is smaller than value B. (false)
-    this.testOperatorBoolean("false", true, false, "eq");
+    this.testOperatorBoolean("false", Boolean.TRUE, Boolean.FALSE, "eq");
 
   }
 
@@ -1722,17 +1721,17 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an Boolean, that both operands are coerced to
    *                 type Boolean and the correct boolean value is returned.
-   * 
+   *
    *                 Equations tested: String "!=" & "ne" String
    */
   @Test
   public void elBooleanNotEqualToTest() throws Exception {
 
     // Value A is not equal to value B. (true)
-    this.testOperatorBoolean("false", true, true, "!=");
+    this.testOperatorBoolean("false", Boolean.TRUE, Boolean.TRUE, "!=");
 
     // Value A is not equal to value B. (false)
-    this.testOperatorBoolean("false", false, false, "ne");
+    this.testOperatorBoolean("false", Boolean.FALSE, Boolean.FALSE, "ne");
 
   }
 
@@ -1742,19 +1741,19 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "==" or "eq"
    *                 operation is an Enum, that both operands are coerced to
    *                 type Enum and the correct boolean value is returned.
-   * 
+   *
    *                 Example Equation: Enum "==" String or Integer
    */
   @Test
   public void elEnumEqualToTest() throws Exception {
 
     // Value A is equal to value B. (true)
-    this.testOperatorBoolean(TestEnum.APPLE, "APPLE", true, "==");
-    this.testOperatorBoolean(TestEnum.PEAR, "PEAR", true, "eq");
+    this.testOperatorBoolean(TestEnum.APPLE, "APPLE", Boolean.TRUE, "==");
+    this.testOperatorBoolean(TestEnum.PEAR, "PEAR", Boolean.TRUE, "eq");
 
     // Value A is not equal to value B. (false)
-    this.testOperatorBoolean(TestEnum.PEAR, "APPLE", false, "==");
-    this.testOperatorBoolean(TestEnum.APPLE, "PEAR", false, "eq");
+    this.testOperatorBoolean(TestEnum.PEAR, "APPLE", Boolean.FALSE, "==");
+    this.testOperatorBoolean(TestEnum.APPLE, "PEAR", Boolean.FALSE, "eq");
   }
 
   /**
@@ -1763,19 +1762,19 @@ public class ELClientIT {
    * @test_Strategy: Validate that if one of the operands in an EL "!=" or "ne"
    *                 operation is an Enum, that both operands are coerced to
    *                 type String and the correct boolean value is returned.
-   * 
+   *
    *                 Example Equation: Enum "!=" & "ne" Enum
    */
   @Test
   public void elEnumNotEqualToTest() throws Exception {
 
     // Value A is not equal to value B. (true)
-    this.testOperatorBoolean(TestEnum.APPLE, "PEAR", true, "!=");
-    this.testOperatorBoolean(TestEnum.PEAR, "APPLE", true, "ne");
+    this.testOperatorBoolean(TestEnum.APPLE, "PEAR", Boolean.TRUE, "!=");
+    this.testOperatorBoolean(TestEnum.PEAR, "APPLE", Boolean.TRUE, "ne");
 
     // Value A is not equal to value B. (false)
-    this.testOperatorBoolean(TestEnum.APPLE, "APPLE", false, "!=");
-    this.testOperatorBoolean(TestEnum.PEAR, "PEAR", false, "ne");
+    this.testOperatorBoolean(TestEnum.APPLE, "APPLE", Boolean.FALSE, "!=");
+    this.testOperatorBoolean(TestEnum.PEAR, "PEAR", Boolean.FALSE, "ne");
   }
 
   // ---------------------------------------------------------- private
@@ -1785,7 +1784,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one
    * BigDecimal in it. We pass in one of the operands(testVal), the other
    * operand is automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -1800,7 +1799,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "BigDecimal" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -1831,7 +1830,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "BigDecimal" + "\"" + " Test Sequence ***");
       }
 
@@ -1845,7 +1844,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one
    * BigInteger in it. We pass in one of the operands(testVal), the other
    * operand is automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -1860,7 +1859,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "BigInteger" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -1899,7 +1898,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "BigInteger" + "\"" + " Test Sequence ***");
       }
 
@@ -1913,7 +1912,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Float
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -1928,7 +1927,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "Float" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -1950,7 +1949,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Float" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -1966,7 +1965,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "Float" + "\"" + " Test Sequence ***");
       }
 
@@ -1980,7 +1979,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Double
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -1995,7 +1994,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "Double" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -2017,7 +2016,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Double" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -2033,7 +2032,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "Double" + "\"" + " Test Sequence ***");
       }
 
@@ -2047,7 +2046,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Long in
    * it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -2084,7 +2083,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Long" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -2113,7 +2112,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Integer
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -2128,7 +2127,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "Integer" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -2152,7 +2151,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Integer" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -2168,7 +2167,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "Integer" + "\"" + " Test Sequence ***");
       }
 
@@ -2182,7 +2181,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Short
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -2197,7 +2196,7 @@ public class ELClientIT {
     boolean pass;
 
     for (int i = 0; numberList.size() > i; i++) {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "Short" + "\"" + " Test Sequence ***");
 
       Object testNum = numberList.get(i);
@@ -2215,7 +2214,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Short" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -2231,7 +2230,7 @@ public class ELClientIT {
 
       } finally {
         ExprEval.cleanup();
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "*** End " + "\"" + "Short" + "\"" + " Test Sequence ***");
       }
 
@@ -2245,7 +2244,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one Byte in
    * it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -2277,7 +2276,7 @@ public class ELClientIT {
       try {
         String expr = ExprEval.buildElExpr(false, booleanOperator);
         logger.log(Logger.Level.TRACE, "expression to be evaluated is " + expr);
-        logger.log(Logger.Level.TRACE, 
+        logger.log(Logger.Level.TRACE,
             "types are " + "Byte" + " and " + testNum.getClass().getName());
 
         Object result = ExprEval.evaluateValueExpression(expr, values,
@@ -2306,7 +2305,7 @@ public class ELClientIT {
    * This method is used to validate an expression that has at least one String
    * in it. We pass in one of the operands(testVal), the other operand is
    * automatically picked up from the numberList.
-   * 
+   *
    * @param testVal
    *          - One of the operands used in the expression.
    * @param expectedVal
@@ -2324,7 +2323,7 @@ public class ELClientIT {
         testValTwo);
 
     try {
-      logger.log(Logger.Level.TRACE, 
+      logger.log(Logger.Level.TRACE,
           "*** Start " + "\"" + "String" + "\"" + " Test Sequence ***");
 
       String expr = ExprEval.buildElExpr(false, booleanOperator);
@@ -2354,7 +2353,7 @@ public class ELClientIT {
 
   // ---------------------------------------------------- Inner Classes
 
-  private static class DougType implements Comparable {
+  private static class DougType implements Comparable<Object> {
 
     @Override
     public String toString() {
@@ -2362,6 +2361,7 @@ public class ELClientIT {
       return "Beta";
     }
 
+    @Override
     public int compareTo(Object o) {
 
       if (o == null)
@@ -2391,13 +2391,14 @@ public class ELClientIT {
 
   }
 
-  private static class NickType implements Comparable {
+  private static class NickType implements Comparable<Object> {
 
     @Override
     public String toString() {
       return "Gamma";
     }
 
+    @Override
     public int compareTo(Object o) {
 
       if (o == null)

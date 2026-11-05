@@ -81,6 +81,8 @@ expression
     | expression bop=(EQ | NE) expression #relationalExpression
     | expression bop=AND expression #logicalExpression
     | expression bop=OR expression #logicalExpression
+    | <assoc=right> expression bop=NULL_COALESCING expression #nullCoalescingExpression
+    | <assoc=right> expression bop=ELVIS expression #elvisExpression
     | <assoc=right> expression QUESTIONMARK qualifiedFunction #badTernaryExpression
     | <assoc=right> expression bop=QUESTIONMARK expression bop=COLON expression #ternaryExpression
     | <assoc=right> expression bop=(ASSIGN | CONCAT) expression #assignExpression
