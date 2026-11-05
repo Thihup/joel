@@ -10,6 +10,10 @@
 
     <artifactId>dev.thihup.joel.tck</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>dev.thihup.joel</groupId>

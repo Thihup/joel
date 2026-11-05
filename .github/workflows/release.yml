@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (build and sign without publishing to Maven Central)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Set up JDK & GPG
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          server-id: central
+          server-username: SONATYPE_USERNAME
+          server-password: SONATYPE_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Run Tests
+        run: mvn --no-transfer-progress verify -Ptck
+
+      - name: Build & Sign (Dry Run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: mvn --no-transfer-progress verify -P release
+
+      - name: Deploy to Maven Central Portal
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: mvn --no-transfer-progress deploy -P release -DskipTests
+

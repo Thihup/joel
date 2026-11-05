@@ -11,6 +11,9 @@
 
     <artifactId>jakarta.el</artifactId>
 
+    <name>Joel Jakarta Expression Language API</name>
+    <description>Jakarta Expression Language API module for Joel</description>
+
     <build>
         <plugins>
             <plugin>

@@ -25,7 +25,7 @@ import java.util.Objects;
  * For Jakarta Expression Language users who want to manipulate Jakarta Expression Language environments, like adding
  * custom {@link ELResolver}s, {@link ELManager} can be used.
  *
- * <h3>Scope and Life Cycle</h3>
+ * <h2>Scope and Life Cycle</h2>
  * <p>
  * Since it maintains the state of the Jakarta Expression Language environments, <code>ELProcessor</code> is not thread
  * safe. In the simplest case, an instance can be created and destroyed before and after evaluating Jakarta Expression
@@ -33,7 +33,7 @@ import java.util.Objects;
  * the user can configure the Jakarta Expression Language evaluation environment for that session.
  * </p>
  *
- * <h3>Automatic Bracketing of Expressions</h3>
+ * <h2>Automatic Bracketing of Expressions</h2>
  * <p>
  * A note about the Jakarta Expression Language expressions strings used in the class. The strings allowed in the methods
  * {@link ELProcessor#getValue}, {@link ELProcessor#setValue}, and {@link ELProcessor#setVariable} are limited to
@@ -42,7 +42,7 @@ import java.util.Objects;
  * bracketed. This reduces the visual cluster, without any lost of functionalities (thanks to the addition of the
  * concatenation operator).
  *
- * <h3>Example</h3> The following code snippet illustrates the use of ELProcessor to define a bean and evaluate its
+ * <h2>Example</h2> The following code snippet illustrates the use of ELProcessor to define a bean and evaluate its
  * property. <blockquote>
  *
  * <pre>

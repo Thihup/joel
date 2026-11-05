@@ -12,6 +12,10 @@
 
     <artifactId>dev.thihup.joel.integration.tests</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>dev.thihup.joel</groupId>

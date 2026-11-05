@@ -11,6 +11,9 @@
 
     <artifactId>dev.thihup.joel</artifactId>
 
+    <name>Joel</name>
+    <description>High Performance Jakarta Expression Language Implementation</description>
+
     <dependencies>
         <dependency>
             <groupId>dev.thihup.joel</groupId>

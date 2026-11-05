@@ -15,5 +15,5 @@ gen/
 *.tokens
 *.jfr
 jfr-results/
-*-benchmark-results.json
+*benchmark-results*.json
 full-benchmark-results.json
