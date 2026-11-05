@@ -27,7 +27,7 @@ public class ImportHandler {
      * @param className The full class name of the class to be imported
      * @throws ELException if the name does not include a ".".
      */
-    public void importClass(String className) {
+    public void importClass(String className) throws ELException {
         int index = className.lastIndexOf('.');
         if (index == -1) {
             throw new ELException("Not fully qualified classname: %s".formatted(className));
@@ -55,7 +55,7 @@ public class ImportHandler {
      * @param name The static member name, including the full class name, to be imported
      * @throws ELException if the name does not include a ".".
      */
-    public void importStatic(String name) {
+    public void importStatic(String name) throws ELException {
         int index = name.lastIndexOf('.');
         if (index == -1) {
             throw new ELException("Not fully qualified classname: %s".formatted(name));

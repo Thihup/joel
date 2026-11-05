@@ -84,7 +84,7 @@ public class ELManager {
      * @param className The full class name of the class to be imported
      * @throws ELException if the name is not a full class name.
      */
-    public void importClass(String className) {
+    public void importClass(String className) throws ELException {
         context.getImportHandler().importClass(className);
     }
 
@@ -105,7 +105,7 @@ public class ELManager {
      * @param staticMemberName The full class name of the class to be imported
      * @throws ELException if the name is not a full class name.
      */
-    public void importStatic(String staticMemberName) {
+    public void importStatic(String staticMemberName) throws ELException {
         context.getImportHandler().importStatic(staticMemberName);
     }
 

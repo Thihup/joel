@@ -1,6 +1,7 @@
 package jakarta.el;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Holds information about a method that a {@link MethodExpression} evaluated to.
@@ -50,6 +51,27 @@ public class MethodInfo {
      */
     public Class<?>[] getParamTypes() {
         return parameterTypes;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof MethodInfo other)) {
+            return false;
+        }
+        return Objects.equals(name, other.name) &&
+                Objects.equals(returnType, other.returnType) &&
+                Arrays.equals(parameterTypes, other.parameterTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(name);
+        result = 31 * result + Objects.hashCode(returnType);
+        result = 31 * result + Arrays.hashCode(parameterTypes);
+        return result;
     }
 
     @Override

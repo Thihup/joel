@@ -19,6 +19,7 @@ public class StandardELContext extends ELContext {
     private final FunctionMapper functionMapper;
     private final VariableMapper variableMapper;
     private final CompositeELResolver rootResolver;
+    private final ELContext delegate;
 
     /**
      * Construct a StandardELContext from another ELContext.
@@ -26,6 +27,7 @@ public class StandardELContext extends ELContext {
      * @param context The ELContext that acts as a delegate in most cases
      */
     public StandardELContext(ELContext context) {
+        this.delegate = context;
         functionMapper = context.getFunctionMapper();
         variableMapper = context.getVariableMapper();
         setLocale(context.getLocale());
@@ -41,10 +43,28 @@ public class StandardELContext extends ELContext {
      * @param expressionFactory The ExpressionFactory
      */
     public StandardELContext(ExpressionFactory expressionFactory) {
+        this.delegate = null;
         functionMapper = new DefaultFunctionMapper(expressionFactory.getInitFunctionMap());
         variableMapper = new DefaultVariableMapper();
         rootResolver = computeResolver(expressionFactory.getStreamELResolver());
         putContext(ExpressionFactory.class, expressionFactory);
+    }
+
+    @Override
+    public void putContext(Class<?> key, Object contextObject) {
+        if (delegate != null) {
+            delegate.putContext(key, contextObject);
+        } else {
+            super.putContext(key, contextObject);
+        }
+    }
+
+    @Override
+    public Object getContext(Class<?> key) {
+        if (delegate != null) {
+            return delegate.getContext(key);
+        }
+        return super.getContext(key);
     }
 
     /**

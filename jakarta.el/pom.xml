@@ -14,31 +14,36 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>clirr-maven-plugin</artifactId>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <version>0.23.1</version>
                 <executions>
                     <execution>
-                        <id>install</id>
                         <phase>verify</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>cmp</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <includes>
-                        <include>jakarta/el/**</include>
-                    </includes>
-                    <comparisonArtifacts>
-                        <comparisonArtifact>
+                    <oldVersion>
+                        <dependency>
                             <groupId>jakarta.el</groupId>
                             <artifactId>jakarta.el-api</artifactId>
                             <version>6.1.0-M1</version>
-                        </comparisonArtifact>
-                    </comparisonArtifacts>
-                    <failOnError>true</failOnError>
-                    <logResults>true</logResults>
-                    <textOutputFile>${project.build.directory}/clirr.txt</textOutputFile>
+                            <type>jar</type>
+                        </dependency>
+                    </oldVersion>
+                    <newVersion>
+                        <file>
+                            <path>${project.build.directory}/${project.build.finalName}.jar</path>
+                        </file>
+                    </newVersion>
+                    <parameter>
+                        <onlyModified>true</onlyModified>
+                        <breakBuildOnModifications>false</breakBuildOnModifications>
+                        <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                    </parameter>
                 </configuration>
             </plugin>
         </plugins>

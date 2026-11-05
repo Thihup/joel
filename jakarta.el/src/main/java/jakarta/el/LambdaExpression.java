@@ -69,7 +69,7 @@ public class LambdaExpression {
      * @throws ELException          if not enough arguments are provided
      * @throws NullPointerException is elContext is null
      */
-    public Object invoke(ELContext elContext, Object... arguments) {
+    public Object invoke(ELContext elContext, Object... arguments) throws ELException {
         Objects.requireNonNull(elContext);
 
         if (arguments.length < formalParameters.size())

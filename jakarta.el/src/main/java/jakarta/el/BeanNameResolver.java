@@ -54,7 +54,7 @@ public abstract class BeanNameResolver {
      * @param value    The value to set the bean to. Can be <code>null</code>.
      * @throws PropertyNotWritableException if the bean cannot be modified or created.
      */
-    public void setBeanValue(String beanName, Object value) {
+    public void setBeanValue(String beanName, Object value) throws PropertyNotWritableException {
         throw new PropertyNotWritableException();
     }
 }

@@ -73,16 +73,9 @@
                     <version>3.0.0-M5</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>clirr-maven-plugin</artifactId>
-                    <version>2.8</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.bcel</groupId>
-                            <artifactId>bcel</artifactId>
-                            <version>6.5.0</version>
-                        </dependency>
-                    </dependencies>
+                    <groupId>com.github.siom79.japicmp</groupId>
+                    <artifactId>japicmp-maven-plugin</artifactId>
+                    <version>0.23.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
