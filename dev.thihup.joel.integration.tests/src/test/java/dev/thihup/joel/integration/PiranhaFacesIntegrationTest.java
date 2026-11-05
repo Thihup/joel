@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Piranha Cloud Jakarta Faces (Mojarra) Integration Tests with Joel")
+@EnabledForJreRange(min = JRE.JAVA_21, disabledReason = "Piranha Cloud requires Java 21+")
 public class PiranhaFacesIntegrationTest {
 
     private static Weld weld;

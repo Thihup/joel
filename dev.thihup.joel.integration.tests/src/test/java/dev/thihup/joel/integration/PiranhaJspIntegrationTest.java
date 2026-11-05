@@ -11,6 +11,8 @@ import dev.thihup.joel.integration.beans.IntegrationBeans.AddressBean;
 import dev.thihup.joel.integration.beans.IntegrationBeans.UserBean;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Piranha Cloud JSP (WaSP) Integration Tests with Joel")
+@EnabledForJreRange(min = JRE.JAVA_21, disabledReason = "Piranha Cloud requires Java 21+")
 public class PiranhaJspIntegrationTest {
 
     @Test
