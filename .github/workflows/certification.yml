@@ -3,12 +3,19 @@ name: TCK Certification
 on:
   workflow_dispatch:
     inputs:
+      joel_version:
+        description: 'JoEL Version'
+        required: true
+        default: '6.1.0-M2'
       tck_version:
         description: 'TCK Version'
         required: true
         default: '6.1.0-M1'
   release:
     types: [published]
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -75,23 +82,36 @@ jobs:
       - name: Generate Issue Draft & Certification Summary
         run: |
           TCK_VER="${{ github.event.inputs.tck_version || '6.1.0-M1' }}"
+
+          if [ -n "${{ github.event.inputs.joel_version }}" ]; then
+            JOEL_VER="${{ github.event.inputs.joel_version }}"
+          elif [ -n "${{ github.event.release.tag_name }}" ]; then
+            JOEL_VER="${{ github.event.release.tag_name }}"
+            JOEL_VER="${JOEL_VER#v}"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            JOEL_VER="${GITHUB_REF#refs/tags/v}"
+          else
+            JOEL_VER=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2>/dev/null || echo "6.1.0-M2")
+          fi
+
+          TAG_NAME="v${JOEL_VER}"
           SHA256=$(cat all-results/*/sha256.txt 2>/dev/null | head -n 1)
           UBUNTU_VER=$(lsb_release -ds 2>/dev/null || echo "Ubuntu 24.04 LTS")
 
           cat <<EOF > tck-certification-summary.md
-          ### Compatibility Certification Request for JoEL ${TCK_VER}
+          ### Compatibility Certification Request for JoEL ${JOEL_VER}
 
           - [x] Organization Name ("Organization") and, if applicable, URL:  
             Thihup (https://github.com/Thihup)
           - [x] Product Name, Version and download URL (if applicable):  
-            [JoEL ${TCK_VER}](https://github.com/Thihup/joel/releases/tag/v${TCK_VER})
+            [JoEL ${JOEL_VER}](https://github.com/Thihup/joel/releases/tag/v${JOEL_VER})
           - [x] Specification Name, Version and download URL:  
             [Jakarta Expression Language 6.1](https://jakarta.ee/specifications/expression-language/6.1/)
           - [x] TCK Version, digital SHA-256 fingerprint and download URL:  
             [Jakarta Expression Language TCK ${TCK_VER}](https://download.eclipse.org/ee4j/expression-language/jakartaee12/staged/eftl/jakarta-expression-language-tck-${TCK_VER}.zip)  
             SHA-256: \`${SHA256}\`
           - [x] Public URL of TCK Results Summary:  
-            https://github.com/Thihup/joel/releases/tag/v${TCK_VER}
+            https://github.com/Thihup/joel/releases/tag/v${JOEL_VER}
           - [x] Any Additional Specification Certification Requirements:  
             None
           - [x] Java runtime used to run the implementation:
@@ -130,10 +150,21 @@ jobs:
           name: tck-certification-summary
           path: tck-certification-summary.md
 
-      - name: Attach Summary to Release (if triggered by release)
-        if: github.event_name == 'release'
+      - name: Attach Summary to Release (if tag or release event)
+        if: ${{ github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ github.event.release.tag_name }} tck-certification-summary.md --clobber
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            TAG_NAME="v6.1.0-M2"
+          fi
 
+          if ! gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release create "$TAG_NAME" tck-certification-summary.md --title "JoEL ${TAG_NAME#v}" --generate-notes
+          else
+            gh release upload "$TAG_NAME" tck-certification-summary.md --clobber
+          fi

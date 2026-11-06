@@ -27,7 +27,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>dev.thihup.joel</groupId>
     <artifactId>dev.thihup.joel</artifactId>
-    <version>6.1.0-M1</version>
+    <version>6.1.0-M2</version>
 </dependency>
 ```
 
@@ -37,14 +37,14 @@ If you also require the bundled Jakarta EL API module:
 <dependency>
     <groupId>dev.thihup.joel</groupId>
     <artifactId>jakarta.el</artifactId>
-    <version>6.1.0-M1</version>
+    <version>6.1.0-M2</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'dev.thihup.joel:dev.thihup.joel:6.1.0-M1'
+implementation 'dev.thihup.joel:dev.thihup.joel:6.1.0-M2'
 ```
 
 ---

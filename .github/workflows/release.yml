@@ -15,7 +15,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release:
@@ -49,4 +49,29 @@ jobs:
       - name: Deploy to Maven Central Portal
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: mvn --no-transfer-progress --batch-mode deploy -P release -DskipTests
+
+      - name: Publish GitHub Release & Upload JARs
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG_NAME#v}"
+          elif [ -n "${{ github.event.release.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+            VERSION="${TAG_NAME#v}"
+          else
+            VERSION=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout 2>/dev/null || echo "6.1.0-M2")
+            TAG_NAME="v${VERSION}"
+          fi
+
+          FILES=(jakarta.el/target/*.jar dev.thihup.joel/target/*.jar)
+          echo "Uploading assets to release ${TAG_NAME}: ${FILES[*]}"
+
+          if ! gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release create "$TAG_NAME" "${FILES[@]}" --title "JoEL ${VERSION}" --generate-notes
+          else
+            gh release upload "$TAG_NAME" "${FILES[@]}" --clobber
+          fi
 
