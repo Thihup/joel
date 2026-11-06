@@ -9,6 +9,7 @@ import dev.thihup.joel.impl.node.IdentifierNode;
 import dev.thihup.joel.impl.node.LambdaNode;
 import dev.thihup.joel.impl.node.MemberNode;
 import dev.thihup.joel.impl.node.Node;
+import dev.thihup.joel.impl.node.LiteralNode;
 import dev.thihup.joel.impl.node.ObjectNode;
 import dev.thihup.joel.impl.node.StringNode;
 import jakarta.el.ELContext;
@@ -30,6 +31,8 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Serial
     private static final long serialVersionUID = 2278002437607003601L;
+
+    private static final boolean BYTECODE_ENABLED = Boolean.parseBoolean(System.getProperty("joel.bytecode.enabled", "true"));
 
     private final String expression;
     private final Node node;
@@ -91,6 +94,9 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Override
     public Class<?> getType(ELContext context) {
+        if (node instanceof ObjectNode obj) {
+            return obj.value() != null ? obj.value().getClass() : expectedType;
+        }
         ELContext evalContext = wrapContext(context);
         evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         return node.getType(evalContext);
@@ -99,6 +105,14 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getValue(ELContext context) {
+        if (node instanceof ObjectNode obj) {
+            Object val = obj.value();
+            if (expectedType == Object.class || (val != null && expectedType.isInstance(val))) {
+                return (T) val;
+            }
+            ELContext evalContext = wrapContext(context);
+            return (T) evalContext.convertToType(val, expectedType);
+        }
         ELContext evalContext = wrapContext(context);
         evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         try {
@@ -112,7 +126,7 @@ public final class JoelValueExpression extends ValueExpression {
                     val = evalAst(evalContext);
                 }
             } else {
-                if (!compilationAttempted) {
+                if (!compilationAttempted && BYTECODE_ENABLED && !(node instanceof LiteralNode)) {
                     if (++invocationCount >= 2) {
                         synchronized (this) {
                             if (!compilationAttempted) {
@@ -162,6 +176,9 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Override
     public boolean isReadOnly(ELContext context) {
+        if (node instanceof ObjectNode) {
+            return true;
+        }
         ELContext evalContext = wrapContext(context);
         evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         if (node instanceof MemberNode memberNode) {
@@ -192,6 +209,9 @@ public final class JoelValueExpression extends ValueExpression {
 
     @Override
     public ValueReference getValueReference(ELContext context) {
+        if (node instanceof ObjectNode) {
+            return null;
+        }
         ELContext evalContext = wrapContext(context);
         evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         if (node instanceof MemberNode memberNode) {
@@ -231,7 +251,7 @@ public final class JoelValueExpression extends ValueExpression {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private value record SerializedValueExpression(String expression, Node node,
+    private record SerializedValueExpression(String expression, Node node,
                                              Class<?> expectedType) implements Serializable {
         @Serial
         public Object readResolve() {
