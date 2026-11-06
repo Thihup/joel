@@ -76,7 +76,7 @@
                     <systemPropertyVariables>
                         <variable.mapper>dev.thihup.joel.impl.mapper.JoelVariableMapper</variable.mapper>
                         <jimage.dir>${project.build.directory}/jimage</jimage.dir>
-                        <sigTestClasspath>${settings.localRepository}/dev/thihup/joel/jakarta.el/${project.version}/jakarta.el-${project.version}.jar${path.separator}${project.build.directory}/jimage/java.base</sigTestClasspath>
+                        <sigTestClasspath>${project.basedir}/../jakarta.el/target/jakarta.el-${project.version}.jar${path.separator}${project.build.directory}/jimage/java.base</sigTestClasspath>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
