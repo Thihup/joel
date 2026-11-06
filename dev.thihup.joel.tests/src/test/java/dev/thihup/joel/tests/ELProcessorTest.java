@@ -1,6 +1,7 @@
 package dev.thihup.joel.tests;
 
 import jakarta.el.ELProcessor;
+import jakarta.el.PropertyNotFoundException;
 import jakarta.el.PropertyNotWritableException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -77,7 +78,7 @@ public class ELProcessorTest {
     @Test
     void emptyUndefinedVariable() {
         ELProcessor elProcessor = new ELProcessor();
-        assertEquals(Boolean.TRUE, elProcessor.eval("empty undefinedVariable"));
+        assertThrows(PropertyNotFoundException.class, () -> elProcessor.eval("empty undefinedVariable"));
     }
 
     public static int add(int a, int b) {
