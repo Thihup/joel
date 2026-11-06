@@ -1,5 +1,6 @@
 package dev.thihup.joel.impl;
 
+import dev.thihup.joel.impl.compiler.AstBytecodeCompiler;
 import dev.thihup.joel.impl.compiler.AstMethodHandleCompiler;
 import dev.thihup.joel.impl.compiler.CompiledExpression;
 import dev.thihup.joel.impl.node.NodeEvaluator;
@@ -117,7 +118,11 @@ public final class JoelValueExpression extends ValueExpression {
                             if (!compilationAttempted) {
                                 compilationAttempted = true;
                                 try {
-                                    this.compiled = AstMethodHandleCompiler.compileToHiddenClass(node);
+                                    try {
+                                        this.compiled = AstBytecodeCompiler.compileToBytecode(node);
+                                    } catch (Throwable t) {
+                                        this.compiled = AstMethodHandleCompiler.compileToHiddenClass(node);
+                                    }
                                 } catch (Throwable ignored) {
                                 }
                             }

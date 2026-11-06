@@ -211,4 +211,40 @@ public final class AstCompilerHelpers {
         if (val instanceof Boolean b) return b;
         return (boolean) context.convertToType(val, boolean.class);
     }
+
+    public static Object evalAddDirect(Object l, Object r, ELContext context) {
+        return Operation.ADDITION.calculate(l, r, context);
+    }
+
+    public static Object evalSubDirect(Object l, Object r, ELContext context) {
+        return Operation.SUBTRACTION.calculate(l, r, context);
+    }
+
+    public static Object evalMulDirect(Object l, Object r, ELContext context) {
+        return Operation.MULTIPLICATION.calculate(l, r, context);
+    }
+
+    public static Object evalDivDirect(Object l, Object r, ELContext context) {
+        return Operation.DIVISION.calculate(l, r, context);
+    }
+
+    public static Object evalModDirect(Object l, Object r, ELContext context) {
+        return Operation.MODULO.calculate(l, r, context);
+    }
+
+    public static Object evalConcatDirect(Object l, Object r, ELContext context) {
+        return NodeEvaluator.concatValues(l, r, context);
+    }
+
+    public static Object evalEqualDirect(Object l, Object r, ELContext context) {
+        return EqualNode.equals(l, r, context);
+    }
+
+    public static Object evalNotEqualDirect(Object l, Object r, ELContext context) {
+        return !EqualNode.equals(l, r, context);
+    }
+
+    public static int evalCompareDirect(Object l, Object r, ELContext context) {
+        return RelationalNode.compare(l, r, context);
+    }
 }
