@@ -5,7 +5,7 @@ import jakarta.el.ELContext;
 import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 
-public value record IdentifierNode(String value) implements Node {
+public value record IdentifierNode(String value) implements StructureNode {
 
     private static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
         @Override

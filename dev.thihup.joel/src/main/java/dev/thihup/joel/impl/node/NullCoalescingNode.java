@@ -2,10 +2,10 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public value record NullCoalescingNode(Node expression, Node defaultExpression) implements Node {
+public value record NullCoalescingNode(Node expression, Node defaultExpression) implements ConditionalNode {
     @Override
     public Class<?> getType(ELContext context) {
-        Object val = expression.getValue(context);
+        Object val = NodeEvaluator.eval(expression, context);
         if (val != null) {
             return expression.getType(context);
         }
@@ -14,11 +14,11 @@ public value record NullCoalescingNode(Node expression, Node defaultExpression) 
 
     @Override
     public Object getValue(ELContext context) {
-        Object val = expression.getValue(context);
+        Object val = NodeEvaluator.eval(expression, context);
         if (val != null) {
             return val;
         }
-        return defaultExpression.getValue(context);
+        return NodeEvaluator.eval(defaultExpression, context);
     }
 
     @Override

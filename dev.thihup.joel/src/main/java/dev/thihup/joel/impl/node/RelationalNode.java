@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 
-public sealed interface RelationalNode extends BooleanExpression permits
+public sealed interface RelationalNode extends Node permits
         AndNode,
         EqualNode,
         GreaterEqualNode,
@@ -20,13 +20,18 @@ public sealed interface RelationalNode extends BooleanExpression permits
 
     Node right();
 
+    @Override
+    default Class<?> getType(ELContext context) {
+        return Boolean.class;
+    }
+
     static boolean isDateTime(Object obj) {
         return obj instanceof java.time.temporal.TemporalAccessor
                 || obj instanceof java.time.Clock
                 || obj instanceof java.util.Date;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes", "cast"})
     static int compare(Object leftValue, Object rightValue, ELContext context) {
         if (leftValue instanceof String s1 && rightValue instanceof String s2) {
             return s1.compareTo(s2);
@@ -51,22 +56,25 @@ public sealed interface RelationalNode extends BooleanExpression permits
             long l2 = rightValue instanceof Number n ? n.longValue() : context.convertToType(rightValue, Long.class);
             return Long.compare(l1, l2);
         }
+        if (leftValue instanceof Character || rightValue instanceof Character) {
+            short s1 = leftValue instanceof Character c ? (short) c.charValue() : (short) ((Number) context.convertToType(leftValue, Short.class)).shortValue();
+            short s2 = rightValue instanceof Character c ? (short) c.charValue() : (short) ((Number) context.convertToType(rightValue, Short.class)).shortValue();
+            return Short.compare(s1, s2);
+        }
+        if (leftValue instanceof Boolean || rightValue instanceof Boolean) {
+            boolean b1 = leftValue instanceof Boolean b ? b : context.convertToType(leftValue, Boolean.class);
+            boolean b2 = rightValue instanceof Boolean b ? b : context.convertToType(rightValue, Boolean.class);
+            return Boolean.compare(b1, b2);
+        }
         if (isDateTime(leftValue) || isDateTime(rightValue)) {
             Instant i1 = leftValue instanceof Instant i ? i : context.convertToType(leftValue, Instant.class);
             Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
             return i1.compareTo(i2);
         }
-        if (leftValue instanceof String || rightValue instanceof String) {
-            String s1 = context.convertToType(leftValue, String.class);
-            String s2 = context.convertToType(rightValue, String.class);
-            return s1.compareTo(s2);
+        if (leftValue instanceof Comparable c1 && rightValue instanceof Comparable c2) {
+            return c1.compareTo(c2);
         }
-        if (leftValue instanceof Comparable comparable) {
-            return comparable.compareTo(rightValue);
-        }
-        if (rightValue instanceof Comparable comparable) {
-            return -comparable.compareTo(leftValue);
-        }
-        throw new ELException("Cannot compare values: " + leftValue + " and " + rightValue);
+
+        throw new ELException("Could not compare %s with %s".formatted(leftValue, rightValue));
     }
 }

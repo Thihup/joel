@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public value record MapNode(List<Map.Entry<Node, Node>> entries) implements Node {
+public value record MapNode(List<Map.Entry<Node, Node>> entries) implements CollectionNode {
     @Override
     public Object getValue(ELContext context) {
         Map<Object, Object> result = new LinkedHashMap<>();

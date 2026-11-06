@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public value record SetNode(List<Node> values) implements Node {
+public value record SetNode(List<Node> values) implements CollectionNode {
     @Override
     public Class<?> getType(ELContext context) {
         return Set.class;

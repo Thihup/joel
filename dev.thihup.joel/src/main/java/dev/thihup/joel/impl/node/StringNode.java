@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public value record StringNode(String value) implements Node {
+public value record StringNode(String value) implements LiteralNode {
     @Override
     public Class<?> getType(ELContext context) {
         return String.class;

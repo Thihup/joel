@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public enum NullNode implements Node {
+public enum NullNode implements LiteralNode {
     INSTANCE;
 
     @Override

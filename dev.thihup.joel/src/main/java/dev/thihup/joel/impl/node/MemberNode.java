@@ -7,7 +7,7 @@ import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
-public value record MemberNode(Node object, Node property) implements Node {
+public value record MemberNode(Node object, Node property) implements StructureNode {
 
     private static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
         @Override
@@ -21,13 +21,13 @@ public value record MemberNode(Node object, Node property) implements Node {
         if (property instanceof IdentifierNode node)
             return resolveType(context, node.value());
 
-        return resolveType(context, property.getValue(context));
+        return resolveType(context, NodeEvaluator.eval(property, context));
     }
 
     private Class<?> resolveType(ELContext context, Object property) {
         Object base = null;
         try {
-            base = object.getValue(context);
+            base = NodeEvaluator.eval(object, context);
         } catch (Exception ignored) {
         }
         if (base == null) {
@@ -54,11 +54,11 @@ public value record MemberNode(Node object, Node property) implements Node {
 
     @Override
     public Object getValue(ELContext context) {
-        Object base = object.getValue(context);
+        Object base = NodeEvaluator.eval(object, context);
         if (base == null) {
             return null;
         }
-        Object prop = property instanceof IdentifierNode node ? node.value() : property.getValue(context);
+        Object prop = property instanceof IdentifierNode node ? node.value() : NodeEvaluator.eval(property, context);
         context.setPropertyResolved(false);
         try {
             return context.getELResolver().getValue(context, base, prop);
@@ -76,11 +76,11 @@ public value record MemberNode(Node object, Node property) implements Node {
     }
 
     public Object getBase(ELContext context) {
-        return object.getValue(context);
+        return NodeEvaluator.eval(object, context);
     }
 
     public Object getProperty(ELContext context) {
-        return property instanceof IdentifierNode node ? node.value() : property.getValue(context);
+        return property instanceof IdentifierNode node ? node.value() : NodeEvaluator.eval(property, context);
     }
 
     public ValueReference valueReference(ELContext context) {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public value record ListNode(List<Node> values) implements Node {
+public value record ListNode(List<Node> values) implements CollectionNode {
     @Override
     public Class<?> getType(ELContext context) {
         return List.class;

@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public value record SemicolonNode(Node left, Node right) implements Node {
+public value record SemicolonNode(Node left, Node right) implements WrapperNode {
     @Override
     public Class<?> getType(ELContext context) {
         return right.getType(context);

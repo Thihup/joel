@@ -5,31 +5,17 @@ import jakarta.el.ELContext;
 import java.io.Serializable;
 
 public sealed interface Node extends Serializable
-        permits CallExpressionNode,
-        BooleanExpression,
+        permits LiteralNode,
         InfixExpressionNode,
-        DeferredExpressionNode,
-        DynamicExpressionNode,
-        IdentifierNode,
-        LambdaNode,
-        ListNode,
-        MapNode,
-        MemberNode,
-        NullNode,
-        NumberNode,
-        SemicolonNode,
-        SetNode,
-        StringNode,
-        TernaryNode,
-        ElvisNode,
-        NullCoalescingNode,
-        UnaryEmptyNode,
-        UnaryMinusNode,
-        UnaryNotNode,
-        ObjectNode {
+        RelationalNode,
+        UnaryNode,
+        ConditionalNode,
+        StructureNode,
+        CollectionNode,
+        WrapperNode {
 
     default Object getValue(ELContext context) {
-        throw new UnsupportedOperationException(this.toString());
+        return NodeEvaluator.eval(this, context);
     }
 
     default Class<?> getType(ELContext context) {

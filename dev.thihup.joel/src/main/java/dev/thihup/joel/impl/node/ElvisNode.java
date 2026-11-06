@@ -3,10 +3,10 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public value record ElvisNode(Node expression, Node defaultExpression) implements Node {
+public value record ElvisNode(Node expression, Node defaultExpression) implements ConditionalNode {
     @Override
     public Class<?> getType(ELContext context) {
-        Object val = expression.getValue(context);
+        Object val = NodeEvaluator.eval(expression, context);
         if ((boolean) context.convertToType(val, boolean.class)) {
             return expression.getType(context);
         }
@@ -15,11 +15,11 @@ public value record ElvisNode(Node expression, Node defaultExpression) implement
 
     @Override
     public Object getValue(ELContext context) {
-        Object val = expression.getValue(context);
+        Object val = NodeEvaluator.eval(expression, context);
         if ((boolean) context.convertToType(val, boolean.class)) {
             return val;
         }
-        return defaultExpression.getValue(context);
+        return NodeEvaluator.eval(defaultExpression, context);
     }
 
     @Override

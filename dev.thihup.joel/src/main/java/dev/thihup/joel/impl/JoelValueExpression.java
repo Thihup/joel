@@ -1,5 +1,6 @@
 package dev.thihup.joel.impl;
 
+import dev.thihup.joel.impl.node.NodeEvaluator;
 import dev.thihup.joel.impl.node.AssignNode;
 import dev.thihup.joel.impl.node.IdentifierNode;
 import dev.thihup.joel.impl.node.LambdaNode;
@@ -97,9 +98,9 @@ public final class JoelValueExpression extends ValueExpression {
             evalContext.notifyBeforeEvaluation(expression);
             Object val;
             if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                val = lambdaNode.expression().getValue(evalContext);
+                val = NodeEvaluator.eval(lambdaNode.expression(), evalContext);
             } else {
-                val = node.getValue(evalContext);
+                val = NodeEvaluator.eval(node, evalContext);
             }
             if (expectedType == Object.class || (val != null && expectedType.isInstance(val))) {
                 return (T) val;
@@ -139,7 +140,7 @@ public final class JoelValueExpression extends ValueExpression {
         evalContext.setPropertyResolved(false);
         if (isReadOnly(evalContext))
             throw new PropertyNotWritableException();
-        new AssignNode(node, new ObjectNode(value)).getValue(evalContext);
+        NodeEvaluator.eval(new AssignNode(node, new ObjectNode(value)), evalContext);
     }
 
     @Override

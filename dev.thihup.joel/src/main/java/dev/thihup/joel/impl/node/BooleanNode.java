@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public enum BooleanNode implements BooleanExpression {
+public enum BooleanNode implements LiteralNode {
     TRUE, FALSE;
 
     @Override

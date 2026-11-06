@@ -3,6 +3,7 @@ package dev.thihup.joel.impl;
 import dev.thihup.joel.impl.node.MemberNode;
 import dev.thihup.joel.impl.node.Node;
 import dev.thihup.joel.impl.node.StringNode;
+import dev.thihup.joel.impl.node.NodeEvaluator;
 import dev.thihup.joel.impl.node.CallExpressionNode;
 import jakarta.el.ELContext;
 import jakarta.el.ELException;
@@ -177,7 +178,7 @@ public final class JoelMethodExpression extends MethodExpression {
         }
         String property = valueReference.getProperty().toString();
         Object[] originalArguments = call.arguments().stream()
-                .map(argument -> argument.getValue(context)).toArray();
+                .map(argument -> NodeEvaluator.eval(argument, context)).toArray();
         MethodTarget best = null;
         for (Method method : base.getClass().getMethods()) {
             if (!method.getName().equals(property)) {

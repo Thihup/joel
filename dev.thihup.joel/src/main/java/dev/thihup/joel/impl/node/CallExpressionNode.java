@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public value record CallExpressionNode(Node callee, List<? extends Node> arguments) implements Node {
+public value record CallExpressionNode(Node callee, List<? extends Node> arguments) implements StructureNode {
 
     private static final Object[] EMPTY_ARGS = new Object[0];
 

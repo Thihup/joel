@@ -3,7 +3,7 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public value record UnaryNotNode(Node node) implements Node {
+public value record UnaryNotNode(Node node) implements UnaryNode {
     @Override
     public Class<?> getType(ELContext context) {
         return Boolean.class;

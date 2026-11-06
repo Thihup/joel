@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public value record DeferredExpressionNode(Node node) implements Node {
+public value record DeferredExpressionNode(Node node) implements WrapperNode {
     @Override
     public Class<?> getType(ELContext context) {
         return node.getType(context);
