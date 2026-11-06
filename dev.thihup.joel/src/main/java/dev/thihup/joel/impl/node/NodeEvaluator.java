@@ -33,7 +33,7 @@ public final class NodeEvaluator {
 
     private static final Object[] EMPTY_ARGS = new Object[0];
 
-    static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
+    public static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
         @Override
         protected ELClass computeValue(Class<?> type) {
             return new ELClass(type);
