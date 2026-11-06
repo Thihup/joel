@@ -1,6 +1,6 @@
 # Joel
 
-A high-performance implementation of **Jakarta Expression Language (EL 6.0+)** for Java 17+.
+A high-performance implementation of **Jakarta Expression Language (EL 6.1)** for Java 17+.
 
 [![build](https://github.com/Thihup/joel/actions/workflows/build.yml/badge.svg)](https://github.com/Thihup/joel/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/dev.thihup.joel/dev.thihup.joel.svg)](https://central.sonatype.com/artifact/dev.thihup.joel/dev.thihup.joel)
@@ -10,7 +10,7 @@ A high-performance implementation of **Jakarta Expression Language (EL 6.0+)** f
 
 ## Features
 
-- **Jakarta EL 6.0 Compliant**: Full compliance with the official Jakarta Expression Language Specification (validated against the Jakarta EL TCK).
+- **Jakarta EL 6.1 Compliant**: Full compliance with the official Jakarta Expression Language Specification (validated against the Jakarta EL TCK).
 - **High Performance**: Designed from the ground up for low-latency expression parsing and evaluation using `java.lang.invoke` / `MethodHandle` and ANTLR 4.
 - **Modern Java & JPMS**: Built for Java 17+ with first-class Java Module System support.
 - **Standard Service Provider**: Automatically registered via `java.util.ServiceLoader` for `jakarta.el.ExpressionFactory`.
@@ -27,7 +27,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>dev.thihup.joel</groupId>
     <artifactId>dev.thihup.joel</artifactId>
-    <version>1.0.0-M1</version>
+    <version>6.1.0-M1</version>
 </dependency>
 ```
 
@@ -37,14 +37,14 @@ If you also require the bundled Jakarta EL API module:
 <dependency>
     <groupId>dev.thihup.joel</groupId>
     <artifactId>jakarta.el</artifactId>
-    <version>1.0.0-M1</version>
+    <version>6.1.0-M1</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'dev.thihup.joel:dev.thihup.joel:1.0.0-M1'
+implementation 'dev.thihup.joel:dev.thihup.joel:6.1.0-M1'
 ```
 
 ---
