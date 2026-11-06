@@ -6,3 +6,4 @@ import jakarta.el.ELContext;
 public interface CompiledExpression {
     Object evaluate(ELContext context) throws Throwable;
 }
+

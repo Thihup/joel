@@ -71,8 +71,16 @@ public sealed interface RelationalNode extends Node permits
             Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
             return i1.compareTo(i2);
         }
-        if (leftValue instanceof Comparable c1 && rightValue instanceof Comparable c2) {
-            return c1.compareTo(c2);
+        if (leftValue instanceof String || rightValue instanceof String) {
+            String str1 = context.convertToType(leftValue, String.class);
+            String str2 = context.convertToType(rightValue, String.class);
+            return str1.compareTo(str2);
+        }
+        if (leftValue instanceof Comparable comparable) {
+            return comparable.compareTo(rightValue);
+        }
+        if (rightValue instanceof Comparable comparable) {
+            return -comparable.compareTo(leftValue);
         }
 
         throw new ELException("Could not compare %s with %s".formatted(leftValue, rightValue));

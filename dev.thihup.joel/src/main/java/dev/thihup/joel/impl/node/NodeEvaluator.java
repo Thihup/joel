@@ -200,8 +200,7 @@ public final class NodeEvaluator {
         return !(boolean) context.convertToType(val, boolean.class);
     }
 
-    private static Object evalMinus(UnaryMinusNode minus, ELContext context) {
-        Object value = eval(minus.node(), context);
+    public static Object negateValue(Object value, ELContext context) {
         if (value == null)
             return 0L;
         if (value instanceof BigDecimal bigDecimal) {
@@ -237,8 +236,11 @@ public final class NodeEvaluator {
         throw new ELException("Could not perform unary minus on: " + value);
     }
 
-    private static Object evalEmpty(UnaryEmptyNode empty, ELContext context) {
-        Object value = eval(empty.node(), context);
+    private static Object evalMinus(UnaryMinusNode minus, ELContext context) {
+        return negateValue(eval(minus.node(), context), context);
+    }
+
+    public static Object emptyValue(Object value) {
         if (value == null)
             return true;
         if (value instanceof String newValue && newValue.isEmpty())
@@ -248,6 +250,10 @@ public final class NodeEvaluator {
         if (value instanceof Map<?, ?> newValue && newValue.isEmpty())
             return true;
         return value instanceof Collection<?> newValue && newValue.isEmpty();
+    }
+
+    private static Object evalEmpty(UnaryEmptyNode empty, ELContext context) {
+        return emptyValue(eval(empty.node(), context));
     }
 
     private static Object evalTernary(TernaryNode ternary, ELContext context) {
@@ -279,9 +285,7 @@ public final class NodeEvaluator {
         return (String) context.convertToType(val, String.class);
     }
 
-    private static Object evalConcat(ConcatNode concat, ELContext context) {
-        Object leftVal = eval(concat.left(), context);
-        Object rightVal = eval(concat.right(), context);
+    public static Object concatValues(Object leftVal, Object rightVal, ELContext context) {
         if (leftVal instanceof Map leftMap && rightVal instanceof Map rightMap) {
             try {
                 leftMap.putAll(rightMap);
@@ -307,6 +311,10 @@ public final class NodeEvaluator {
             }
         }
         return toConcatString(leftVal, context) + toConcatString(rightVal, context);
+    }
+
+    private static Object evalConcat(ConcatNode concat, ELContext context) {
+        return concatValues(eval(concat.left(), context), eval(concat.right(), context), context);
     }
 
     private static Object evalAssign(AssignNode assign, ELContext context) {

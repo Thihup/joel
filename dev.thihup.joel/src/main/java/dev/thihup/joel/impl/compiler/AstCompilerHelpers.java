@@ -78,6 +78,12 @@ public final class AstCompilerHelpers {
         return resolveMemberDynamic(context, base, prop);
     }
 
+    public static Object evalConcat(ELContext context, MethodHandle left, MethodHandle right) throws Throwable {
+        Object l = left.invokeExact(context);
+        Object r = right.invokeExact(context);
+        return NodeEvaluator.concatValues(l, r, context);
+    }
+
     public static Object evalAdd(ELContext context, MethodHandle left, MethodHandle right) throws Throwable {
         Object l = left.invokeExact(context);
         Object r = right.invokeExact(context);
@@ -165,6 +171,16 @@ public final class AstCompilerHelpers {
     public static Object evalNot(ELContext context, MethodHandle node) throws Throwable {
         Object val = node.invokeExact(context);
         return !toBoolean(val, context);
+    }
+
+    public static Object evalMinus(ELContext context, MethodHandle node) throws Throwable {
+        Object val = node.invokeExact(context);
+        return NodeEvaluator.negateValue(val, context);
+    }
+
+    public static Object evalEmpty(ELContext context, MethodHandle node) throws Throwable {
+        Object val = node.invokeExact(context);
+        return NodeEvaluator.emptyValue(val);
     }
 
     public static Object evalTernary(ELContext context, MethodHandle cond, MethodHandle trueExpr, MethodHandle falseExpr) throws Throwable {

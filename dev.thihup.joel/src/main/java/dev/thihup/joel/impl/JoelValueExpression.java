@@ -1,5 +1,7 @@
 package dev.thihup.joel.impl;
 
+import dev.thihup.joel.impl.compiler.AstMethodHandleCompiler;
+import dev.thihup.joel.impl.compiler.CompiledExpression;
 import dev.thihup.joel.impl.node.NodeEvaluator;
 import dev.thihup.joel.impl.node.AssignNode;
 import dev.thihup.joel.impl.node.IdentifierNode;
@@ -35,6 +37,10 @@ public final class JoelValueExpression extends ValueExpression {
     private final FunctionMapper functionMapper;
     @SuppressWarnings("serial")
     private final VariableMapper variableMapper;
+
+    private transient volatile CompiledExpression compiled;
+    private transient volatile boolean compilationAttempted;
+    private transient int invocationCount;
 
     private JoelValueExpression(String expression, Node node, Class<?> expectedType,
                                 FunctionMapper functionMapper, VariableMapper variableMapper) {
@@ -97,10 +103,41 @@ public final class JoelValueExpression extends ValueExpression {
         try {
             evalContext.notifyBeforeEvaluation(expression);
             Object val;
-            if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
-                val = NodeEvaluator.eval(lambdaNode.expression(), evalContext);
+            CompiledExpression comp = this.compiled;
+            if (comp != null) {
+                try {
+                    val = comp.evaluate(evalContext);
+                } catch (Throwable t) {
+                    val = evalAst(evalContext);
+                }
             } else {
-                val = NodeEvaluator.eval(node, evalContext);
+                if (!compilationAttempted) {
+                    if (++invocationCount >= 2) {
+                        synchronized (this) {
+                            if (!compilationAttempted) {
+                                compilationAttempted = true;
+                                try {
+                                    this.compiled = AstMethodHandleCompiler.compileToHiddenClass(node);
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        comp = this.compiled;
+                        if (comp != null) {
+                            try {
+                                val = comp.evaluate(evalContext);
+                            } catch (Throwable t) {
+                                val = evalAst(evalContext);
+                            }
+                        } else {
+                            val = evalAst(evalContext);
+                        }
+                    } else {
+                        val = evalAst(evalContext);
+                    }
+                } else {
+                    val = evalAst(evalContext);
+                }
             }
             if (expectedType == Object.class || (val != null && expectedType.isInstance(val))) {
                 return (T) val;
@@ -109,6 +146,13 @@ public final class JoelValueExpression extends ValueExpression {
         } finally {
             evalContext.notifyAfterEvaluation(expression);
         }
+    }
+
+    private Object evalAst(ELContext evalContext) {
+        if (node instanceof LambdaNode lambdaNode && lambdaNode.parameters().isEmpty()) {
+            return NodeEvaluator.eval(lambdaNode.expression(), evalContext);
+        }
+        return NodeEvaluator.eval(node, evalContext);
     }
 
     @Override
