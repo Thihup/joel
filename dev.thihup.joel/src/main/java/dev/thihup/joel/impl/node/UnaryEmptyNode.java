@@ -5,7 +5,6 @@ import jakarta.el.ELContext;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 public record UnaryEmptyNode(Node node) implements Node {
     @Override
@@ -17,8 +16,6 @@ public record UnaryEmptyNode(Node node) implements Node {
     public Object getValue(ELContext context) {
         Object value = node.getValue(context);
         if (value == null)
-            return true;
-        if (value instanceof Optional<?> optional && optional.isEmpty())
             return true;
         if (value instanceof String newValue && newValue.isEmpty())
             return true;

@@ -56,11 +56,6 @@ public sealed interface RelationalNode extends BooleanExpression permits
             Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
             return i1.compareTo(i2);
         }
-        if (isDateTime(leftValue) || isDateTime(rightValue)) {
-            Instant i1 = leftValue instanceof Instant i ? i : context.convertToType(leftValue, Instant.class);
-            Instant i2 = rightValue instanceof Instant i ? i : context.convertToType(rightValue, Instant.class);
-            return i1.compareTo(i2);
-        }
         if (leftValue instanceof String || rightValue instanceof String) {
             String s1 = context.convertToType(leftValue, String.class);
             String s2 = context.convertToType(rightValue, String.class);

@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,6 +80,15 @@ public class ELProcessorTest {
     void emptyUndefinedVariable() {
         ELProcessor elProcessor = new ELProcessor();
         assertThrows(PropertyNotFoundException.class, () -> elProcessor.eval("empty undefinedVariable"));
+    }
+
+    @Test
+    void emptyOptional() {
+        ELProcessor elProcessor = new ELProcessor();
+        elProcessor.defineBean("emptyOpt", Optional.empty());
+        elProcessor.defineBean("presentOpt", Optional.of("hello"));
+        assertEquals(Boolean.FALSE, elProcessor.eval("empty emptyOpt"));
+        assertEquals(Boolean.FALSE, elProcessor.eval("empty presentOpt"));
     }
 
     public static int add(int a, int b) {
