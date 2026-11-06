@@ -17,3 +17,5 @@ gen/
 jfr-results/
 *benchmark-results*.json
 full-benchmark-results.json
+
+results-*.json
