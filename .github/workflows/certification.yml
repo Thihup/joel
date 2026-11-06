@@ -1,0 +1,139 @@
+name: TCK Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      tck_version:
+        description: 'TCK Version'
+        required: true
+        default: '6.1.0-M1'
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  tck-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '17', '21', '25', 'latest' ]
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+
+      - name: Run TCK
+        run: |
+          mvn --no-transfer-progress verify -Ptck -Dtck.version=${{ github.event.inputs.tck_version || '6.1.0-M1' }} | tee maven.log
+
+      - name: Extract Results & Exact Java Version
+        if: always()
+        run: |
+          mkdir -p result
+          
+          # Captura detalhes exatos da versão e runtime do Java
+          JAVA_LINE1=$(java -version 2>&1 | sed -n '1p' | tr -d '\r')
+          JAVA_LINE2=$(java -version 2>&1 | sed -n '2p' | tr -d '\r')
+          echo "${JAVA_LINE1} - ${JAVA_LINE2}" > result/java-version.txt
+
+          # Extrai o resumo final de testes do Maven
+          TEST_SUMMARY=$(grep -E "Tests run: [0-9]+, Failures: [0-9]+, Errors: [0-9]+, Skipped: [0-9]+" maven.log | tail -n 1 | sed 's/\[INFO\] //g' | tr -d '\r')
+          echo "${TEST_SUMMARY:-Tests run: 0, Failures: 0, Errors: 1, Skipped: 0}" > result/test-summary.txt
+
+          # Calcula o SHA-256 do arquivo zip baixado do TCK
+          if [ -f tck/target/tck.zip ]; then
+            sha256sum tck/target/tck.zip | awk '{print $1}' > result/sha256.txt
+          fi
+
+      - name: Upload Matrix Result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tck-result-${{ matrix.java }}
+          path: result/
+
+  aggregate-certification:
+    needs: tck-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          path: all-results
+
+      - name: Generate Issue Draft & Certification Summary
+        run: |
+          TCK_VER="${{ github.event.inputs.tck_version || '6.1.0-M1' }}"
+          SHA256=$(cat all-results/*/sha256.txt 2>/dev/null | head -n 1)
+          UBUNTU_VER=$(lsb_release -ds 2>/dev/null || echo "Ubuntu 24.04 LTS")
+
+          cat <<EOF > tck-certification-summary.md
+          ### Compatibility Certification Request for JoEL ${TCK_VER}
+
+          - [x] Organization Name ("Organization") and, if applicable, URL:  
+            Thihup (https://github.com/Thihup)
+          - [x] Product Name, Version and download URL (if applicable):  
+            [JoEL ${TCK_VER}](https://github.com/Thihup/joel/releases/tag/v${TCK_VER})
+          - [x] Specification Name, Version and download URL:  
+            [Jakarta Expression Language 6.1](https://jakarta.ee/specifications/expression-language/6.1/)
+          - [x] TCK Version, digital SHA-256 fingerprint and download URL:  
+            [Jakarta Expression Language TCK ${TCK_VER}](https://download.eclipse.org/ee4j/expression-language/jakartaee12/staged/eftl/jakarta-expression-language-tck-${TCK_VER}.zip)  
+            SHA-256: \`${SHA256}\`
+          - [x] Public URL of TCK Results Summary:  
+            https://github.com/Thihup/joel/releases/tag/v${TCK_VER}
+          - [x] Any Additional Specification Certification Requirements:  
+            None
+          - [x] Java runtime used to run the implementation:
+          EOF
+
+          for dir in all-results/tck-result-*; do
+            if [ -f "$dir/java-version.txt" ]; then
+              JV=$(cat "$dir/java-version.txt")
+              echo "  - ${JV}" >> tck-certification-summary.md
+            fi
+          done
+
+          cat <<EOF >> tck-certification-summary.md
+          - [x] Summary of the information for the certification environment:  
+            ${UBUNTU_VER} (GitHub Actions Runner ubuntu-latest)
+          - [ ] By checking this box I acknowledge that the Organization I represent accepts the terms of the [EFTL](https://www.eclipse.org/legal/tck.php).
+          - [ ] By checking this box I attest that all TCK requirements have been met, including any compatibility rules.
+
+          ### Test results:
+          EOF
+
+          for dir in all-results/tck-result-*; do
+            if [ -f "$dir/test-summary.txt" ]; then
+              JV=$(cat "$dir/java-version.txt" | awk '{print $1, $2, $3}')
+              RES=$(cat "$dir/test-summary.txt")
+              echo "- **${JV}**: ${RES}" >> tck-certification-summary.md
+            fi
+          done
+
+          # Exibe o sumário na página da execução do Workflow
+          cat tck-certification-summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Summary as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tck-certification-summary
+          path: tck-certification-summary.md
+
+      - name: Attach Summary to Release (if triggered by release)
+        if: github.event_name == 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} tck-certification-summary.md --clobber
+
