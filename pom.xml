@@ -46,6 +46,7 @@
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
 
     <dependencies>
@@ -171,12 +172,20 @@
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.7.0</version>
+                    <version>0.12.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <publishingServerId>central</publishingServerId>
                         <autoPublish>true</autoPublish>
                         <waitUntil>published</waitUntil>
+                        <skipPublishing>${maven.deploy.skip}</skipPublishing>
+                        <excludeArtifacts>
+                            <excludeArtifact>dev.thihup.joel.benchmark</excludeArtifact>
+                            <excludeArtifact>dev.thihup.joel.tck</excludeArtifact>
+                            <excludeArtifact>dev.thihup.joel.tests</excludeArtifact>
+                            <excludeArtifact>dev.thihup.joel.integration.tests</excludeArtifact>
+                            <excludeArtifact>tck</excludeArtifact>
+                        </excludeArtifacts>
                     </configuration>
                 </plugin>
             </plugins>
