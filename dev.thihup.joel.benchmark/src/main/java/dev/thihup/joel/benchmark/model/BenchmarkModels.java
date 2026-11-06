@@ -224,7 +224,7 @@ public class BenchmarkModels {
         }
     }
 
-    public record PersonRecord(String name, int age, boolean active) {}
+    public value record PersonRecord(String name, int age, boolean active) {}
 
     public static class BenchmarkFunctions {
         public static String formatGreeting(String name) {

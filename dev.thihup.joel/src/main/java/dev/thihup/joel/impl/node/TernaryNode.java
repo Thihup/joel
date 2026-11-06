@@ -3,7 +3,7 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public record TernaryNode(Node condition, Node trueExpression,
+public value record TernaryNode(Node condition, Node trueExpression,
                           Node falseExpression) implements Node {
     @Override
     public Class<?> getType(ELContext context) {

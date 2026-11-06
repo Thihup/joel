@@ -1,6 +1,6 @@
 package dev.thihup.joel.impl;
 
-public final class Utils {
+public final value class Utils {
     private Utils() {
     }
 

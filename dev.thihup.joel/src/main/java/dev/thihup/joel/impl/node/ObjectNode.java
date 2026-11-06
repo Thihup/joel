@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record ObjectNode(Object value) implements Node {
+public value record ObjectNode(Object value) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return value.getClass();

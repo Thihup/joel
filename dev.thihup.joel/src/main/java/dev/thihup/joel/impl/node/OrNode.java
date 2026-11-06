@@ -3,7 +3,7 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public record OrNode(Node left, Node right) implements RelationalNode {
+public value record OrNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
         Object leftVal = left.getValue(context);

@@ -2,7 +2,7 @@ package dev.thihup.joel.impl.node;
 
 import jakarta.el.ELContext;
 
-public record NullCoalescingNode(Node expression, Node defaultExpression) implements Node {
+public value record NullCoalescingNode(Node expression, Node defaultExpression) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         Object val = expression.getValue(context);

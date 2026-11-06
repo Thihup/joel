@@ -14,7 +14,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 
-public final class TypeConverter {
+public final value class TypeConverter {
     private static final String CANNOT_CONVERT_TO = "Cannot convert value %s to type %s";
 
     private TypeConverter() {

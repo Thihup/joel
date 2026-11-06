@@ -5,13 +5,13 @@ import jakarta.el.FunctionMapper;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class FunctionResolutionCache {
+public final value class FunctionResolutionCache {
     private static final int MAX_CACHE_SIZE = 4096;
     private static final ConcurrentHashMap<FunctionKey, ResolvedFunction> CACHE = new ConcurrentHashMap<>(256);
 
-    public record ResolvedFunction(Method method, Class<?>[] parameterTypes) {}
+    public value record ResolvedFunction(Method method, Class<?>[] parameterTypes) {}
 
-    private record FunctionKey(FunctionMapper mapper, String prefix, String localName) {}
+    private value record FunctionKey(FunctionMapper mapper, String prefix, String localName) {}
 
     private FunctionResolutionCache() {}
 

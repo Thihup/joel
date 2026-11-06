@@ -45,7 +45,7 @@ public sealed interface Operation {
         return (BigInteger) context.convertToType(value, BigInteger.class);
     }
 
-    record Addition() implements Operation {
+    value record Addition() implements Operation {
         @Override
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
@@ -58,7 +58,7 @@ public sealed interface Operation {
         }
     }
 
-    record Subtraction() implements Operation {
+    value record Subtraction() implements Operation {
         @Override
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
@@ -71,7 +71,7 @@ public sealed interface Operation {
         }
     }
 
-    record Multiplication() implements Operation {
+    value record Multiplication() implements Operation {
         @Override
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
@@ -84,7 +84,7 @@ public sealed interface Operation {
         }
     }
 
-    record Division() implements Operation {
+    value record Division() implements Operation {
         @Override
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {
@@ -95,7 +95,7 @@ public sealed interface Operation {
         }
     }
 
-    record Modulo() implements Operation {
+    value record Modulo() implements Operation {
         @Override
         public Object calculate(Object leftValue, Object rightValue, ELContext context) {
             return switch (ConversionType.of(leftValue, rightValue)) {

@@ -7,7 +7,7 @@ import jakarta.el.ValueExpression;
 
 import java.util.List;
 
-public record LambdaNode(List<String> parameters, Node expression, ValueExpression bodyExpr) implements Node {
+public value record LambdaNode(List<String> parameters, Node expression, ValueExpression bodyExpr) implements Node {
     public LambdaNode(List<String> parameters, Node expression) {
         this(parameters, expression, JoelValueExpression.newInstance(expression.prettyPrint(), expression, Object.class));
     }

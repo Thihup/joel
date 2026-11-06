@@ -259,7 +259,7 @@ public final class JoelMethodExpression extends MethodExpression {
         return type;
     }
 
-    private record MethodTarget(Object base, Method method, Object[] arguments, int score, Object[] evaluatedArguments) {
+    private value record MethodTarget(Object base, Method method, Object[] arguments, int score, Object[] evaluatedArguments) {
     }
 
     @Override
@@ -294,7 +294,7 @@ public final class JoelMethodExpression extends MethodExpression {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private record SerializedMethodExpression(String expression, Node node,
+    private value record SerializedMethodExpression(String expression, Node node,
                                               Class<?> expectedReturnType,
                                               List<Class<?>> expectedParameterTypes) implements Serializable {
         @Serial

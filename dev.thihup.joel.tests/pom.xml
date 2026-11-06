@@ -52,6 +52,7 @@
                     <execution>
                         <id>class-path</id>
                         <configuration>
+                    <argLine>--enable-preview</argLine>
                             <useModulePath>false</useModulePath>
                         </configuration>
                         <goals>

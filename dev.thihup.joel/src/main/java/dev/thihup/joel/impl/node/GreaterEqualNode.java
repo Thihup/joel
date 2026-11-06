@@ -3,7 +3,7 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public record GreaterEqualNode(Node left, Node right) implements RelationalNode {
+public value record GreaterEqualNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
         var leftValue = left.getValue(context);

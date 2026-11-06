@@ -184,7 +184,7 @@ public final class JoelValueExpression extends ValueExpression {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private record SerializedValueExpression(String expression, Node node,
+    private value record SerializedValueExpression(String expression, Node node,
                                              Class<?> expectedType) implements Serializable {
         @Serial
         public Object readResolve() {

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"cast", "rawtypes", "unchecked"})
-public record ConcatNode(Node left, Node right) implements InfixExpressionNode {
+public value record ConcatNode(Node left, Node right) implements InfixExpressionNode {
     @Override
     public Class<?> getType(ELContext context) {
         throw new UnsupportedOperationException();

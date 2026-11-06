@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 
 @SuppressWarnings("cast")
-public record EqualNode(Node left, Node right) implements RelationalNode {
+public value record EqualNode(Node left, Node right) implements RelationalNode {
     @Override
     public Object getValue(ELContext context) {
         return equals(left.getValue(context), right.getValue(context), context);

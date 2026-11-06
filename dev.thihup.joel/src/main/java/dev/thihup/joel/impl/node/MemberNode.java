@@ -7,7 +7,7 @@ import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.el.ValueReference;
 
-public record MemberNode(Node object, Node property) implements Node {
+public value record MemberNode(Node object, Node property) implements Node {
 
     private static final ClassValue<ELClass> EL_CLASS_CACHE = new ClassValue<>() {
         @Override

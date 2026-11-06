@@ -3,7 +3,7 @@ package dev.thihup.joel.impl.node;
 import jakarta.el.ELContext;
 
 @SuppressWarnings("cast")
-public record ElvisNode(Node expression, Node defaultExpression) implements Node {
+public value record ElvisNode(Node expression, Node defaultExpression) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         Object val = expression.getValue(context);

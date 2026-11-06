@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @SuppressWarnings("cast")
-public record UnaryMinusNode(Node node) implements Node {
+public value record UnaryMinusNode(Node node) implements Node {
     @Override
     public Class<?> getType(ELContext context) {
         return node.getType(context);

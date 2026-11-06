@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.Recognizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class JoelExpressionParser {
+public final value class JoelExpressionParser {
     private static final int MAX_CACHE_SIZE = Integer.getInteger("dev.thihup.joel.cache.size", 10_000);
     private static volatile ConcurrentHashMap<String, Node> EDEN = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
     private static volatile ConcurrentHashMap<String, Node> LONG_TERM = new ConcurrentHashMap<>(MAX_CACHE_SIZE);
