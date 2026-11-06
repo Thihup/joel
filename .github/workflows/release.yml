@@ -48,5 +48,5 @@ jobs:
 
       - name: Deploy to Maven Central Portal
         if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: mvn --no-transfer-progress deploy -P release -DskipTests
+        run: mvn --no-transfer-progress --batch-mode deploy -P release -DskipTests
 
