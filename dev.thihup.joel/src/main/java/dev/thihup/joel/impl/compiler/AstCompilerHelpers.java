@@ -10,7 +10,12 @@ import jakarta.el.ELException;
 import jakarta.el.ImportHandler;
 import jakarta.el.PropertyNotFoundException;
 
+import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.MutableCallSite;
+import java.math.BigDecimal;
 
 @SuppressWarnings({"cast", "exports"})
 public final class AstCompilerHelpers {
@@ -212,15 +217,130 @@ public final class AstCompilerHelpers {
         return (boolean) context.convertToType(val, boolean.class);
     }
 
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+
+    public static CallSite bootstrapMember(MethodHandles.Lookup callerLookup, String propName, MethodType type) {
+        return new PropertyCallSite(callerLookup, propName, type);
+    }
+
+    public static boolean checkClass(Class<?> expected, Object obj) {
+        return obj != null && obj.getClass() == expected;
+    }
+
+    public static final class PropertyCallSite extends MutableCallSite {
+        private final String propertyName;
+        private final MethodHandles.Lookup lookup;
+        private int transitions = 0;
+
+        public PropertyCallSite(MethodHandles.Lookup lookup, String propertyName, MethodType type) {
+            super(type);
+            this.lookup = lookup;
+            this.propertyName = propertyName;
+            try {
+                MethodHandle fallbackMh = LOOKUP.findVirtual(PropertyCallSite.class, "fallback",
+                        MethodType.methodType(Object.class, Object.class, ELContext.class)).bindTo(this);
+                setTarget(fallbackMh.asType(type));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Object fallback(Object base, ELContext context) throws Throwable {
+            if (base == null) return null;
+            Class<?> clazz = base.getClass();
+            if (transitions < 4) {
+                MethodHandle directGetter = findGetter(clazz, propertyName);
+                if (directGetter != null) {
+                    transitions++;
+                    MethodHandle test = LOOKUP.findStatic(AstCompilerHelpers.class, "checkClass",
+                            MethodType.methodType(boolean.class, Class.class, Object.class)).bindTo(clazz);
+                    MethodHandle direct = MethodHandles.dropArguments(directGetter.asType(MethodType.methodType(Object.class, Object.class)), 1, ELContext.class);
+                    MethodHandle guarded = MethodHandles.guardWithTest(test, direct, getTarget());
+                    setTarget(guarded);
+                    return directGetter.invoke(base);
+                }
+            }
+            return resolveMemberProperty(context, base, propertyName);
+        }
+
+        private MethodHandle findGetter(Class<?> clazz, String prop) {
+            try {
+                try {
+                    var m = clazz.getMethod(prop);
+                    if (m.getParameterCount() == 0 && m.getReturnType() != void.class) {
+                        return lookup.unreflect(m);
+                    }
+                } catch (NoSuchMethodException ignored) {}
+
+                String capitalized = Character.toUpperCase(prop.charAt(0)) + prop.substring(1);
+                try {
+                    var m = clazz.getMethod("get" + capitalized);
+                    if (m.getParameterCount() == 0 && m.getReturnType() != void.class) {
+                        return lookup.unreflect(m);
+                    }
+                } catch (NoSuchMethodException ignored) {}
+
+                try {
+                    var m = clazz.getMethod("is" + capitalized);
+                    if (m.getParameterCount() == 0 && (m.getReturnType() == boolean.class || m.getReturnType() == Boolean.class)) {
+                        return lookup.unreflect(m);
+                    }
+                } catch (NoSuchMethodException ignored) {}
+
+                try {
+                    var f = clazz.getField(prop);
+                    return lookup.unreflectGetter(f);
+                } catch (NoSuchFieldException ignored) {}
+            } catch (Exception ignored) {}
+            return null;
+        }
+    }
+
     public static Object evalAddDirect(Object l, Object r, ELContext context) {
+        if (l instanceof Long l1 && r instanceof Long l2) {
+            return l1 + l2;
+        }
+        if (l instanceof Integer i1 && r instanceof Integer i2) {
+            return (long) i1 + i2;
+        }
+        if (l instanceof Double d1 && r instanceof Double d2) {
+            return d1 + d2;
+        }
+        if (l instanceof BigDecimal bd1 && r instanceof BigDecimal bd2) {
+            return bd1.add(bd2);
+        }
         return Operation.ADDITION.calculate(l, r, context);
     }
 
     public static Object evalSubDirect(Object l, Object r, ELContext context) {
+        if (l instanceof Long l1 && r instanceof Long l2) {
+            return l1 - l2;
+        }
+        if (l instanceof Integer i1 && r instanceof Integer i2) {
+            return (long) i1 - i2;
+        }
+        if (l instanceof Double d1 && r instanceof Double d2) {
+            return d1 - d2;
+        }
+        if (l instanceof BigDecimal bd1 && r instanceof BigDecimal bd2) {
+            return bd1.subtract(bd2);
+        }
         return Operation.SUBTRACTION.calculate(l, r, context);
     }
 
     public static Object evalMulDirect(Object l, Object r, ELContext context) {
+        if (l instanceof Long l1 && r instanceof Long l2) {
+            return l1 * l2;
+        }
+        if (l instanceof Integer i1 && r instanceof Integer i2) {
+            return (long) i1 * i2;
+        }
+        if (l instanceof Double d1 && r instanceof Double d2) {
+            return d1 * d2;
+        }
+        if (l instanceof BigDecimal bd1 && r instanceof BigDecimal bd2) {
+            return bd1.multiply(bd2);
+        }
         return Operation.MULTIPLICATION.calculate(l, r, context);
     }
 

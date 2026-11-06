@@ -139,3 +139,4 @@ public class AstBytecodeCompilerTest {
         System.out.printf("Bytecode Direct (CF): %.2f ms (%.2fx vs AST, %.2fx vs MH)%n%n", msBytecode, (double) durationAst / durationBytecode, (double) durationMh / durationBytecode);
     }
 }
+

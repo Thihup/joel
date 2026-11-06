@@ -38,6 +38,7 @@ public final class JoelValueExpression extends ValueExpression {
     private final FunctionMapper functionMapper;
     @SuppressWarnings("serial")
     private final VariableMapper variableMapper;
+    private final Boolean standaloneMarker;
 
     private transient volatile CompiledExpression compiled;
     private transient volatile boolean compilationAttempted;
@@ -50,6 +51,7 @@ public final class JoelValueExpression extends ValueExpression {
         this.expectedType = expectedType;
         this.functionMapper = functionMapper;
         this.variableMapper = variableMapper;
+        this.standaloneMarker = (node instanceof IdentifierNode) ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public static JoelValueExpression newInstance(String expression, Node node, Class<?> expectedType,
@@ -90,8 +92,7 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public Class<?> getType(ELContext context) {
         ELContext evalContext = wrapContext(context);
-        boolean isStandalone = node instanceof IdentifierNode;
-        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         return node.getType(evalContext);
     }
 
@@ -99,8 +100,7 @@ public final class JoelValueExpression extends ValueExpression {
     @SuppressWarnings("unchecked")
     public <T> T getValue(ELContext context) {
         ELContext evalContext = wrapContext(context);
-        boolean isStandalone = node instanceof IdentifierNode;
-        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         try {
             evalContext.notifyBeforeEvaluation(expression);
             Object val;
@@ -163,8 +163,7 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public boolean isReadOnly(ELContext context) {
         ELContext evalContext = wrapContext(context);
-        boolean isStandalone = node instanceof IdentifierNode;
-        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         if (node instanceof MemberNode memberNode) {
             var valueReference = memberNode.valueReference(evalContext);
             boolean readOnly = evalContext.getELResolver().isReadOnly(evalContext, valueReference.getBase(), valueReference.getProperty());
@@ -184,8 +183,7 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public void setValue(ELContext context, Object value) {
         ELContext evalContext = wrapContext(context);
-        boolean isStandalone = node instanceof IdentifierNode;
-        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         evalContext.setPropertyResolved(false);
         if (isReadOnly(evalContext))
             throw new PropertyNotWritableException();
@@ -195,8 +193,7 @@ public final class JoelValueExpression extends ValueExpression {
     @Override
     public ValueReference getValueReference(ELContext context) {
         ELContext evalContext = wrapContext(context);
-        boolean isStandalone = node instanceof IdentifierNode;
-        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, isStandalone ? Boolean.TRUE : Boolean.FALSE);
+        evalContext.putContext(ELResolver.StandaloneIdentifierMarker.class, standaloneMarker);
         if (node instanceof MemberNode memberNode) {
             return memberNode.valueReference(evalContext);
         }
